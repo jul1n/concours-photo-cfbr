@@ -21,9 +21,15 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = htmlspecialchars($_POST['name']);
+    $firstname = htmlspecialchars($_POST['firstname']);
+    $lastname = htmlspecialchars($_POST['lastname']);
+    // Fallback if needed but we should now always have separate fields
+    $fullname = $firstname . ' ' . $lastname;
+
     $email = htmlspecialchars($_POST['email']);
     $signature = isset($_POST['signature']) ? 1 : 0;
+    $instagram = isset($_POST['instagram']) ? 1 : 0;
+    $token = bin2hex(random_bytes(16));
     $ip = $_SERVER['REMOTE_ADDR'];
     $userAgent = $_SERVER['HTTP_USER_AGENT'];
     $timestamp = date('Y-m-d H:i:s');
@@ -36,18 +42,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insert Participant
-    $stmt = $pdo->prepare("INSERT INTO participants (name, email, ip, signature_log) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$name, $email, $ip, $signatureLog]);
+    $stmt = $pdo->prepare("INSERT INTO participants (firstname, lastname, email, ip, signature_log, instagram_auth, validation_token, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+    $stmt->execute([$firstname, $lastname, $email, $ip, $signatureLog, $instagram, $token]);
     $participantId = $pdo->lastInsertId();
 
     $files = $_FILES['photos'];
+    $titles = $_POST['titles'] ?? [];
+    $descriptions = $_POST['descriptions'] ?? [];
+
     $uploadedCount = 0;
 
-    for ($i = 0; $i < count($files['name']); $i++) {
+    // Attention : $_FILES['photos']['name'] peut être un tableau si multiple
+    $countFiles = count($files['name']);
+
+    for ($i = 0; $i < $countFiles; $i++) {
         if ($files['error'][$i] === UPLOAD_ERR_OK) {
             $tmpName = $files['tmp_name'][$i];
             $originalName = $files['name'][$i];
             $fileSize = $files['size'][$i];
+            $title = htmlspecialchars($titles[$i] ?? 'Sans titre');
+            $description = htmlspecialchars($descriptions[$i] ?? '');
 
             // Validation Image
             $imageInfo = getimagesize($tmpName);
@@ -56,22 +70,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $width = $imageInfo[0];
             $height = $imageInfo[1];
-            $mime = $imageInfo['mime'];
 
             // Détection Upscale (Ratio Poids/Pixels)
-            // Un JPEG de haute qualité a généralement > 0.3-0.5 octets par pixel (très approx, dépend du contenu)
-            // Si le ratio est très très bas pour une grande résolution, c'est suspect.
-            // Mais plus fiable : regarder la "densité".
-            // Ici règle simple demandé : Ratio Poids / Nombre de pixels.
             $pixelCount = $width * $height;
-            $ratio = $fileSize / $pixelCount;
+            $ratio = ($pixelCount > 0) ? $fileSize / $pixelCount : 0;
 
-            // Seuil arbitraire : Si < 0.1 octet/pixel pour une image "Haute Def", c'est louche (très compressé ou upscale flou)
+            // Seuil arbitraire : Si < 0.15 octet/pixel pour une image "Haute Def" (>10MP), c'est louche
             $isUpscaleSuspect = ($ratio < 0.15 && $pixelCount > 10000000) ? 1 : 0;
-
-            // Règle 3900px
-            $maxDim = max($width, $height);
-            // On accepte mais on peut flaguer.
 
             // Génération nom anonyme
             $ext = pathinfo($originalName, PATHINFO_EXTENSION);
@@ -90,16 +95,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 processImage($uploadDirOriginal . $fileOriginal, $uploadDirThumb . $fileThumb, 400, 70);
 
                 // Insert Photo DB
-                $stmtPhoto = $pdo->prepare("INSERT INTO photos (participant_id, filename_original, filename_4k, filename_thumb, width, height, is_upscale_suspect) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmtPhoto->execute([$participantId, $fileOriginal, $file4k, $fileThumb, $width, $height, $isUpscaleSuspect]);
+                $stmtPhoto = $pdo->prepare("INSERT INTO photos (participant_id, filename_original, filename_4k, filename_thumb, width, height, is_upscale_suspect, title, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmtPhoto->execute([$participantId, $fileOriginal, $file4k, $fileThumb, $width, $height, $isUpscaleSuspect, $title, $description]);
 
                 $uploadedCount++;
             }
         }
     }
 
-    echo "<h1>Candidature reçue !</h1>";
-    echo "<p>Merci $name. $uploadedCount photo(s) ont été traitées.</p>";
+    echo "<h1>Candidature en attente de validation !</h1>";
+    echo "<p>Merci $firstname $lastname. $uploadedCount photo(s) ont été enregistrées.</p>";
+    echo "<div style='background:#e0f2fe; padding:20px; margin:20px 0; border-left:5px solid #0284c7;'>";
+    echo "<h3>✉️ Vérifiez vos emails</h3>";
+    echo "<p>Un email vous a été envoyé pour valider votre signature électronique.</p>";
+    echo "<p><strong>Pour les besoins du test (simulé) :</strong></p>";
+    echo "<p>Votre token est : <strong>$token</strong></p>";
+    echo "<p><a href='validate.php?token=$token' style='background:#FF9900; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;'>Simuler le clic sur le lien de validation</a></p>";
+    echo "</div>";
     echo '<a href="index.php">Retour à l\'accueil</a>';
 }
 

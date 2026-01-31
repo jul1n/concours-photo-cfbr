@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concours Photo Interne 2026 – CFBR</title>
+    <title>Concours Photo 2026 – CFBR</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -54,9 +54,9 @@
         <img src="https://www.barrages-cfbr.eu/IMG/logo/siteon0.png?1572394244" alt="Logo CFBR"
             class="h-20 w-auto mb-6 bg-white rounded p-2">
 
-        <h1 class="text-3xl md:text-5xl font-bold text-center">Concours Photo Interne 2026</h1>
+        <h1 class="text-3xl md:text-5xl font-bold text-center">Concours Photo 2026</h1>
         <h2 class="text-lg md:text-2xl mt-4 text-center font-light">« Barrages : Entre nature et architecture »</h2>
-        <p class="mt-4 text-base text-[#FF9900] font-semibold tracking-wide uppercase">Réservé aux membres du CFBR</p>
+        <p class="mt-4 text-base text-[#FF9900] font-semibold tracking-wide uppercase">Ouvert à tous les adultes</p>
 
         <div class="mt-10">
             <a href="upload.php"

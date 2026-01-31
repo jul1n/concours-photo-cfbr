@@ -14,6 +14,9 @@ try {
         email TEXT,
         ip TEXT,
         signature_log TEXT,
+        instagram_auth INTEGER DEFAULT 0,
+        validation_token TEXT,
+        is_verified INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
@@ -52,6 +55,25 @@ try {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (photo_id) REFERENCES photos(id)
     )");
+
+    // Update Schema for existing tables
+    $schemaUpdates = [
+        "ALTER TABLE participants ADD COLUMN instagram_auth INTEGER DEFAULT 0",
+        "ALTER TABLE participants ADD COLUMN validation_token TEXT",
+        "ALTER TABLE participants ADD COLUMN is_verified INTEGER DEFAULT 0",
+        "ALTER TABLE participants ADD COLUMN firstname TEXT",
+        "ALTER TABLE participants ADD COLUMN lastname TEXT",
+        "ALTER TABLE photos ADD COLUMN title TEXT",
+        "ALTER TABLE photos ADD COLUMN description TEXT"
+    ];
+
+    foreach ($schemaUpdates as $update) {
+        try {
+            $pdo->exec($update);
+        } catch (Exception $e) {
+            // Ignore if column exists
+        }
+    }
 
     echo "Database initialized successfully at $dbPath";
 
