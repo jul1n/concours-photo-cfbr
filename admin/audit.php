@@ -1,13 +1,9 @@
 <?php
 // admin_audit_jury.php
-require 'db_connect.php';
+require __DIR__ . '/../core/db.php';
 
-// Simple protection (should be better in prod, but using basic auth or similar is out of scope unless requested)
-// For now, open or maybe reuse jury session? No, this is for admin.
-// I'll leave it open but hidden, or check for a specific admin flag?
-// User didn't specify admin auth, but the data is sensitive (IPs, Emails).
-// I will just add a warning or maybe check for a specific "admin" parameter for now to prevent accidental public view.
-// Actually, I'll just clear it for now.
+// ADMIN ACCESS - This page contains sensitive data (IPs, emails)
+// TODO: Add authentication layer before production deployment
 
 $logFile = __DIR__ . '/data/login_requests.csv';
 

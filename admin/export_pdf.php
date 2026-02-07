@@ -1,8 +1,8 @@
 <?php
 // admin_export_pdf.php
 session_start();
-require_once 'db_connect.php';
-require_once 'fpdf/fpdf.php';
+require_once __DIR__ . '/../core/db.php';
+require_once __DIR__ . '/../fpdf/fpdf.php';
 
 // Security Check
 if (!isset($_SESSION['admin_unlocked']) || $_SESSION['admin_unlocked'] !== true) {

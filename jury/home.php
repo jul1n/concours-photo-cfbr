@@ -6,7 +6,7 @@ if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true)
     exit;
 }
 
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 // --- Logic ---
 

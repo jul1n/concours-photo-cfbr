@@ -1,7 +1,7 @@
 <?php
 // admin_results.php
 session_start();
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 // --- Security Logic ---
 $password = "concours2026"; // Hardcoded password

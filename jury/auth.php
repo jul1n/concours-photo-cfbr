@@ -1,6 +1,6 @@
 <?php
 // jury_process_login.php
-require 'db_connect.php'; // Updated to avoid re-initialization outputs
+require __DIR__ . '/../core/db.php'; // Updated to avoid re-initialization outputs
 
 session_start();
 
@@ -57,20 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (mail($email, $subject, $message, $headers)) {
             // Email sent
         } else {
-            // Email failed (likely local env)
-            // For development purposes, we might want to expose the link if email fails? 
-            // The user asked for email. I will keep it silent for security in prod, 
-            // but maybe log it to a separate debug file if needed.
+            // Email failed (likely local environment without mail server)
         }
 
     }
 
     // Always show the same message to prevent email enumeration
-    // (Though the user didn't explicitly ask for security against enumeration, it's best practice)
-    // However, the user wants "send a link".
-
-    // For the purpose of this task and immediate feedback for the user (Julien):
-    // I will output a message.
 }
 ?>
 <!DOCTYPE html>

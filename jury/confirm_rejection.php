@@ -4,7 +4,7 @@ session_start();
 // Basic Auth Check
 // if (!isset($_SESSION['jury_logged_in'])) { header("Location: jury_login.php"); exit; }
 
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 try {
     // Current Jury ID (Mocked for now as we don't have full multi-user sessions yet)

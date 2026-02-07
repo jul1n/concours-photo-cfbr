@@ -1,6 +1,6 @@
 <?php
 // init_db.php
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 try {
     // $pdo is available from db_connect.php

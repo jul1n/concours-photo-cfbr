@@ -1,6 +1,6 @@
 <?php
 // jury_verify.php
-require 'db_connect.php';
+require __DIR__ . '/../core/db.php';
 
 session_start();
 

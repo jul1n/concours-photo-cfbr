@@ -1,5 +1,5 @@
 <?php
-require('fpdf/fpdf.php');
+require __DIR__ . '/../fpdf/fpdf.php';
 
 // -----------------------------------------------------------------------------
 // DUMMY DATA FOR PROTOTYPING

@@ -1,6 +1,6 @@
 <?php
 // validate.php
-$dbPath = __DIR__ . '/data/concours.db';
+$dbPath = __DIR__ . '/../data/concours.db';
 
 try {
     $pdo = new PDO("sqlite:$dbPath");
@@ -28,10 +28,10 @@ if (isset($_GET['token'])) {
         $photos = $stmtPhotos->fetchAll(PDO::FETCH_ASSOC);
 
         // --- NEW PDF CLASS USAGE (Refactored) ---
-        require_once(__DIR__ . '/includes/PDFGenerator.php');
+        require_once(__DIR__ . '/../includes/PDFGenerator.php');
 
         // Ensure directory exists for persistent storage
-        $pdfDir = __DIR__ . '/uploads/pdfs/';
+        $pdfDir = __DIR__ . '/../uploads/pdfs/';
         if (!is_dir($pdfDir)) {
             mkdir($pdfDir, 0755, true);
         }
@@ -98,7 +98,7 @@ if (isset($_GET['token'])) {
                 <p class="text-gray-600 mb-6">Merci <strong>
                         <?= htmlspecialchars($participant['firstname'] . ' ' . $participant['lastname']) ?>
                     </strong>. Votre signature électronique est maintenant confirmée.</p>
-                <a href="index.php"
+                <a href="../index.php"
                     class="bg-[#0A2240] text-white px-6 py-2 rounded-full font-semibold hover:bg-[#FF9900] transition-colors">Retour
                     à l'accueil</a>
             </div>

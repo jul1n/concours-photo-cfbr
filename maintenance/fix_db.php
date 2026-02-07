@@ -1,6 +1,6 @@
 <?php
 // fix_db_schema.php
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 echo "<h1>Database Fix Tool</h1>";
 

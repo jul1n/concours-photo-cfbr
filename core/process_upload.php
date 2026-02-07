@@ -5,12 +5,12 @@ ini_set('upload_max_filesize', '100M');
 ini_set('post_max_size', '100M');
 ini_set('memory_limit', '512M');
 
-$dbPath = __DIR__ . '/data/concours.db';
+$dbPath = __DIR__ . '/../data/concours.db';
 
 // Chemins
-$uploadDirOriginal = __DIR__ . '/photos/originals/';
-$uploadDir4k = __DIR__ . '/photos/display_4k/';
-$uploadDirThumb = __DIR__ . '/photos/thumbs/';
+$uploadDirOriginal = __DIR__ . '/../photos/originals/';
+$uploadDir4k = __DIR__ . '/../photos/display_4k/';
+$uploadDirThumb = __DIR__ . '/../photos/thumbs/';
 
 // Ensure directories exist
 if (!is_dir($uploadDirOriginal))
@@ -112,6 +112,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $location = htmlspecialchars($locations[$i] ?? '');
             $description = htmlspecialchars($descriptions[$i] ?? '');
 
+            // Validation Taille (Backend)
+            if ($fileSize > 25 * 1024 * 1024) {
+                die("Erreur : Le fichier $originalName dépasse la limite de 25 Mo.");
+            }
+
             // Validation Image
             $imageInfo = getimagesize($tmpName);
             if ($imageInfo === false)
@@ -153,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Envoi de l'email de validation
-    $link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/validate.php?token=$token";
+    $link = "http://" . $_SERVER['HTTP_HOST'] . str_replace('/core', '', dirname($_SERVER['PHP_SELF'])) . "/core/validate_email.php?token=$token";
 
     $subject = "Confirmez votre participation - Concours Photo CFBR";
     $message = "Bonjour $firstname $lastname,\n\n";
@@ -199,11 +204,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <header class="bg-[#0A2240] text-white p-4 shadow-md">
             <div class="container mx-auto flex justify-between items-center">
-                <a href="index.php" class="flex items-center space-x-2">
-                    <img src="assets/logo_cfbr_100_ans.png" alt="Logo" class="h-10 bg-white rounded p-1">
+                <a href="../index.php" class="flex items-center space-x-2">
+                    <img src="../assets/logo_cfbr_100_ans.png" alt="Logo" class="h-10 bg-white rounded p-1">
                     <span class="font-bold text-lg hidden md:block">Concours CFBR</span>
                 </a>
-                <a href="index.php" class="hover:text-[#FF9900]">Retour Accueil</a>
+                <a href="../index.php" class="hover:text-[#FF9900]">Retour Accueil</a>
             </div>
         </header>
 
@@ -236,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="space-y-4">
                     <p class="text-sm text-gray-500 italic">Vous n'avez pas reçu l'email ? Vérifiez vos spams.</p>
 
-                    <a href="index.php"
+                    <a href="../index.php"
                         class="inline-block text-[#0A2240] font-bold hover:text-[#FF9900] transition underline">
                         Retourner à l'accueil
                     </a>

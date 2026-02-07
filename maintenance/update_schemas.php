@@ -2,7 +2,7 @@
 $dbPath = __DIR__ . '/data/concours.db';
 
 try {
-    $pdo = new PDO("sqlite:$dbPath");
+    require_once __DIR__ . '/../core/db.php';
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Check if column exists

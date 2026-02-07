@@ -5,8 +5,8 @@ if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true)
     die("Accès refusé");
 }
 
-require_once 'db_connect.php';
-require('fpdf/fpdf.php');
+require_once __DIR__ . '/../core/db.php';
+require __DIR__ . '/../fpdf/fpdf.php';
 
 if (!isset($_GET['id'])) {
     die("ID manquant");

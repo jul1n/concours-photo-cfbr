@@ -1,6 +1,6 @@
 <?php
 // update_db_v3.php
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 try {
     // Add candidacy_type to participants

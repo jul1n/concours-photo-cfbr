@@ -40,7 +40,7 @@
         <div class="bg-white p-8 rounded-lg shadow-lg">
             <h1 class="text-3xl font-bold mb-6 text-center border-b pb-4">Dépôt de Candidature</h1>
 
-            <form action="process_upload.php" method="POST" enctype="multipart/form-data" id="uploadForm"
+            <form action="core/process_upload.php" method="POST" enctype="multipart/form-data" id="uploadForm"
                 class="space-y-6">
 
                 <!-- Identité & Catégorie -->
@@ -137,7 +137,7 @@
                     <h2 class="text-xl font-bold text-[#FF9900]">2. Vos Photos (Max 5)</h2>
                     <div class="bg-blue-50 p-4 rounded text-sm text-[#0A2240]">
                         <ul class="list-disc list-inside">
-                            <li>Format : JPEG ou PNG (Max 20 Mo/photo)</li>
+                            <li>Format : JPEG ou PNG (Max 25 Mo/photo)</li>
                             <li>Résolution recommandée : <strong>4960px</strong> (grand côté).</li>
                             <li>Donnez un titre à chaque photo.</li>
                         </ul>
@@ -541,6 +541,10 @@
         // 1. Handle file selection via button
         fileInput.addEventListener('change', function () {
             for (let i = 0; i < this.files.length; i++) {
+                if (this.files[i].size > 25 * 1024 * 1024) {
+                    showCustomAlert("Fichier trop lourd", "Le fichier " + this.files[i].name + " dépasse la limite de 25 Mo.");
+                    continue;
+                }
                 if (dt.items.length < 5) dt.items.add(this.files[i]);
             }
             // Do NOT update fileInput.files here immediately if you want to keep adding.
@@ -556,6 +560,10 @@
             e.preventDefault();
             dropZone.classList.remove('bg-blue-100');
             for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                if (e.dataTransfer.files[i].size > 25 * 1024 * 1024) {
+                    showCustomAlert("Fichier trop lourd", "Le fichier " + e.dataTransfer.files[i].name + " dépasse la limite de 25 Mo.");
+                    continue;
+                }
                 if (dt.items.length < 5) dt.items.add(e.dataTransfer.files[i]);
             }
             renderPhotos();

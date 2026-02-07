@@ -1,6 +1,6 @@
 <?php
 // update_db_scores.php
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 try {
     echo "Updating Database Schema for New Scoring System...\n";

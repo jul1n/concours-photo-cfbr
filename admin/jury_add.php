@@ -1,5 +1,5 @@
 <?php
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 $jury_members = [
     ['email' => 'claudio.carvajal@inrae.fr', 'name' => 'Claudio Carvajal'],

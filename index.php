@@ -642,7 +642,7 @@ if (is_dir($slideDir)) {
                 <a href="https://www.barrages-cfbr.eu/Contactez-nous.html"
                     class="hover:text-[#FF9900] transition-colors">Contact</a>
                 <span class="text-gray-700 hidden md:inline">|</span>
-                <a href="jury_login.php" class="hover:text-[#FF9900] transition-colors font-semibold">Espace Jury</a>
+                <a href="jury/login.php" class="hover:text-[#FF9900] transition-colors font-semibold">Espace Jury</a>
             </div>
 
             <div class="flex justify-center space-x-6">

@@ -46,9 +46,7 @@ if (is_dir($slideDir)) {
     }
 }
 
-// Shuffle optionally? Let's keep alphabetical for now or shuffle. 
-// User didn't specify, but random is usually better for slideshows.
-// Let's shuffle.
+// Randomize slideshow order
 shuffle($images);
 ?>
 <!DOCTYPE html>

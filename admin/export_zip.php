@@ -1,7 +1,7 @@
 <?php
 // admin_export_zip.php
 session_start();
-require_once 'db_connect.php';
+require_once __DIR__ . '/../core/db.php';
 
 // Security Check
 if (!isset($_SESSION['admin_unlocked']) || $_SESSION['admin_unlocked'] !== true) {

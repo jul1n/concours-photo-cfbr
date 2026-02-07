@@ -1,6 +1,6 @@
 <?php
 // db_connect.php
-$dbPath = __DIR__ . '/data/concours.db';
+$dbPath = __DIR__ . '/../data/concours.db';
 
 try {
     $pdo = new PDO("sqlite:$dbPath");
