@@ -58,6 +58,7 @@ shuffle($images);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diaporama - Concours Photo CFBR</title>
+    <link rel="icon" href="assets/favicon.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -122,6 +123,21 @@ shuffle($images);
         }
 
         /* body:hover #controls handled by JS now */
+
+        #logo-container {
+            position: absolute;
+            bottom: 30px;
+            left: 40px;
+            z-index: 50;
+            opacity: 1;
+        }
+
+        #logo-cfbr {
+            height: 56px;
+            /* Reduced by 30% (80px * 0.7) */
+            width: auto;
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+        }
     </style>
 </head>
 
@@ -130,6 +146,11 @@ shuffle($images);
     <div id="controls">
         <a href="index.php" class="text-white hover:text-orange-500 text-2xl"><i class="fas fa-times"></i> Aller à
             l'accueil</a>
+    </div>
+
+    <!-- CFBR Logo -->
+    <div id="logo-container">
+        <img id="logo-cfbr" src="assets/logo_cfbr_100_ans.png" alt="Logo CFBR">
     </div>
 
     <div id="slide-container">

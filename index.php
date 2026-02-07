@@ -16,7 +16,7 @@ if (is_dir($slideDir)) {
         if (count($parts) >= 1) {
             // Reformat name: "Firstname Lastname" -> "Firstname Lastname"
             $name = str_replace(['_', '-'], ' ', $parts[0]);
-            $randomCredit = 'Photo Participant - ' . ucwords($name);
+            $randomCredit = 'Photo Participant ou Participante - ' . ucwords($name);
         }
     }
 }
@@ -36,57 +36,58 @@ if (is_dir($slideDir)) {
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <?php include __DIR__ . '/includes/pwa_loader.php'; ?>
+</head>
 
-    <style>
-        :root {
-            --font-title: 'Montserrat', sans-serif;
-            --font-body: 'Open Sans', sans-serif;
-            --deep-blue: #0A2240;
-            --accent-gold: #FF9900;
+<style>
+    :root {
+        --font-title: 'Montserrat', sans-serif;
+        --font-body: 'Open Sans', sans-serif;
+        --deep-blue: #0A2240;
+        --accent-gold: #FF9900;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background-color: #F8F8F8;
+        color: #333;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-title);
+    }
+
+    /* Style pour la bannière principale */
+    .hero-banner {
+        background-image: linear-gradient(rgba(10, 34, 64, 0.6), rgba(10, 34, 64, 0.8)), url('<?= $heroImage ?>');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        transition: background-image 0.5s ease-in-out;
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 1s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
 
-        body {
-            font-family: var(--font-body);
-            background-color: #F8F8F8;
-            color: #333;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            font-family: var(--font-title);
-        }
-
-        /* Style pour la bannière principale */
-        .hero-banner {
-            background-image: linear-gradient(rgba(10, 34, 64, 0.6), rgba(10, 34, 64, 0.8)), url('<?= $heroImage ?>');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            transition: background-image 0.5s ease-in-out;
-        }
-
-        .animate-fade-in-up {
-            animation: fadeInUp 1s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 
 <body class="bg-[#F8F8F8]">
@@ -94,8 +95,8 @@ if (is_dir($slideDir)) {
     <header
         class="relative hero-banner h-screen min-h-[600px] flex flex-col items-center justify-center text-white p-4">
         <div class="animate-fade-in-up text-center">
-            <img src="https://www.barrages-cfbr.eu/IMG/logo/siteon0.png?1572394244" alt="Logo CFBR"
-                class="h-24 w-auto mb-8 bg-white/90 rounded p-2 mx-auto shadow-lg">
+            <img src="assets/logo_cfbr_100_ans.png" alt="Logo CFBR"
+                class="h-24 w-auto mb-8 bg-white rounded p-2 mx-auto shadow-lg">
 
             <h1 class="text-4xl md:text-6xl font-bold mb-4">Concours Photo 2026</h1>
             <h2 class="text-xl md:text-3xl font-light italic">« Barrages : Entre nature et architecture »</h2>
@@ -112,8 +113,11 @@ if (is_dir($slideDir)) {
 
             </div>
         </div>
+
+
         <div class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
-            <i class="fas fa-camera mr-1"></i> <?= htmlspecialchars(str_replace('Photo Participant - ', '', $randomCredit)) ?>
+            <i class="fas fa-camera mr-1"></i>
+            <?= htmlspecialchars(str_replace('Photo Participant ou Participante - ', '', $randomCredit)) ?>
         </div>
     </header>
 
@@ -159,7 +163,8 @@ if (is_dir($slideDir)) {
                                         l'Architecture</h4>
                                     <p class="text-gray-700 text-sm mt-2"><i
                                             class="fas fa-camera text-[#FF9900] mr-2"></i>Récompense la plus belle
-                                        <strong>photo unique</strong> (esthétisme, harmonie, majesté).
+                                        <strong>photo unique</strong> (esthétisme et intégration de l'ouvrage dans son
+                                        environnement).
                                     </p>
                                 </div>
 
@@ -170,8 +175,8 @@ if (is_dir($slideDir)) {
                                     <h4 class="text-lg font-bold text-[#0A2240] mt-1">Le Trophée du Patrimoine</h4>
                                     <p class="text-gray-700 text-sm mt-2"><i
                                             class="fas fa-images text-[#0A2240] mr-2"></i>Récompense la meilleure
-                                        <strong>série de 5 photos</strong> montrant la diversité et l'insertion des
-                                        ouvrages d'un même organisme.
+                                        <strong>série de 5 photos</strong> montrant la diversité des
+                                        ouvrages mis en valeur par un même organisme.
                                     </p>
                                 </div>
                             </div>
@@ -195,7 +200,8 @@ if (is_dir($slideDir)) {
                             <div class="flex items-center mb-6">
                                 <h3 class="text-2xl font-bold text-[#0A2240]">Hommes & Femmes de l'Art</h3>
                             </div>
-                            <p class="text-gray-600 mb-6 italic">Valoriser ceux qui conçoivent, construisent et
+                            <p class="text-gray-600 mb-6 italic">Valoriser ceux qui conçoivent, construisent,
+                                maintiennent et
                                 exploitent ces ouvrages.</p>
 
                             <div class="space-y-6">
@@ -208,7 +214,7 @@ if (is_dir($slideDir)) {
                                     <p class="text-gray-700 text-sm mt-2"><i
                                             class="fas fa-camera text-[#FF9900] mr-2"></i>Récompense la plus belle
                                         <strong>photo unique</strong> valorisant l'humain au travail (expertise,
-                                        sécurité, passion).
+                                        savoir-faire).
                                     </p>
                                 </div>
 
@@ -239,7 +245,8 @@ if (is_dir($slideDir)) {
                 <div class="text-center mb-16">
                     <span class="text-[#FF9900] font-bold tracking-widest uppercase mb-2 block">Concours Interne
                         2026</span>
-                    <h2 class="text-3xl lg:text-4xl font-bold mb-4">Les Lauréats de l'Édition Interne</h2>
+                    <h2 class="text-3xl lg:text-4xl font-bold mb-4">Les lauréats et la lauréate de l'Édition Interne
+                    </h2>
                     <p class="text-gray-300 max-w-2xl mx-auto">
                         Découvrez les clichés primés lors de la remise des trophées du 29 janvier 2026.
                         Une source d'inspiration pour le grand public !
@@ -248,16 +255,69 @@ if (is_dir($slideDir)) {
 
                 <div class="grid md:grid-cols-3 gap-8 items-end">
 
+                    <style>
+                        /* ... existing styles ... */
+
+                        @keyframes flashFade {
+
+                            0%,
+                            100% {
+                                opacity: 0;
+                            }
+
+                            3% {
+                                opacity: 1;
+                            }
+
+                            9% {
+                                opacity: 1;
+                            }
+
+                            12% {
+                                opacity: 0;
+                            }
+                        }
+
+                        .prize-overlay {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            opacity: 0;
+                            animation: flashFade 18s infinite;
+                            pointer-events: none;
+                            z-index: 10;
+                        }
+
+                        .delay-0 {
+                            animation-delay: 0s;
+                        }
+
+                        .delay-6 {
+                            animation-delay: 6s;
+                        }
+
+                        .delay-12 {
+                            animation-delay: 12s;
+                        }
+                    </style>
+
                     <!-- Lauréat 1 -->
                     <div
                         class="group relative bg-[#051120] rounded-xl overflow-hidden shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
-                        <div class="aspect-w-4 aspect-h-3 overflow-hidden">
+                        <div class="aspect-w-4 aspect-h-3 overflow-hidden relative">
+                            <!-- Added relative for positioning -->
                             <img src="data/interne/01.PHOTO_MEMBRE_001.jpg" alt="Emergence"
                                 class="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-700">
+                            <!-- Overlay Image -->
+                            <img src="data/interne/1er prix bon format.jpg" alt="1er Prix"
+                                class="prize-overlay delay-0 transform group-hover:scale-110 transition-transform duration-700">
                         </div>
                         <div class="p-6">
                             <div
-                                class="absolute top-4 right-4 bg-[#FF9900] text-[#0A2240] font-bold px-3 py-1 rounded-full text-xs shadow-lg">
+                                class="absolute top-4 right-4 bg-[#FF9900] text-[#0A2240] font-bold px-3 py-1 rounded-full text-xs shadow-lg z-20">
                                 <i class="fas fa-trophy mr-1"></i> 1er Prix
                             </div>
                             <h3 class="text-xl font-bold mb-1 font-['Montserrat']">Emergence</h3>
@@ -276,16 +336,19 @@ if (is_dir($slideDir)) {
                     <!-- Lauréat 2 -->
                     <div
                         class="group relative bg-[#051120] rounded-xl overflow-hidden shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
-                        <div class="aspect-w-4 aspect-h-3 overflow-hidden">
+                        <div class="aspect-w-4 aspect-h-3 overflow-hidden relative">
                             <img src="data/interne/02.PHOTO_MEMBRE_101.jpg" alt="Balcun de Campam"
                                 class="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-700">
+                            <!-- Overlay Image -->
+                            <img src="data/interne/2ème prix bon format.jpg" alt="2ème Prix"
+                                class="prize-overlay delay-6 transform group-hover:scale-110 transition-transform duration-700">
                         </div>
                         <div class="p-6">
                             <div
-                                class="absolute top-4 right-4 bg-gray-600 text-white font-bold px-3 py-1 rounded-full text-xs shadow-lg">
+                                class="absolute top-4 right-4 bg-gray-600 text-white font-bold px-3 py-1 rounded-full text-xs shadow-lg z-20">
                                 2ème Prix
                             </div>
-                            <h3 class="text-xl font-bold mb-1 font-['Montserrat']">Balcun de Campam</h3>
+                            <h3 class="text-xl font-bold mb-1 font-['Montserrat']">Balcon de Campam</h3>
                             <p class="text-sm text-[#FF9900] font-semibold mb-3">M. Daniel SANTIN</p>
                             <p class="text-xs text-gray-400 leading-relaxed italic border-l-2 border-[#FF9900] pl-3">
                                 "Vue plongeante de la retenue des Laquets depuis le barrage de Gréziolles avec les
@@ -301,13 +364,16 @@ if (is_dir($slideDir)) {
                     <!-- Lauréat 3 -->
                     <div
                         class="group relative bg-[#051120] rounded-xl overflow-hidden shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
-                        <div class="aspect-w-4 aspect-h-3 overflow-hidden">
+                        <div class="aspect-w-4 aspect-h-3 overflow-hidden relative">
                             <img src="data/interne/03.PHOTO_MEMBRE_087.jpg" alt="Le barrage du Mont-Cenis"
                                 class="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-700">
+                            <!-- Overlay Image -->
+                            <img src="data/interne/3ème prix bon format.jpg" alt="3ème Prix"
+                                class="prize-overlay delay-12 transform group-hover:scale-110 transition-transform duration-700">
                         </div>
                         <div class="p-6">
                             <div
-                                class="absolute top-4 right-4 bg-blue-800 text-white font-bold px-3 py-1 rounded-full text-xs shadow-lg">
+                                class="absolute top-4 right-4 bg-blue-800 text-white font-bold px-3 py-1 rounded-full text-xs shadow-lg z-20">
                                 3ème Prix
                             </div>
                             <h3 class="text-xl font-bold mb-1 font-['Montserrat']">Mont-Cenis</h3>
@@ -560,7 +626,7 @@ if (is_dir($slideDir)) {
 
     <footer class="bg-[#051120] text-white py-12 border-t border-gray-800">
         <div class="container mx-auto px-6 text-center">
-            <img src="https://www.barrages-cfbr.eu/IMG/logo/siteon0.png?1572394244" alt="Logo CFBR"
+            <img src="assets/logo_cfbr_100_ans.png" alt="Logo CFBR"
                 class="h-12 w-auto mb-6 mx-auto bg-white rounded p-1">
             <p class="text-gray-400 mb-4">© 2026 Comité Français des Barrages et Réservoirs</p>
 

@@ -200,8 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <header class="bg-[#0A2240] text-white p-4 shadow-md">
             <div class="container mx-auto flex justify-between items-center">
                 <a href="index.php" class="flex items-center space-x-2">
-                    <img src="https://www.barrages-cfbr.eu/IMG/logo/siteon0.png?1572394244" alt="Logo"
-                        class="h-10 bg-white rounded p-1">
+                    <img src="assets/logo_cfbr_100_ans.png" alt="Logo" class="h-10 bg-white rounded p-1">
                     <span class="font-bold text-lg hidden md:block">Concours CFBR</span>
                 </a>
                 <a href="index.php" class="hover:text-[#FF9900]">Retour Accueil</a>

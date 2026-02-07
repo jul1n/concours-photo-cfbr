@@ -26,6 +26,33 @@ function processImage($source, $dest, $maxDim, $quality)
     if (!$width)
         return false;
 
+    // Check EXIF Orientation (JPEG only) BEFORE calculating resizing dimensions
+    $rotation = 0;
+    if ($type === IMAGETYPE_JPEG) {
+        // Suppress errors if exif extension missing or data invalid
+        $exif = @exif_read_data($source);
+        if ($exif && !empty($exif['Orientation'])) {
+            switch ($exif['Orientation']) {
+                case 3:
+                    $rotation = 180;
+                    break;
+                case 6:
+                    $rotation = -90;
+                    break;
+                case 8:
+                    $rotation = 90;
+                    break;
+            }
+        }
+    }
+
+    // If rotating 90 or 270 (-90), we must swap width/height for calculations
+    if (abs($rotation) == 90) {
+        $temp = $width;
+        $width = $height;
+        $height = $temp;
+    }
+
     // Calculate new dimensions (contain)
     $ratio = $width / $height;
     if ($width > $maxDim || $height > $maxDim) {
@@ -59,13 +86,19 @@ function processImage($source, $dest, $maxDim, $quality)
     if (!$src)
         return false;
 
+    // Apply Rotation
+    if ($rotation != 0) {
+        $src = imagerotate($src, $rotation, 0);
+    }
+
+    // Create dest
     $dst = imagecreatetruecolor($newWidth, $newHeight);
 
-    // Preserve transparency for PNG/WebP (converted to black/white bg for JPEG usually, but here we save as JPEG)
-    // Best practice for slideshow: fill background if transparent or just keep it black. 
-    // Since we output JPEG, transparency becomes black.
+    // Preserve transparency logic (skipped for JPEG output)
 
-    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+    // Resize
+    // Note: After rotation, imagesx($src) should match our $width (swapped if needed)
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, imagesx($src), imagesy($src));
 
     // Save as JPEG
     imagejpeg($dst, $dest, $quality);

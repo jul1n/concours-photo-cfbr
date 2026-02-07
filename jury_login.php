@@ -28,14 +28,14 @@
             font-family: var(--font-title);
         }
     </style>
+    <?php include __DIR__ . '/includes/pwa_loader.php'; ?>
 </head>
 
 <body class="bg-gray-100 h-screen flex items-center justify-center">
 
     <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
         <div class="text-center mb-6">
-            <img src="https://www.barrages-cfbr.eu/IMG/logo/siteon0.png?1572394244" alt="Logo CFBR"
-                class="h-16 mx-auto mb-4">
+            <img src="assets/logo_cfbr_100_ans.png" alt="Logo CFBR" class="h-16 mx-auto mb-4">
             <h1 class="text-2xl font-bold text-[#0A2240]">Espace Jury</h1>
             <p class="text-gray-600 text-sm mt-2">Veuillez renseigner votre email pour recevoir votre lien de connexion.
             </p>

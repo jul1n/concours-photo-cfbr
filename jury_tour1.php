@@ -8,389 +8,290 @@ if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true)
 
 require_once 'db_connect.php';
 
-// Category Mapping
-$categoryMap = [
-    'cat1' => "Intégration Environnementale",
-    'cat2' => "Hommes & Femmes de l'Art"
-];
+// --- Logic ---
 
-// Helper to analyze photo quality
-function analyzePhotoQuality($p)
-{
-    $quality = ['badges' => [], 'warnings' => []];
-
-    // 1. Resolution Check (Target A3 @ 300DPI approx 3500px short side, or 12MP+)
-    // A3 is ~11.7 x 16.5 inches. 
-    // 300 DPI -> 3510 x 4950 px (~17.4 MP) -> Perfect
-    // 200 DPI -> 2340 x 3300 px (~7.7 MP) -> Acceptable
-
-    $width = (int) $p['width'];
-    $height = (int) $p['height'];
-    $mp = ($width * $height) / 1000000;
-
-    // Use the shortest side as a solid constraint for print width
-    $shortSide = min($width, $height);
-
-    if ($shortSide >= 3000 || $mp >= 16) {
-        $quality['badges'][] = [
-            'text' => 'A3 Haute Qualité',
-            'color' => 'bg-green-100 text-green-800 border-green-200',
-            'icon' => 'fas fa-print'
-        ];
-    } elseif ($shortSide >= 2300 || $mp >= 8) {
-        $quality['badges'][] = [
-            'text' => 'A3 Standard (OK)',
-            'color' => 'bg-blue-50 text-blue-700 border-blue-200',
-            'icon' => 'fas fa-check'
-        ];
-    } else {
-        $quality['badges'][] = [
-            'text' => 'Résolution Faible (Risque A3)',
-            'color' => 'bg-red-50 text-red-700 border-red-200',
-            'icon' => 'fas fa-exclamation-triangle'
-        ];
-    }
-
-    // 2. Metadata / Upscale Detection
-    $filePath = __DIR__ . '/photos/originals/' . $p['filename_original'];
-    $upscaleKeywords = ['topaz', 'gigapixel', 'ai', 'upscale', 'enhance', 'waifu', 'remini'];
-    $foundKeywords = [];
-
-    // Check DB flag first
-    if (!empty($p['is_upscale_suspect']) && $p['is_upscale_suspect'] == 1) {
-        $foundKeywords[] = "Ratio Poids/Pixel Anormal";
-    }
-
-    // Check Exif if file exists
-    if (file_exists($filePath) && function_exists('exif_read_data')) {
-        // Suppress warnings for missing exif
-        $exif = @exif_read_data($filePath, 0, true);
-
-        if ($exif) {
-            // Flatten relevant fields to string for search
-            $searchString = "";
-            if (isset($exif['IFD0']['Software']))
-                $searchString .= " " . $exif['IFD0']['Software'];
-            if (isset($exif['IFD0']['ImageDescription']))
-                $searchString .= " " . $exif['IFD0']['ImageDescription'];
-            if (isset($exif['COMPUTED']['UserComment']))
-                $searchString .= " " . $exif['COMPUTED']['UserComment'];
-
-            $searchString = strtolower($searchString);
-
-            foreach ($upscaleKeywords as $kw) {
-                if (strpos($searchString, $kw) !== false) {
-                    $foundKeywords[] = ucfirst($kw);
-                }
-            }
-        }
-    }
-
-    if (!empty($foundKeywords)) {
-        $quality['warnings'][] = "Suspicion IA/Upscale: " . implode(', ', array_unique($foundKeywords));
-    }
-
-    return $quality;
+$juryId = $_SERVER['REMOTE_ADDR']; // Or Session User ID if exists
+if (isset($_SESSION['jury_email'])) {
+    $juryId = $_SESSION['jury_email'];
 }
 
+// 1. Fetch Approved Participants & Photos
 try {
-    // 1. Fetch Candidates (Pending)
-    // We select all fields to get firstname/lastname/company
-    $stmt = $pdo->query("SELECT * FROM participants WHERE validation_status = 'pending' ORDER BY id ASC");
-    $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Only fetch folks approved in Qualification
+    $sql = "SELECT p.*, part.firstname, part.lastname, part.company 
+            FROM photos p
+            JOIN participants part ON p.participant_id = part.id
+            WHERE part.validation_status = 'approved'
+            ORDER BY part.id ASC";
+    $stmt = $pdo->query($sql);
+    $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (!$candidates)
-        $candidates = [];
+    // 2. Fetch Existing Votes for this Jury
+    $sqlVotes = "SELECT * FROM jury_votes_analytics WHERE jury_identifier = ?";
+    $stmtV = $pdo->prepare($sqlVotes);
+    $stmtV->execute([$juryId]);
+    $myVotes = $stmtV->fetchAll(PDO::FETCH_ASSOC);
 
-    // 2. Prepare Data & Duplicate Detection
-    $emailCounts = [];
-    $nameCounts = [];
-
-    // Enrich candidates with their photos
-    foreach ($candidates as &$c) {
-        $c['fullname'] = trim($c['firstname'] . ' ' . $c['lastname']);
-        if (empty($c['fullname']))
-            $c['fullname'] = $c['name'] ?? 'Inconnu'; // Fallback
-
-        // Count for duplicates
-        $email = strtolower(trim($c['email']));
-        $lastname = strtolower(trim($c['lastname']));
-
-        if (!isset($emailCounts[$email]))
-            $emailCounts[$email] = 0;
-        $emailCounts[$email]++;
-
-        if (!isset($nameCounts[$lastname]))
-            $nameCounts[$lastname] = 0;
-        $nameCounts[$lastname]++;
-
-        // Fetch Photos for this candidate
-        $stmtPhotos = $pdo->prepare("SELECT * FROM photos WHERE participant_id = ?");
-        $stmtPhotos->execute([$c['id']]);
-        $c['photos'] = $stmtPhotos->fetchAll(PDO::FETCH_ASSOC);
-
-        // Determine main category (from first photo or mixed)
-        $cats = [];
-        foreach ($c['photos'] as $p) {
-            if (!empty($p['category']))
-                $cats[] = $p['category'];
-        }
-        $cats = array_unique($cats);
-        $displayCats = [];
-        foreach ($cats as $catCode) {
-            $displayCats[] = $categoryMap[$catCode] ?? $catCode;
-        }
-        $c['category_label'] = !empty($displayCats) ? implode(', ', $displayCats) : 'Non défini';
-    }
-    unset($c); // Break reference
-
-    // Handle Actions (POST)
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $candidateId = $_POST['candidate_id'];
-        $action = $_POST['action'];
-        $juryId = 1;
-
-        if ($action === 'approve') {
-            $stmt = $pdo->prepare("UPDATE participants SET validation_status = 'approved', jury_vote_1_by = ? WHERE id = ?");
-            $stmt->execute([$juryId, $candidateId]);
-        } elseif ($action === 'reject') {
-            $stmt = $pdo->prepare("UPDATE participants SET validation_status = 'pre_rejected', jury_vote_1_by = ? WHERE id = ?");
-            $stmt->execute([$juryId, $candidateId]);
-        }
-        header("Location: jury_tour1.php");
-        exit;
+    // Map votes by photo_id
+    $votesMap = [];
+    foreach ($myVotes as $v) {
+        $votesMap[$v['photo_id']] = $v;
     }
 
 } catch (Exception $e) {
-    die("Erreur DB: " . $e->getMessage());
+    die("DB Error: " . $e->getMessage());
 }
+
+// Handle AJAX Vote Submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
+    header('Content-Type: application/json');
+    $photoId = intval($_POST['photo_id']);
+    $aesthetic = floatval($_POST['aesthetic']);
+    $theme = floatval($_POST['theme']);
+
+    if ($aesthetic < 1 || $aesthetic > 10 || $theme < 1 || $theme > 10) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid values']);
+        exit;
+    }
+
+    try {
+        $sql = "INSERT INTO jury_votes_analytics (photo_id, jury_identifier, score_aesthetic, score_theme, updated_at) 
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(photo_id, jury_identifier) 
+                DO UPDATE SET score_aesthetic = excluded.score_aesthetic, 
+                              score_theme = excluded.score_theme,
+                              updated_at = CURRENT_TIMESTAMP";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$photoId, $juryId, $aesthetic, $theme]);
+        echo json_encode(['status' => 'success']);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+    exit;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
-    <title>Jury - Tour 1 (Qualification)</title>
+    <title>Jury - Tour 1 (Notation)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <?php include __DIR__ . '/includes/pwa_loader.php'; ?>
+    <style>
+        .photo-card:hover .overlay-info {
+            opacity: 1;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-50 font-sans pb-20">
+
     <!-- Header -->
-    <header class="bg-[#0A2240] text-white p-4 shadow-md mb-8">
+    <header class="bg-[#0A2240] text-white p-4 shadow-md sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold font-title">Espace Jury - Qualification</h1>
-            <a href="index.php" class="text-sm font-bold hover:text-[#FF9900] transition-colors">
-                <i class="fas fa-home mr-1"></i> Retour Accueil
-            </a>
+            <div>
+                <h1 class="text-xl font-bold font-title">Espace Jury - Notation (Tour 1)</h1>
+                <div class="space-x-4 text-xs mt-1">
+                    <a href="jury_qualification.php" class="text-gray-400 hover:text-white transition">1.
+                        Qualification</a>
+                    <span class="text-[#FF9900] font-bold">2. Notation</span>
+                    <a href="jury_tour2.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
+                    <a href="jury_classement.php" class="text-gray-400 hover:text-white transition">4. Synthèse</a>
+                </div>
+            </div>
+            <div class="text-right text-xs">
+                <div class="font-bold">Jury:
+                    <?= htmlspecialchars($_SESSION['jury_email'] ?? $_SESSION['jury_name'] ?? $juryId) ?>
+                </div>
+                <div id="saveStatus" class="opacity-0 transition-opacity text-green-400">Enregistré</div>
+            </div>
         </div>
     </header>
 
     <div class="container mx-auto px-4 py-8">
 
-        <?php if (empty($candidates)): ?>
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md text-center max-w-2xl mx-auto"
-                role="alert">
-                <i class="fas fa-check-circle text-4xl mb-4 text-green-600"></i>
-                <h2 class="text-xl font-bold mb-2">Terminé !</h2>
-                <p class="mb-6">Aucun dossier en attente de validation.</p>
-                <div>
-                    <a href="jury_confirm_rejection.php"
-                        class="bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition shadow-lg font-bold">
-                        <i class="fas fa-exclamation-circle mr-2"></i>Voir les dossiers en attente de rejet (2ème avis)
-                    </a>
-                </div>
+        <div class="mb-6 p-4 bg-white border-l-4 border-[#FF9900] shadow-sm rounded">
+            <h2 class="font-bold text-[#0A2240] mb-1">Instructions de Notation</h2>
+            <p class="text-sm text-gray-600">
+                Notez chaque photo sur deux critères (de 1 à 10, décimales autorisées ex: 8.5) :<br>
+                1. <strong>Esthétisme</strong> : Qualité technique, composition, lumière, émotion.<br>
+                2. <strong>Thème</strong> : Respect du thème, intégration de l'ouvrage, pertinence.<br>
+                <em>Vos notes sont enregistrées automatiquement dès que vous quittez le champ.</em>
+            </p>
+        </div>
+
+        <?php if (empty($photos)): ?>
+            <div class="text-center py-20 text-gray-500">
+                <i class="fas fa-camera text-6xl mb-4 text-gray-300"></i>
+                <p class="text-xl">Aucune photo qualifiée pour le moment.</p>
+                <p>Allez dans l'étape "Qualification" pour valider des dossiers.</p>
             </div>
         <?php else: ?>
 
-            <div class="mb-6 text-sm text-gray-600 bg-blue-50 p-4 rounded border border-blue-200">
-                <i class="fas fa-info-circle mr-2"></i> <strong>Mode Qualification :</strong> Validez ou rejetez le dossier
-                complet (non-conformité, hors-sujet, etc.). Les dossiers validés passeront à l'étape suivante (Notation).
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <?php foreach ($candidates as $candidate):
-                    $email = strtolower(trim($candidate['email']));
-                    $lastname = strtolower(trim($candidate['lastname']));
-                    $isDuplicateEmail = ($emailCounts[$email] > 1);
-                    $isDuplicateName = ($nameCounts[$lastname] > 1);
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <?php foreach ($photos as $p):
+                    $pid = $p['id'];
+                    $vote = $votesMap[$pid] ?? ['score_aesthetic' => '', 'score_theme' => ''];
+                    $thumbSrc = 'photos/thumbs/' . $p['filename_thumb'];
+                    $largeSrc = !empty($p['filename_4k']) ? 'photos/display_4k/' . $p['filename_4k'] : 'photos/originals/' . $p['filename_original'];
                     ?>
-                    <div
-                        class="bg-white rounded-lg shadow-xl overflow-hidden transform hover:scale-[1.01] transition duration-300 border border-gray-100 flex flex-col">
-                        <!-- Header Dossier -->
-                        <div class="bg-[#0A2240] text-white p-4 flex justify-between items-center relative">
-                            <div>
-                                <h3 class="font-bold text-lg leading-tight uppercase">
-                                    <?= htmlspecialchars($candidate['fullname']) ?>
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 flex flex-col h-full">
+
+                        <!-- Image Area -->
+                        <div class="relative group cursor-pointer h-64 bg-gray-200"
+                            onclick="openModal('<?= $largeSrc ?>', '<?= htmlspecialchars($p['title']) ?>')">
+                            <img src="<?= $thumbSrc ?>" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition flex items-center justify-center">
+                                <i
+                                    class="fas fa-expand-alt text-white opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition duration-300 text-3xl drop-shadow-lg"></i>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                                <h3 class="text-white text-sm font-bold truncate">
+                                    <?= htmlspecialchars($p['title'] ?: 'Sans Titre') ?>
                                 </h3>
-                                <div class="text-xs text-orange-300 font-semibold mt-1">
-                                    <i class="fas fa-tags mr-1"></i> <?= htmlspecialchars($candidate['category_label']) ?>
-                                </div>
-                                <div class="text-[10px] text-gray-400 mt-1">
-                                    <i class="far fa-clock mr-1"></i> Soumis le
-                                    <?= date('d/m/Y H:i', strtotime($candidate['created_at'])) ?>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-end space-y-2">
-                                <div class="text-xs bg-white text-[#0A2240] px-2 py-1 rounded font-bold">
-                                    #<?= $candidate['id'] ?>
-                                </div>
-                                <a href="jury_view_pdf.php?id=<?= $candidate['id'] ?>" target="_blank"
-                                    class="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-500 transition shadow-sm flex items-center"
-                                    title="Voir PDF Signé">
-                                    <i class="fas fa-file-pdf mr-1"></i> PDF
-                                </a>
                             </div>
                         </div>
 
-                        <!-- ALERTS DOUBLONS -->
-                        <?php if ($isDuplicateEmail || $isDuplicateName): ?>
-                            <div class="bg-red-50 text-red-700 text-xs p-3 border-b border-red-200">
-                                <?php if ($isDuplicateEmail): ?>
-                                    <div class="font-bold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Email dupliqué
-                                        (<?= $emailCounts[$email] ?> dossiers)</div>
-                                <?php endif; ?>
-                                <?php if ($isDuplicateName): ?>
-                                    <div class="font-bold"><i class="fas fa-user-friends mr-1"></i> Même nom de famille
-                                        (<?= $nameCounts[$lastname] ?> dossiers)</div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Photos Grid -->
+                        <!-- Scoring Area -->
                         <div class="p-4 bg-gray-50 flex-grow">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-2 border-b pb-1">
-                                <?= count($candidate['photos']) ?> Photo(s) Soumise(s)
-                            </h4>
-                            <div class="space-y-4">
-                                <?php foreach ($candidate['photos'] as $p):
-                                    $link4k = !empty($p['filename_4k']) ? 'photos/display_4k/' . $p['filename_4k'] : '#';
-                                    if ($link4k === '#')
-                                        $link4k = 'photos/originals/' . $p['filename_original'];
-                                    
-                                    // Quality Check
-                                    $q = analyzePhotoQuality($p);
-                                    ?>
-                                    <div class="bg-white p-3 rounded shadow-sm border border-gray-100">
-                                        <div class="flex items-start space-x-3">
-                                            <div class="flex-shrink-0 cursor-pointer group relative"
-                                                onclick="window.open('<?= $link4k ?>', '_blank')">
-                                                <img src="photos/thumbs/<?= $p['filename_thumb'] ?>"
-                                                    class="w-24 h-24 object-cover rounded border border-gray-200 group-hover:opacity-80 transition">
-                                                <div
-                                                    class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-                                                    <i class="fas fa-search-plus text-white drop-shadow-md"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow min-w-0">
-                                                <div class="text-sm font-bold text-[#0A2240] truncate"
-                                                    title="<?= htmlspecialchars($p['title']) ?>">
-                                                    <?php if (empty($p['title']))
-                                                        echo "Sans Titre";
-                                                    else
-                                                        echo htmlspecialchars($p['title']); ?>
-                                                </div>
-                                                
-                                                <!-- Dimensions & Quality Badges -->
-                                                <div class="flex flex-wrap gap-2 mt-1 mb-1">
-                                                    <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">
-                                                        <?= $p['width'] ?> x <?= $p['height'] ?> px
-                                                    </span>
-                                                    <?php foreach ($q['badges'] as $badge): ?>
-                                                        <span class="text-[10px] px-1.5 py-0.5 rounded border font-semibold flex items-center <?= $badge['color'] ?>">
-                                                            <i class="<?= $badge['icon'] ?> mr-1"></i> <?= $badge['text'] ?>
-                                                        </span>
-                                                    <?php endforeach; ?>
-                                                </div>
-
-                                                <?php if (!empty($q['warnings'])): ?>
-                                                    <div class="mt-1">
-                                                        <?php foreach ($q['warnings'] as $w): ?>
-                                                            <div class="text-[10px] text-red-600 font-bold bg-red-50 px-2 py-1 rounded inline-block border border-red-100 animate-pulse">
-                                                                <i class="fas fa-robot mr-1"></i> <?= $w ?>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    </div>
-                                                <?php endif; ?>
-
-                                                <?php if (!empty($p['description'])): ?>
-                                                    <p class="text-xs text-gray-500 mt-1 line-clamp-2"
-                                                        title="<?= htmlspecialchars($p['description']) ?>">
-                                                        <?= htmlspecialchars($p['description']) ?>
-                                                    </p>
-                                                <?php endif; ?>
-                                                <?php if (!empty($p['location'])): ?>
-                                                    <div class="text-[10px] text-gray-400 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>
-                                                        <?= htmlspecialchars($p['location']) ?></div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Esthétisme -->
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Esthétisme /10</label>
+                                    <div class="relative">
+                                        <input type="number" step="0.1" min="1" max="10"
+                                            class="w-full border border-gray-300 rounded p-2 text-center font-bold text-[#0A2240] focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] outline-none transition"
+                                            placeholder="-" value="<?= $vote['score_aesthetic'] ?>" id="input_a_<?= $pid ?>"
+                                            onchange="saveVote(<?= $pid ?>)">
+                                        <i
+                                            class="fas fa-eye absolute right-3 top-3 text-gray-300 text-xs pointer-events-none"></i>
                                     </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-
-                        <!-- Info Supplémentaire -->
-                        <div class="px-4 py-3 text-sm text-gray-700 bg-white border-t border-gray-100">
-                            <div class="grid grid-cols-1 gap-2">
-                                <div class="flex items-center" title="Email">
-                                    <i class="fas fa-envelope w-5 text-gray-400 text-center"></i>
-                                    <span class="truncate font-medium"><?= htmlspecialchars($candidate['email']) ?></span>
                                 </div>
-                                <?php if (!empty($candidate['company'])): ?>
-                                    <div class="flex items-center text-blue-800 font-bold">
-                                        <i class="fas fa-building w-5 text-center"></i>
-                                        <span><?= htmlspecialchars($candidate['company']) ?></span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
 
-                            <!-- Checkboxes -->
-                            <div class="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
-                                <div class="flex items-center space-x-4">
-                                    <div
-                                        class="<?= $candidate['agree_annex_a'] ? 'text-green-600 font-bold' : 'text-red-500 op-50' ?>">
-                                        <i class="fas <?= $candidate['agree_annex_a'] ? 'fa-check-square' : 'fa-square' ?>"></i>
-                                        Annexe A
-                                    </div>
-                                    <div
-                                        class="<?= $candidate['agree_annex_b'] ? 'text-green-600 font-bold' : 'text-gray-400' ?>">
-                                        <i class="fas <?= $candidate['agree_annex_b'] ? 'fa-check-square' : 'fa-square' ?>"></i>
-                                        Annexe B
+                                <!-- Thème -->
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thème /10</label>
+                                    <div class="relative">
+                                        <input type="number" step="0.1" min="1" max="10"
+                                            class="w-full border border-gray-300 rounded p-2 text-center font-bold text-[#0A2240] focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] outline-none transition"
+                                            placeholder="-" value="<?= $vote['score_theme'] ?>" id="input_t_<?= $pid ?>"
+                                            onchange="saveVote(<?= $pid ?>)">
+                                        <i
+                                            class="fas fa-bullseye absolute right-3 top-3 text-gray-300 text-xs pointer-events-none"></i>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Total Preview (JS calculated) -->
+                            <div class="mt-3 text-center">
+                                <span class="text-xs text-gray-400 font-semibold">Total :
+                                    <span id="total_<?= $pid ?>" class="text-[#0A2240]">
+                                        <?= ($vote['score_aesthetic'] && $vote['score_theme']) ? ($vote['score_aesthetic'] + $vote['score_theme']) : '-' ?>
+                                    </span> / 20
+                                </span>
+                            </div>
                         </div>
 
-                        <!-- Actions -->
-                        <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-between space-x-3">
-                            <form method="POST" class="w-1/2">
-                                <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
-                                <input type="hidden" name="action" value="reject">
-                                <button type="submit"
-                                    onclick="return confirm('Attention : Ce dossier sera envoyé en ré-examen pour rejet. Confirmer ?')"
-                                    class="w-full bg-white border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-4 py-2 rounded shadow-sm font-semibold transition text-sm">
-                                    <i class="fas fa-times mr-1"></i> Rejeter
-                                </button>
-                            </form>
-
-                            <form method="POST" class="w-1/2">
-                                <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
-                                <input type="hidden" name="action" value="approve">
-                                <button type="submit"
-                                    class="w-full bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded shadow-md font-bold transition text-sm">
-                                    <i class="fas fa-check mr-1"></i> Valider
-                                </button>
-                            </form>
-                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-
         <?php endif; ?>
     </div>
+
+    <!-- Modal Fullscreen -->
+    <div id="imageModal"
+        class="fixed inset-0 z-[100] hidden bg-black bg-opacity-95 flex items-center justify-center p-4">
+        <button class="absolute top-4 right-4 text-white hover:text-red-500 text-4xl z-[110]" onclick="closeModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modalImg" src="" class="max-w-full max-h-full rounded shadow-2xl object-contain">
+        <div id="modalTitle"
+            class="absolute bottom-6 left-0 right-0 text-center text-white text-lg font-bold drop-shadow-md"></div>
+    </div>
+
+    <script>
+        function openModal(src, title) {
+            document.getElementById('modalImg').src = src;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('imageModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('modalImg').src = '';
+            document.body.style.overflow = '';
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "Escape") {
+                closeModal();
+            }
+        });
+
+        function saveVote(photoId) {
+            const aesInput = document.getElementById('input_a_' + photoId);
+            const themeInput = document.getElementById('input_t_' + photoId);
+            const totalSpan = document.getElementById('total_' + photoId);
+
+            let aes = parseFloat(aesInput.value);
+            let theme = parseFloat(themeInput.value);
+
+            // Validation simple UI
+            if (isNaN(aes) || aes < 1 || aes > 10) aesInput.classList.add('bg-red-50'); else aesInput.classList.remove('bg-red-50');
+            if (isNaN(theme) || theme < 1 || theme > 10) themeInput.classList.add('bg-red-50'); else themeInput.classList.remove('bg-red-50');
+
+            if (!isNaN(aes) && !isNaN(theme)) {
+                totalSpan.textContent = (aes + theme).toFixed(1); // update UI
+            } else {
+                totalSpan.textContent = '-';
+            }
+
+            if (!isNaN(aes) && !isNaN(theme) && aes >= 1 && aes <= 10 && theme >= 1 && theme <= 10) {
+                // Submit AJAX
+                const formData = new FormData();
+                formData.append('ajax_vote', '1');
+                formData.append('photo_id', photoId);
+                formData.append('aesthetic', aes);
+                formData.append('theme', theme);
+
+                fetch('jury_tour1.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showSavedStatus();
+                        } else {
+                            console.error('Error saving:', data.message);
+                        }
+                    })
+                    .catch(err => console.error('Fetch error:', err));
+            }
+        }
+
+        function showSavedStatus() {
+            const el = document.getElementById('saveStatus');
+            el.classList.remove('opacity-0');
+            setTimeout(() => {
+                el.classList.add('opacity-0');
+            }, 2000);
+        }
+    </script>
 </body>
 
 </html>

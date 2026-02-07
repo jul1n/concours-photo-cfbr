@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dépôt Candidature – Concours Photo CFBR</title>
+    <link rel="icon" href="assets/favicon.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600&display=swap"
         rel="stylesheet">
@@ -28,8 +29,7 @@
     <header class="bg-[#0A2240] text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <a href="index.php" class="flex items-center space-x-2">
-                <img src="https://www.barrages-cfbr.eu/IMG/logo/siteon0.png?1572394244" alt="Logo"
-                    class="h-10 bg-white rounded p-1">
+                <img src="assets/logo_cfbr_100_ans.png" alt="Logo" class="h-10 bg-white rounded p-1">
                 <span class="font-bold text-lg hidden md:block">Concours CFBR</span>
             </a>
             <a href="index.php" class="hover:text-[#FF9900]">Retour Accueil</a>
@@ -175,8 +175,10 @@
 
                             <strong>Préambule</strong>
                             À l’occasion du centenaire de sa création, le Comité Français des Barrages et Réservoirs
-                            (CFBR) organise un grand concours photographique ouvert à tous. Après une édition réservée à
-                            ses membres, le CFBR invite désormais le grand public, les professionnels et les organismes
+                            (CFBR) organise un grand concours photographique ouvert à toutes et tous. Après une édition
+                            réservée à
+                            ses membres, le CFBR invite désormais le grand public, les professionnels et
+                            professionnelles et les organismes
                             partenaires à poser leur regard sur les ouvrages hydrauliques (barrages, digues, canaux).
                             L'objectif est de révéler la majesté de ces géants, leur intégration dans le paysage et
                             l'excellence des savoir-faire humains qui les entourent.
@@ -199,6 +201,7 @@
                             <strong>Article 3 - Typologie des Prix</strong>
                             Pour chacune des deux catégories susmentionnées, deux types de prix seront décernés :
                             Le Prix Individuel : Récompense la meilleure photographie unique soumise par un participant
+                            ou une participante
                             (amateur ou professionnel).
                             Le Prix Spécial Organisme (Prix du Portfolio) : Récompense la meilleure contribution globale
                             d'une entreprise, association ou organisme public, sur la base d'un portfolio cohérent de
@@ -229,13 +232,16 @@
 
                             <strong>Article 7 - Modalités de Soumission et Promotion Instagram</strong>
                             Les candidatures s'effectuent via le formulaire dédié sur le site cfbr.eu.
-                            Clause Instagram : En participant, le candidat autorise le CFBR à publier ses clichés sur le
+                            Clause Instagram : En participant, le candidat ou la candidate autorise le CFBR à publier
+                            ses clichés sur le
                             compte Instagram officiel de l'association pour promouvoir le concours et le centenaire. Le
-                            CFBR s'engage à citer systématiquement le nom du photographe (crédit photo) sur chaque
+                            CFBR s'engage à citer systématiquement le nom du photographe ou de la photographe (crédit
+                            photo) sur chaque
                             publication.
 
                             <strong>Article 8 - Jury et Critères de Sélection</strong>
-                            Le jury est composé d'experts du CFBR et de professionnels de l'image. Les critères sont :
+                            Le jury est composé d'experts du CFBR et de professionnels et professionnelles de l'image.
+                            Les critères sont :
                             Pertinence vis-à-vis du thème et de la catégorie.
                             Qualité esthétique, composition et maîtrise de la lumière.
                             Originalité de l'angle de vue.
@@ -247,7 +253,7 @@
                             L'Expérience "Immersion" : Une visite privée d'un aménagement hydroélectrique français
                             remarquable, avec accès à des zones d'intérêt et autorisation exceptionnelle de prises de
                             vues. Note : Ce prix comprend exclusivement l'accès au site ; les frais de transport,
-                            d'hébergement et de restauration sont à la charge exclusive du lauréat.
+                            d'hébergement et de restauration sont à la charge exclusive du lauréat ou de la lauréate.
                             Impression de Prestige : Une impression sur support métallique (Alu-Dibond) du cliché
                             lauréat.
                             Pour les 2èmes et 3èmes Prix :
@@ -255,22 +261,35 @@
                             Invitation au Colloque Prospective Eau : Accès complet au colloque (délivrance du badge) les
                             18 et 19 novembre 2026 au Palais des Congrès d'Aix-les-Bains. Note : Cette invitation ne
                             couvre pas les frais de transport, d'hôtellerie, ni les autres frais afférents qui incombent
-                            au participant.
+                            au participant ou à la participante.
 
                             <strong>Article 10 - Droits de Propriété et Droit à l'Image</strong>
-                            L'auteur garantit l'exclusivité de ses droits et l'obtention des autorisations de droit à
-                            l'image des personnes identifiables (Annexe B). Le participant cède au CFBR une licence non
+                            L'auteur ou l'autrice garantit l'exclusivité de ses droits et l'obtention des autorisations
+                            de droit à
+                            l'image des personnes identifiables (Annexe B). Le participant ou la participante cède au
+                            CFBR une licence non
                             exclusive, gratuite, pour la reproduction et la diffusion des œuvres à des fins de promotion
                             des activités du CFBR et du patrimoine hydraulique, sur tous supports, pour la durée légale
                             des droits d'auteur.
 
                             <strong>Article 11 - Données Personnelles</strong>
                             Conformément au RGPD, les données collectées sont uniquement destinées à la gestion du
-                            concours. Chaque participant dispose d'un droit d'accès, de rectification et de suppression
+                            concours. Chaque participant ou participante dispose d'un droit d'accès, de rectification et
+                            de suppression
                             via : dpo@barrages-cfbr.eu.
 
                             <strong>Article 12 - Acceptation</strong>
                             La participation implique l'acceptation sans réserve du présent règlement.
+
+                            <!-- ANNEXE A -->
+                            <br><br>
+                            <strong>Article 4 (Annexe A) : Cession de Droits d'Auteur à Titre Gratuit et Non
+                                Exclusif</strong><br>
+                            Entre les soussignés : Le Cédant (Vous) et le Cessionnaire (Le CFBR).<br>
+                            <strong>Article 2 : Droits cédés</strong><br>
+                            L'Auteur ou l'Autrice cède au CFBR, pour les photographies présélectionnées et/ou primées,
+                            les droits
+                            patrimoniaux...
                         </div>
                     </div>
 
