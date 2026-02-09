@@ -46,7 +46,26 @@ try {
     $dbStatus = "Erreur (Normal si base non initialisée) : " . $e->getMessage();
 }
 
-// 3. Action Handling
+// 3. Define Jury Members (Static data for injection)
+$jury_members = [
+    ['email' => 'claudio.carvajal@inrae.fr', 'name' => 'Claudio Carvajal'],
+    ['email' => 'frederic.laugier@edf.fr', 'name' => 'Frédéric Laugier'],
+    ['email' => 'fabienne.mercier@smavd.org', 'name' => 'Fabienne Mercier'],
+    ['email' => 'J.MEYNET@cnr.tm.fr', 'name' => 'Jérémy MEYNET'],
+    ['email' => 'nathalie.rosin-corre@tractebel.engie.com', 'name' => 'Nathalie Rosin-Corre'],
+    ['email' => 'stephanie.diss@arteliagroup.com', 'name' => 'Stéphanie DISS'],
+    ['email' => 'desage@isl.fr', 'name' => 'Antoine DESAGE'],
+    ['email' => 'florent.bacchus@developpement-durable.gouv.fr', 'name' => 'Florent Bacchus'],
+    ['email' => 'julien.houssin@cfe-energies.com', 'name' => 'Julien HOUSSIN'],
+    ['email' => 'jean-jacques.fry@wanadoo.fr', 'name' => 'Jean-Jacques Fry'],
+    ['email' => 'thierry.theodore@sunr.com', 'name' => 'Thierry THEODORE'],
+    ['email' => 'fabrice.emeriault@3sr-grenoble.fr', 'name' => 'Fabrice Emeriault'],
+    ['email' => 'denis.aelbrecht@edf.fr', 'name' => 'Denis AELBRECHT'],
+    ['email' => 'remy.tourment@inrae.fr', 'name' => 'Rémy TOURMENT'],
+    ['email' => 'pierre.agresti@arteliagroup.com', 'name' => 'Pierre AGRESTI']
+];
+
+// 4. Action Handling
 $messages = [];
 
 if (isset($_POST['action'])) {
@@ -193,23 +212,7 @@ if (isset($_POST['action'])) {
                     throw new Exception("La table 'jury_members' n'existe pas. Veuillez cliquer sur 'Initialiser / Réparer' d'abord.");
                 }
 
-                $jury_members = [
-                    ['email' => 'claudio.carvajal@inrae.fr', 'name' => 'Claudio Carvajal'],
-                    ['email' => 'frederic.laugier@edf.fr', 'name' => 'Frédéric Laugier'],
-                    ['email' => 'fabienne.mercier@smavd.org', 'name' => 'Fabienne Mercier'],
-                    ['email' => 'J.MEYNET@cnr.tm.fr', 'name' => 'Jérémy MEYNET'],
-                    ['email' => 'nathalie.rosin-corre@tractebel.engie.com', 'name' => 'Nathalie Rosin-Corre'],
-                    ['email' => 'stephanie.diss@arteliagroup.com', 'name' => 'Stéphanie DISS'],
-                    ['email' => 'desage@isl.fr', 'name' => 'Antoine DESAGE'],
-                    ['email' => 'florent.bacchus@developpement-durable.gouv.fr', 'name' => 'Florent Bacchus'],
-                    ['email' => 'julien.houssin@cfe-energies.com', 'name' => 'Julien HOUSSIN'],
-                    ['email' => 'jean-jacques.fry@wanadoo.fr', 'name' => 'Jean-Jacques Fry'],
-                    ['email' => 'thierry.theodore@sunr.com', 'name' => 'Thierry THEODORE'],
-                    ['email' => 'fabrice.emeriault@3sr-grenoble.fr', 'name' => 'Fabrice Emeriault'],
-                    ['email' => 'denis.aelbrecht@edf.fr', 'name' => 'Denis AELBRECHT'],
-                    ['email' => 'remy.tourment@inrae.fr', 'name' => 'Rémy TOURMENT'],
-                    ['email' => 'pierre.agresti@arteliagroup.com', 'name' => 'Pierre AGRESTI']
-                ];
+                // (Static list defined at the top)
 
                 foreach ($jury_members as $member) {
                     $stmt = $pdo->prepare("SELECT id FROM jury_members WHERE email = ?");
@@ -925,7 +928,8 @@ $diag = [
                         <div>
                             <h3 class="font-bold text-slate-800 mb-1">Équipe du Jury</h3>
                             <p class="text-xs text-slate-500 leading-relaxed">Gérez les membres du jury (Actuellement :
-                                <strong><?= count($all_jury) ?></strong> en base).</p>
+                                <strong><?= count($all_jury) ?></strong> en base).
+                            </p>
                         </div>
                     </div>
                     <div class="flex gap-2">
@@ -935,7 +939,7 @@ $diag = [
                             <button type="submit"
                                 class="w-full bg-white border border-gray-300 hover:bg-gray-50 text-slate-700 font-bold py-2.5 rounded-lg transition text-sm">
                                 <i class="fas fa-user-plus mr-2 text-orange-500"></i> Injecter le Jury
-                                (<?= count($jury_members) ?>)
+                                (<?= is_array($jury_members) ? count($jury_members) : 0 ?>)
                             </button>
                         </form>
                         <button onclick="document.getElementById('juryListModal').classList.remove('hidden')"
