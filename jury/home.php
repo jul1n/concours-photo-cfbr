@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../includes/analytics.php';
 session_start();
 if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
-    header("Location: jury_login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -19,7 +19,8 @@ if (isset($_SESSION['jury_email'])) {
 // 1. Fetch Approved Participants & Photos
 try {
     // Only fetch folks approved in Qualification
-    $sql = "SELECT p.*, part.firstname, part.lastname, part.company 
+    $sql = "SELECT p.id, p.filename_original, p.filename_4k, p.filename_thumb, p.width, p.height, p.title, p.description, p.category, p.location, p.is_promo,
+                   part.firstname, part.lastname, part.company, part.email, part.instagram, part.linkedin
             FROM photos p
             JOIN participants part ON p.participant_id = part.id
             WHERE part.validation_status = 'approved'
@@ -104,11 +105,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
             <div>
                 <h1 class="text-xl font-bold font-title">Espace Jury - Notation (Tour 1)</h1>
                 <div class="space-x-4 text-xs mt-1">
-                    <a href="jury_qualification.php" class="text-gray-400 hover:text-white transition">1.
+                    <a href="qualif.php" class="text-gray-400 hover:text-white transition">1.
                         Qualification</a>
                     <span class="text-[#FF9900] font-bold">2. Notation</span>
-                    <a href="jury_tour2.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
-                    <a href="jury_classement.php" class="text-gray-400 hover:text-white transition">4. Synthèse</a>
+                    <a href="ranking.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
+                    <a href="sort.php" class="text-gray-400 hover:text-white transition">4. Synthèse</a>
                 </div>
             </div>
             <div class="text-right text-xs">
@@ -144,8 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                 <?php foreach ($photos as $p):
                     $pid = $p['id'];
                     $vote = $votesMap[$pid] ?? ['score_aesthetic' => '', 'score_theme' => ''];
-                    $thumbSrc = 'photos/thumbs/' . $p['filename_thumb'];
-                    $largeSrc = !empty($p['filename_4k']) ? 'photos/display_4k/' . $p['filename_4k'] : 'photos/originals/' . $p['filename_original'];
+                    $thumbSrc = '../photos/thumbs/' . $p['filename_thumb'];
+                    $largeSrc = !empty($p['filename_4k']) ? '../photos/display_4k/' . $p['filename_4k'] : '../photos/originals/' . $p['filename_original'];
                     ?>
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-100 flex flex-col h-full">
 
@@ -219,8 +220,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
 
                             <!-- Promo Actions -->
                             <div class="mt-4 flex gap-2">
-                                <button
-                                    onclick="generatePromoText(<?= $pid ?>, '<?= addslashes($p['title']) ?>', '<?= addslashes($p['firstname'] . ' ' . $p['lastname']) ?>', '<?= addslashes($p['instagram']) ?>', '<?= addslashes($p['linkedin']) ?>')"
+                                <?php
+                                $jsArgs = [
+                                    (int) $pid,
+                                    (string) ($p['title'] ?? ''),
+                                    (string) ($p['firstname'] . ' ' . $p['lastname']),
+                                    (string) ($p['instagram'] ?? ''),
+                                    (string) ($p['linkedin'] ?? '')
+                                ];
+                                $jsCall = "generatePromoText(" . implode(', ', array_map('json_encode', $jsArgs)) . ")";
+                                ?>
+                                <button onclick="<?= htmlspecialchars($jsCall) ?>"
                                     class="flex-grow bg-slate-100 hover:bg-[#FF9900]/10 text-slate-600 hover:text-[#FF9900] text-[10px] font-bold py-2 rounded-lg transition-all border border-slate-200 hover:border-[#FF9900]/30 flex items-center justify-center gap-2">
                                     <i class="fas fa-bullhorn"></i> Texto
                                 </button>
@@ -311,7 +321,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                 formData.append('aesthetic', aes);
                 formData.append('theme', theme);
 
-                fetch('jury_tour1.php', {
+                fetch('home.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -376,7 +386,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                 console.log(text);
                 alert("Texte généré (voir console si copie impossible) :\n\n" + text);
             }
-        }
+}
     </script>
 </body>
 

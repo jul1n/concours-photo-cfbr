@@ -2,7 +2,7 @@
 // jury_classement.php
 session_start();
 if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
-    header("Location: jury_login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -12,9 +12,9 @@ try {
     // SYNTHESIS QUERY
     // Shows all photos with their details and scores
     $sql = "
-        SELECT p.*, 
+        SELECT p.id, p.filename_original, p.filename_4k, p.filename_thumb, p.width, p.height, p.title, p.category, p.description, p.location,
                part.firstname, part.lastname,
-               COUNT(v.id) as nb_votes,
+               v.nb_votes,
                avg_aesthetic,
                avg_theme,
                (COALESCE(avg_aesthetic, 0) + COALESCE(avg_theme, 0)) as total_score
@@ -24,7 +24,7 @@ try {
             SELECT photo_id, 
                    AVG(score_aesthetic) as avg_aesthetic, 
                    AVG(score_theme) as avg_theme,
-                   COUNT(id) as id
+                   COUNT(photo_id) as nb_votes
             FROM jury_votes_analytics 
             GROUP BY photo_id
         ) v ON p.id = v.photo_id
@@ -58,10 +58,10 @@ try {
             <div>
                 <h1 class="text-xl font-bold font-title">Synthèse des Votes</h1>
                 <div class="space-x-4 text-xs mt-1">
-                    <a href="jury_qualification.php" class="text-gray-400 hover:text-white transition">1.
+                    <a href="qualif.php" class="text-gray-400 hover:text-white transition">1.
                         Qualification</a>
-                    <a href="jury_tour1.php" class="text-gray-400 hover:text-white transition">2. Notation</a>
-                    <a href="jury_tour2.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
+                    <a href="home.php" class="text-gray-400 hover:text-white transition">2. Notation</a>
+                    <a href="ranking.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
                     <span class="text-[#FF9900] font-bold">4. Synthèse</span>
                 </div>
             </div>
@@ -109,7 +109,7 @@ try {
                 <?php if (isset($rankings[1])): ?>
                     <div class="text-center order-2 md:order-1">
                         <div class="relative inline-block">
-                            <img src="photos/thumbs/<?= $rankings[1]['filename_thumb'] ?>"
+                            <img src="../photos/thumbs/<?= $rankings[1]['filename_thumb'] ?>"
                                 class="h-32 w-auto rounded border-4 border-gray-300 shadow-md">
                             <div
                                 class="absolute -top-3 -right-3 bg-gray-300 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow">
@@ -125,7 +125,7 @@ try {
                 <!-- 1er -->
                 <div class="text-center order-1 md:order-2 pb-4">
                     <div class="relative inline-block">
-                        <img src="photos/thumbs/<?= $rankings[0]['filename_thumb'] ?>"
+                        <img src="../photos/thumbs/<?= $rankings[0]['filename_thumb'] ?>"
                             class="h-48 w-auto rounded border-4 border-[#FF9900] shadow-xl">
                         <div
                             class="absolute -top-4 -right-4 bg-[#FF9900] text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl shadow">
@@ -142,7 +142,7 @@ try {
                     <div class="text-center order-3 md:order-3">
                         <div class="text-center order-3 md:order-3">
                             <div class="relative inline-block">
-                                <img src="photos/thumbs/<?= $rankings[2]['filename_thumb'] ?>"
+                                <img src="../photos/thumbs/<?= $rankings[2]['filename_thumb'] ?>"
                                     class="h-32 w-auto rounded border-4 border-yellow-700 shadow-md">
                                 <div
                                     class="absolute -top-3 -right-3 bg-yellow-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow">
@@ -174,7 +174,7 @@ try {
                 </thead>
                 <tbody>
                     <?php foreach ($rankings as $idx => $r):
-                        $thumbSrc = 'photos/thumbs/' . $r['filename_thumb'];
+                        $thumbSrc = '../photos/thumbs/' . $r['filename_thumb'];
                         ?>
                         <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
                             <td class="px-5 py-4 text-sm font-bold text-gray-400">

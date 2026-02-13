@@ -6,10 +6,11 @@
 header('Content-Type: text/plain'); // Plain text output for easier reading
 
 // Configuration
-$sourceDir = __DIR__ . '/data/slide/';
-$targetDir = __DIR__ . '/photos/slides_optimized/';
+$sourceDir = __DIR__ . '/../_LOCAL_ONLY/original_photos/slide/';
+$targetDir = __DIR__ . '/../photos/slides_optimized/';
 $maxDim = 1920; // Full HD
 $quality = 85;
+$force = isset($_GET['force']) && $_GET['force'] == '1';
 
 // Create target directory
 if (!is_dir($targetDir)) {
@@ -25,33 +26,6 @@ function processImage($source, $dest, $maxDim, $quality)
 
     if (!$width)
         return false;
-
-    // Check EXIF Orientation (JPEG only) BEFORE calculating resizing dimensions
-    $rotation = 0;
-    if ($type === IMAGETYPE_JPEG) {
-        // Suppress errors if exif extension missing or data invalid
-        $exif = @exif_read_data($source);
-        if ($exif && !empty($exif['Orientation'])) {
-            switch ($exif['Orientation']) {
-                case 3:
-                    $rotation = 180;
-                    break;
-                case 6:
-                    $rotation = -90;
-                    break;
-                case 8:
-                    $rotation = 90;
-                    break;
-            }
-        }
-    }
-
-    // If rotating 90 or 270 (-90), we must swap width/height for calculations
-    if (abs($rotation) == 90) {
-        $temp = $width;
-        $width = $height;
-        $height = $temp;
-    }
 
     // Calculate new dimensions (contain)
     $ratio = $width / $height;
@@ -86,19 +60,11 @@ function processImage($source, $dest, $maxDim, $quality)
     if (!$src)
         return false;
 
-    // Apply Rotation
-    if ($rotation != 0) {
-        $src = imagerotate($src, $rotation, 0);
-    }
-
     // Create dest
     $dst = imagecreatetruecolor($newWidth, $newHeight);
 
-    // Preserve transparency logic (skipped for JPEG output)
-
     // Resize
-    // Note: After rotation, imagesx($src) should match our $width (swapped if needed)
-    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, imagesx($src), imagesy($src));
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
     // Save as JPEG
     imagejpeg($dst, $dest, $quality);
@@ -109,7 +75,83 @@ function processImage($source, $dest, $maxDim, $quality)
     return true;
 }
 
+// Function to sanitize strings for filenames (strips accents and special chars)
+function sanitizeString($text)
+{
+    $map = array(
+        'À' => 'A',
+        'Á' => 'A',
+        'Â' => 'A',
+        'Ã' => 'A',
+        'Ä' => 'A',
+        'Å' => 'A',
+        'Æ' => 'AE',
+        'Ç' => 'C',
+        'È' => 'E',
+        'É' => 'E',
+        'Ê' => 'E',
+        'Ë' => 'E',
+        'Ì' => 'I',
+        'Í' => 'I',
+        'Î' => 'I',
+        'Ï' => 'I',
+        'Ð' => 'D',
+        'Ñ' => 'N',
+        'Ò' => 'O',
+        'Ó' => 'O',
+        'Ô' => 'O',
+        'Õ' => 'O',
+        'Ö' => 'O',
+        'Ø' => 'O',
+        'Ù' => 'U',
+        'Ú' => 'U',
+        'Û' => 'U',
+        'Ü' => 'U',
+        'Ý' => 'Y',
+        'Þ' => 'th',
+        'ß' => 'ss',
+        'à' => 'a',
+        'á' => 'a',
+        'â' => 'a',
+        'ã' => 'a',
+        'ä' => 'a',
+        'å' => 'a',
+        'æ' => 'ae',
+        'ç' => 'c',
+        'è' => 'e',
+        'é' => 'e',
+        'ê' => 'e',
+        'ë' => 'e',
+        'ì' => 'i',
+        'í' => 'i',
+        'î' => 'i',
+        'ï' => 'i',
+        'ð' => 'd',
+        'ñ' => 'n',
+        'ò' => 'o',
+        'ó' => 'o',
+        'ô' => 'o',
+        'õ' => 'o',
+        'ö' => 'o',
+        'ø' => 'o',
+        'ù' => 'u',
+        'ú' => 'u',
+        'û' => 'u',
+        'ü' => 'u',
+        'ý' => 'y',
+        'þ' => 'th',
+        'ÿ' => 'y'
+    );
+    $text = strtr($text, $map);
+    // Remove anything that is not alphanumeric, dash, underscore or space
+    $text = preg_replace('/[^A-Za-z0-9\-\_ ]/', '', $text);
+    return trim($text);
+}
+
 // Recursive iterator to find files
+if (!is_dir($sourceDir)) {
+    die("Error: Source directory not found: $sourceDir\nPlease ensure you have photos in _LOCAL_ONLY/original_photos/slide/");
+}
 $dirIterator = new RecursiveDirectoryIterator($sourceDir, RecursiveDirectoryIterator::SKIP_DOTS);
 $iterator = new RecursiveIteratorIterator($dirIterator);
 
@@ -128,33 +170,22 @@ foreach ($iterator as $file) {
 
         if (in_array($ext, $allowedExts)) {
             // Logic to extract participant name from folder
-            // Path: .../data/slide/Firstname Lastname/photo.jpg
             $relativePath = substr($file->getPath(), strlen($sourceDir));
-            // relativePath might be "Firstname Lastname" or "Firstname Lastname/Subfolder"
-            // We assume direct subfolder is the name.
-
             $parts = explode(DIRECTORY_SEPARATOR, $relativePath);
 
-            // Clean up name (remove extra slashes if any)
+            // Clean up name
             $participantName = trim($parts[0] ?? 'Unknown');
             if (empty($participantName))
                 $participantName = 'Inconnu';
 
-            // Sanitize filenames but PRESERVE ACCENTS
-            // Target format: "Participant Name___OriginalName.jpg"
-            // We use a separator "___" to easily split later in JS/PHP
-
-            // Allow letters (including unicode), numbers, spaces, dashes, underscores
-            $safeName = preg_replace('/[^\p{L}0-9\-\_ ]/u', '', $participantName);
-
-            // For filename, we might be stricter, but let's allow accents too to be safe/nice
-            $safeFilename = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-            $safeFilename = preg_replace('/[^\p{L}0-9\-\_]/u', '', $safeFilename);
+            // Sanitize name and filename (REMOVE ACCENTS)
+            $safeName = sanitizeString($participantName);
+            $safeFilename = sanitizeString(pathinfo($file->getFilename(), PATHINFO_FILENAME));
 
             $targetFilename = $safeName . "___" . $safeFilename . ".jpg";
             $targetPath = $targetDir . $targetFilename;
 
-            if (!file_exists($targetPath)) {
+            if ($force || !file_exists($targetPath)) {
                 echo "Processing: " . $file->getFilename() . " (User: $participantName)... ";
                 if (processImage($file->getRealPath(), $targetPath, $maxDim, $quality)) {
                     echo "OK\n";

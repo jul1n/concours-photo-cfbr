@@ -25,8 +25,8 @@ $stmtPhotos = $pdo->prepare("SELECT * FROM photos WHERE participant_id = ? ORDER
 $stmtPhotos->execute([$pid]);
 $photos = $stmtPhotos->fetchAll(PDO::FETCH_ASSOC);
 
-// PDF Path (assumed standard path from process_upload)
-$pdfPath = "data/confirmations/recu_" . $token . ".pdf";
+// PDF Path (updated to match validate_email.php storage location)
+$pdfPath = "uploads/pdfs/agreement_" . $pid . ".pdf";
 $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
 ?>
 <!DOCTYPE html>
@@ -70,7 +70,7 @@ $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
     <nav class="bg-[#0A2240] text-white py-4 px-6 shadow-md fixed w-full z-50">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="assets/logo_cfbr_100_ans.png" alt="CFBR" class="h-10 brightness-0 invert">
+                <img src="assets/logo_cfbr_100_ans.png" alt="CFBR" class="h-10 bg-white rounded p-1">
                 <div>
                     <h1 class="text-lg font-bold leading-none">Mon Dossier</h1>
                     <p class="text-[10px] text-white/50 uppercase tracking-widest mt-0.5">Espace Candidat</p>
@@ -157,7 +157,7 @@ $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
                         <div
                             class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col md:flex-row">
                             <div class="w-full md:w-2/5 aspect-video md:aspect-auto bg-slate-100 relative group">
-                                <img src="photos/4k/<?= htmlspecialchars($photo['filename_4k']) ?>"
+                                <img src="photos/display_4k/<?= htmlspecialchars($photo['filename_4k']) ?>"
                                     alt="<?= htmlspecialchars($photo['title']) ?>" class="w-full h-full object-cover">
                                 <div
                                     class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all cursor-zoom-in flex items-center justify-center opacity-0 group-hover:opacity-100">

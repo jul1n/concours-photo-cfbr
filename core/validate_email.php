@@ -1,5 +1,8 @@
 <?php
 // validate.php
+// Increase memory limit for PDF generation and email sending
+ini_set('memory_limit', '512M');
+
 require_once __DIR__ . '/db.php';
 
 if (isset($_GET['token'])) {
