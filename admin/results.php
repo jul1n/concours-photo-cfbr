@@ -137,7 +137,7 @@ try {
                 </div>
             </div>
 
-            <h2 class="text-2xl font-bold text-[#0A2240] text-center mb-6"><i class="fas fa-trophy mr-2 text-amber-500"></i>Résultats Officiels du Tour 2 (Classement Final)</h2>
+            <h2 class="text-2xl font-bold text-[#0A2240] text-center mb-6"><i class="fas fa-trophy mr-2 text-amber-500"></i>Résultats du classement (Classement Final)</h2>
 
             <!-- Podium -->
             <?php if (count($results) > 0): ?>

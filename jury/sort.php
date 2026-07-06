@@ -88,7 +88,7 @@ try {
             </div>
         </div>
 
-        <h2 class="text-2xl font-bold text-[#0A2240] text-center mb-6"><i class="fas fa-chart-bar mr-2 text-slate-500"></i>Synthèse du Tour 1 (Moyenne des Notes)</h2>
+        <h2 class="text-2xl font-bold text-[#0A2240] text-center mb-6"><i class="fas fa-chart-bar mr-2 text-slate-500"></i>Synthèse des votes (Moyenne des Notes)</h2>
 
         <!-- Podium -->
         <?php if (count($rankings) > 0): ?>
