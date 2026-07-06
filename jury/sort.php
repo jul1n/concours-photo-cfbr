@@ -170,7 +170,7 @@ try {
                                 <?= $idx + 1 ?>
                             </td>
                             <td class="px-5 py-4">
-                                <img src="<?= $thumbSrc ?>" class="w-16 h-16 object-cover rounded border">
+                                <img src="<?= $thumbSrc ?>" loading="lazy" class="w-16 h-16 object-cover rounded border">
                             </td>
                             <td class="px-5 py-4">
                                 <div class="font-bold text-[#0A2240]">

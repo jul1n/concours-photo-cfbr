@@ -98,7 +98,7 @@ try {
                         <!-- Thumbnail with Click to Expand -->
                         <div class="relative group cursor-pointer"
                             onclick="openModal('<?= $largeSrc ?>', '<?= htmlspecialchars($photo['title']) ?>')">
-                            <img src="<?= $thumbSrc ?>" class="h-24 w-24 object-cover rounded border border-gray-200">
+                            <img src="<?= $thumbSrc ?>" loading="lazy" class="h-24 w-24 object-cover rounded border border-gray-200">
                             <div
                                 class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition flex items-center justify-center rounded">
                                 <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100"></i>

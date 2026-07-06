@@ -8,6 +8,7 @@ $isUnlocked = (isset($_SESSION['admin_unlocked']) && $_SESSION['admin_unlocked']
 if (!$isUnlocked) {
     die("Accès refusé. Veuillez déverrouiller depuis la page de résultats.");
 }
+session_write_close();
 
 $dbFile = __DIR__ . '/../data/concours.db';
 $pdfDir = __DIR__ . '/../uploads/pdfs/';

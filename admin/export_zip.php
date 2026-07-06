@@ -8,6 +8,7 @@ $isUnlocked = (isset($_SESSION['admin_unlocked']) && $_SESSION['admin_unlocked']
 if (!$isUnlocked) {
     die("Accès refusé. Veuillez déverrouiller depuis la page de résultats.");
 }
+session_write_close();
 
 // Check if ZipArchive extension is loaded
 if (!class_exists('ZipArchive')) {

@@ -177,6 +177,10 @@ if (isset($_POST['action'])) {
                     $pdo->exec($sql);
                 }
 
+                // Create performance indexes for Tour 2 and query optimizations
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_votes_t2_photo ON votes_tour2(photo_id)");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_analytics_photo ON jury_votes_analytics(photo_id)");
+
                 // Column updates for social media and other additions
                 $updates = [
                     ["participants", "identifiable_persons", "ALTER TABLE participants ADD COLUMN identifiable_persons TEXT DEFAULT ''"],

@@ -213,7 +213,7 @@ try {
                                     <td class="p-4">
                                         <a href="../photos/display_4k/<?= $row['filename_4k'] ?: $row['filename_original'] ?>"
                                             target="_blank">
-                                            <img src="../photos/thumbs/<?= $row['filename_thumb'] ?>"
+                                            <img src="../photos/thumbs/<?= $row['filename_thumb'] ?>" loading="lazy"
                                                 class="w-16 h-16 object-cover rounded border">
                                         </a>
                                     </td>
