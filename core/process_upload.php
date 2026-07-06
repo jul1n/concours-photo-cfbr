@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Erreur : L'adresse postale est obligatoire pour la cession de droits.");
     }
     if ($candidacyType === 'corporate' && empty($company)) {
-        die("Erreur : Le nom de l'entreprise est obligatoire pour une candidature Corporate.");
+        die("Erreur : La raison sociale est obligatoire pour une candidature d'entreprise / association.");
     }
 
     // Check Photos Count
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Génération nom anonyme
             $ext = pathinfo($originalName, PATHINFO_EXTENSION);
             $randomHash = bin2hex(random_bytes(8));
-            $newBaseName = "photo_" . $participantId . "_" . $randomHash;
+            $newBaseName = "photo_" . $randomHash;
 
             $fileOriginal = $newBaseName . "." . $ext;
             $file4k = $newBaseName . "_4k.jpg";
@@ -195,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600&display=swap"
             rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <?php include __DIR__ . '/../includes/pwa_loader.php'; ?>
         <style>
             body {
                 font-family: 'Open Sans', sans-serif;
@@ -296,6 +297,9 @@ function processImage($source, $dest, $maxSize, $quality)
         $newWidth = $width;
         $newHeight = $height;
     }
+
+    $newWidth = (int)round($newWidth);
+    $newHeight = (int)round($newHeight);
 
     $src = imagecreatefromstring(file_get_contents($source));
     $dst = imagecreatetruecolor($newWidth, $newHeight);

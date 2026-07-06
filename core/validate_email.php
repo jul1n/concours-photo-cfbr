@@ -68,9 +68,9 @@ if (isset($_GET['token'])) {
 
         // Attachment
         $message .= "--$boundary\r\n";
-        $message .= "Content-Type: application/pdf; name=\"Reglement_Signe_" . $participant['id'] . ".pdf\"\r\n";
+        $message .= "Content-Type: application/pdf; name=\"Ma participation au concours du Cfbr.pdf\"\r\n";
         $message .= "Content-Transfer-Encoding: base64\r\n";
-        $message .= "Content-Disposition: attachment; filename=\"Reglement_Signe_" . $participant['id'] . ".pdf\"\r\n\r\n";
+        $message .= "Content-Disposition: attachment; filename=\"Ma participation au concours du Cfbr.pdf\"\r\n\r\n";
         $message .= chunk_split(base64_encode($pdfOutput)) . "\r\n";
         $message .= "--$boundary--";
 

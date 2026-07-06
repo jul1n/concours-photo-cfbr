@@ -28,9 +28,9 @@ $stmtPhotos = $pdo->prepare("SELECT * FROM photos WHERE participant_id = ?");
 $stmtPhotos->execute([$id]);
 $photos = $stmtPhotos->fetchAll(PDO::FETCH_ASSOC);
 
-require_once(__DIR__ . '/includes/PDFGenerator.php');
+require_once(__DIR__ . '/../includes/PDFGenerator.php');
 
-$pdfDir = __DIR__ . '/uploads/pdfs/';
+$pdfDir = __DIR__ . '/../uploads/pdfs/';
 $pdfPath = $pdfDir . 'agreement_' . $participant['id'] . '.pdf';
 
 // 1. Try to serve stored PDF

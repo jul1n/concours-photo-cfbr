@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Database Diagnostic Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <?php include __DIR__ . '/includes/pwa_loader.php'; ?>
 </head>
 
 <body class="bg-gray-100 p-8">

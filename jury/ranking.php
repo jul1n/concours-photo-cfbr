@@ -1,6 +1,8 @@
 <?php
 // jury_tour2.php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
     header("Location: login.php");
     exit;
@@ -16,20 +18,22 @@ if (isset($_SESSION['jury_email']))
 
 try {
     // LOGIQUE SHORT-LIST (TOP 10 based on scores)
-    // Score = Sum of Aesthetic + Theme
-    // We average if multiple juries (future proof), but for now simplistic sum
+    // If the jury has already voted in Tour 2, we load their custom order first.
     $sql = "
         SELECT p.*, 
                (COALESCE(SUM(v.score_aesthetic), 0) + COALESCE(SUM(v.score_theme), 0)) as total_score,
-               COUNT(v.photo_id) as vote_count
+               COUNT(v.photo_id) as vote_count,
+               v2.rank as jury_rank
         FROM photos p 
         LEFT JOIN jury_votes_analytics v ON p.id = v.photo_id
+        LEFT JOIN votes_tour2 v2 ON p.id = v2.photo_id AND v2.jury_ip = ?
         GROUP BY p.id 
         HAVING total_score > 0
-        ORDER BY total_score DESC 
+        ORDER BY CASE WHEN v2.rank IS NOT NULL THEN 0 ELSE 1 END ASC, v2.rank ASC, total_score DESC 
         LIMIT 10
     ";
-    $stm = $pdo->query($sql);
+    $stm = $pdo->prepare($sql);
+    $stm->execute([$juryId]);
     $shortlist = $stm->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (Exception $e) {
@@ -63,26 +67,11 @@ try {
 
 <body class="bg-gray-100 font-sans pb-20">
 
-    <header class="bg-[#0A2240] text-white p-4 sticky top-0 z-50 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold font-title">Espace Jury - Classement Final</h1>
-                <div class="space-x-4 text-xs mt-1">
-                    <a href="qualif.php" class="text-gray-400 hover:text-white transition">1.
-                        Qualification</a>
-                    <a href="home.php" class="text-gray-400 hover:text-white transition">2. Notation</a>
-                    <span class="text-[#FF9900] font-bold">3. Classement</span>
-                    <a href="sort.php" class="text-gray-400 hover:text-white transition">4. Synthèse</a>
-                </div>
-            </div>
-            <div class="text-right text-xs">
-                <span class="text-xs uppercase bg-[#FF9900] text-[#0A2240] px-2 py-1 rounded font-bold mr-2">Top
-                    10</span>
-                <span class="font-bold text-white">Jury:
-                    <?= htmlspecialchars($_SESSION['jury_email'] ?? $_SESSION['jury_name'] ?? $juryId) ?></span>
-            </div>
-        </div>
-    </header>
+    <?php
+    $activeTab = 'ranking';
+    $headerTitle = "Espace Jury - Classement Final";
+    include __DIR__ . '/header.php';
+    ?>
 
     <main class="container mx-auto p-4 max-w-4xl">
         <div class="bg-blue-50 border-l-4 border-[#0A2240] p-4 mb-6 shadow-sm">
@@ -91,7 +80,7 @@ try {
                 bas) pour l'attribution finale des prix.</p>
         </div>
 
-        <form id="rankingForm" action="vote_tour2.php" method="POST">
+        <form id="rankingForm" action="vote_r.php" method="POST">
             <ul id="rankingList" class="space-y-4">
                 <?php foreach ($shortlist as $index => $photo):
                     $thumbSrc = '../photos/thumbs/' . $photo['filename_thumb'];
@@ -99,8 +88,11 @@ try {
                     ?>
                     <li class="bg-white p-4 rounded shadow flex items-center space-x-4 cursor-grab active:cursor-grabbing border border-gray-100 transition hover:shadow-md"
                         data-id="<?= $photo['id'] ?>">
-                        <div class="font-bold text-3xl text-gray-200 w-12 text-center rank-index font-title">
-                            <?= $index + 1 ?>
+                        <div class="flex flex-col items-center">
+                            <span class="text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">Rang</span>
+                            <input type="number" min="1" max="10" value="<?= $index + 1 ?>" 
+                                class="w-14 text-center border border-gray-300 rounded font-bold py-1.5 text-base rank-input focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] outline-none" 
+                                onchange="moveRowByInput(this)">
                         </div>
 
                         <!-- Thumbnail with Click to Expand -->
@@ -167,7 +159,7 @@ try {
         }
         document.addEventListener('keydown', function (event) { if (event.key === "Escape") closeModal(); });
 
-        // Sortable
+        // Sortable drag-and-drop
         const el = document.getElementById('rankingList');
         const sortable = Sortable.create(el, {
             animation: 150,
@@ -178,12 +170,35 @@ try {
             const items = document.querySelectorAll('#rankingList li');
             const order = [];
             items.forEach((item, index) => {
-                item.querySelector('.rank-index').textContent = index + 1;
+                const rankInput = item.querySelector('.rank-input');
+                if (rankInput) {
+                    rankInput.value = index + 1;
+                }
                 order.push(item.getAttribute('data-id'));
             });
             document.getElementById('rankingOrder').value = JSON.stringify(order);
         }
         updateRanks();
+
+        function moveRowByInput(input) {
+            const list = document.getElementById('rankingList');
+            const items = Array.from(list.querySelectorAll('li'));
+            const currentItem = input.closest('li');
+            const currentIndex = items.indexOf(currentItem);
+            
+            let newIndex = parseInt(input.value) - 1;
+            if (isNaN(newIndex) || newIndex < 0) newIndex = 0;
+            if (newIndex >= items.length) newIndex = items.length - 1;
+            
+            if (newIndex !== currentIndex) {
+                if (newIndex > currentIndex) {
+                    list.insertBefore(currentItem, list.children[newIndex + 1] || null);
+                } else {
+                    list.insertBefore(currentItem, list.children[newIndex]);
+                }
+            }
+            updateRanks();
+        }
 
         document.getElementById('rankingForm').addEventListener('submit', function (e) {
             updateRanks();

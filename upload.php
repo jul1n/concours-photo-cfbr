@@ -50,7 +50,7 @@
 
                     <!-- Choix Catégorie -->
                     <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-4 space-y-4">
-                        <div>
+                        <div id="categoryFieldContainer">
                             <label class="block font-bold mb-2 text-[#0A2240]">Dans quelle catégorie participez-vous ?
                                 <span class="text-red-500">*</span></label>
                             <select name="category" id="category"
@@ -60,6 +60,13 @@
                                 <option value="cat1">Catégorie 1 : Intégration Environnementale</option>
                                 <option value="cat2">Catégorie 2 : Hommes & Femmes de l'Art</option>
                             </select>
+                        </div>
+
+                        <div id="categoryCorporateContainer" class="hidden">
+                            <label class="block font-bold mb-2 text-[#0A2240]">Catégorie de participation</label>
+                            <div class="p-3 bg-blue-50 border border-blue-100 text-[#0A2240] font-bold rounded-lg flex items-center">
+                                <i class="fas fa-building mr-2 text-[#FF9900]"></i> Prix Spécial Organisme
+                            </div>
                         </div>
 
                         <!-- Choix Type Candidature -->
@@ -77,7 +84,7 @@
                                     <input type="radio" name="candidacy_type" value="corporate"
                                         class="form-radio text-[#0A2240] focus:ring-[#0A2240]"
                                         onchange="toggleCompanyField()">
-                                    <span class="ml-2 font-semibold">Candidature Corporate / Entreprise</span>
+                                    <span class="ml-2 font-semibold">Candidature d'entreprise / association</span>
                                 </label>
                             </div>
                         </div>
@@ -85,28 +92,38 @@
 
                     <!-- Grid Container Removed for better vertical control -->
                     <div class="space-y-6">
-                        <!-- Champ Entreprise Dynamique -->
-                        <div id="companyFieldContainer"
-                            class="hidden animate-fade-in-down p-4 bg-orange-50 border border-orange-100 rounded-lg">
-                            <label class="block font-bold mb-2 text-[#0A2240]">Nom de l'Entreprise <span
-                                    class="text-red-500">*</span></label>
-                            <input type="text" name="company" id="companyInput" placeholder="Nom de l'entité candidate"
-                                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-[#0A2240] focus:border-[#0A2240] transition">
-                        </div>
-
-                        <!-- Ligne Prénom / Nom -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-gray-700 font-bold mb-2">Prénom <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" name="firstname" required
-                                    class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A2240] transition">
+                        <!-- Conteneur Dynamique Nom / Prénom / Raison Sociale -->
+                        <div id="nameFieldsContainer">
+                            <!-- Individuel: Prénom et Nom -->
+                            <div id="individualNameFields" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">Prénom <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="firstname" id="firstnameInput" required
+                                        class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A2240] transition">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">Nom <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="lastname" id="lastnameInput" required
+                                        class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A2240] transition">
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-gray-700 font-bold mb-2">Nom <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" name="lastname" required
-                                    class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A2240] transition">
+
+                            <!-- Corporate: Raison Sociale et Contact -->
+                            <div id="corporateNameFields" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">Raison sociale <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" id="companyInput" placeholder="Nom de l'entreprise ou organisme"
+                                        class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A2240] transition">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">Nom du contact / représentant <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" id="lastnameCorpInput" placeholder="Nom et Prénom"
+                                        class="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A2240] transition">
+                                </div>
                             </div>
                         </div>
 
@@ -181,123 +198,74 @@
 
                 <!-- Signature & Règlements -->
                 <div class="space-y-4">
-                    <h2 class="text-xl font-bold text-[#FF9900]">3. Règlements et Autorisations</h2>
+                    <h2 class="text-xl font-bold text-[#FF9900]">3. Règlements du concours</h2>
 
-                    <!-- Box Scrollable Règlement (Texte complet) -->
                     <!-- Box Scrollable Règlement (Texte complet) -->
                     <div id="rulesBox"
                         class="border p-4 rounded bg-gray-50 text-sm max-h-[500px] overflow-y-auto mb-4 border-l-4 border-[#0A2240] text-justify space-y-2">
 
                         <h3 class="font-bold text-[#0A2240] text-lg mt-2 text-center">Règlement du Concours Photo Grand
                             Public 2026 – CFBR</h3>
-
                         <div class="whitespace-pre-line text-sm text-gray-700 leading-relaxed">
-                            <strong>« Barrages : Entre nature et architecture »</strong>
-
                             <strong>Préambule</strong>
-                            À l’occasion du centenaire de sa création, le Comité Français des Barrages et Réservoirs
-                            (CFBR) organise un grand concours photographique ouvert à toutes et tous. Après une édition
-                            réservée à
-                            ses membres, le CFBR invite désormais le grand public, les professionnels et
-                            professionnelles et les organismes
-                            partenaires à poser leur regard sur les ouvrages hydrauliques (barrages, digues, canaux).
-                            L'objectif est de révéler la majesté de ces géants, leur intégration dans le paysage et
-                            l'excellence des savoir-faire humains qui les entourent.
+                            À l’occasion du centenaire de sa création, le Comité Français des Barrages et Réservoirs (CFBR) organise un grand concours photographique ouvert à toutes et tous. Après une édition réservée à ses membres, le CFBR invite désormais le grand public, les professionnels et professionnelles et les organismes partenaires à poser leur regard sur les ouvrages hydrauliques (barrages, digues, canaux). L'objectif est de révéler la majesté de ces géants, leur intégration dans le paysage et l'excellence des savoir-faire humains qui les entourent.
 
                             <strong>Article 1 - Organisateur et Objet du Concours</strong>
-                            Le Comité Français des Barrages et Réservoirs (CFBR) organise en 2026 un concours photo
-                            gratuit intitulé « Barrages : Entre nature et architecture ». Ce concours vise à valoriser
-                            le patrimoine hydraulique français à travers deux prismes : l'esthétique environnementale et
-                            l'expertise humaine.
+                            Le Comité Français des Barrages et Réservoirs (CFBR) organise en 2026 un concours photo gratuit intitulé « Barrages : Entre nature et architecture ». Ce concours vise à valoriser le patrimoine hydraulique français à travers deux prismes : l'esthétique environnementale et l'expertise humaine.
 
                             <strong>Article 2 - Catégories du Concours</strong>
                             Le concours est structuré autour de deux catégories distinctes :
-                            Catégorie « Intégration Environnementale » : Cette catégorie récompense les clichés mettant
-                            en scène l'ouvrage dans son écrin naturel, son architecture, ses jeux de lumière et son
-                            harmonie avec le paysage.
-                            Catégorie « Hommes & Femmes de l’Art » : Cette catégorie est dédiée à la valorisation des
-                            métiers, des gestes professionnels, de la maintenance, de la construction et de la vie des
-                            agents sur les sites hydrauliques.
+                            Catégorie « Intégration Environnementale » : Cette catégorie récompense les clichés mettant en scène l'ouvrage dans son écrin naturel, son architecture, ses jeux de lumière et son harmonie avec le paysage.
+                            Catégorie « Hommes & Femmes de l’Art » : Cette catégorie est dédiée à la valorisation des métiers, des gestes professionnels, de la maintenance, de la construction et de la vie des agents sur les sites hydrauliques.
 
                             <strong>Article 3 - Typologie des Prix</strong>
-                            Pour chacune des deux catégories susmentionnées, deux types de prix seront décernés :
-                            Le Prix Individuel : Récompense la meilleure photographie unique soumise par un participant
-                            ou une participante
-                            (amateur ou professionnel).
-                            Le Prix Spécial Organisme (Prix du Portfolio) : Récompense la meilleure contribution globale
-                            d'une entreprise, association ou organisme public, sur la base d'un portfolio cohérent de
-                            cinq (5) photographies.
+                            Le concours décernera deux typologies de prix :
+                            Le Prix Individuel : Pour chacune des deux catégories, il récompense la meilleure photographie unique soumise par un participant ou une participante (amateur ou professionnel).
+                            Le Prix Spécial Organisme : Un prix unique récompensant le meilleur portfolio (5 photos) soumis par un organisme (entreprise, association, institution). Ce prix combine les thématiques du savoir-faire et de l'intégration environnementale.
 
                             <strong>Article 4 - Calendrier du Concours</strong>
-                            Lancement du concours : Printemps 2026.
+                            Lancement du concours : 1er juillet 2026.
                             Clôture des soumissions : 1er octobre 2026 à 23h59.
                             Délibération du jury : Courant octobre 2026.
-                            Remise des prix : Elle se tiendra les 18 ou 19 novembre 2026 lors du Colloque Prospective
-                            Eau organisé par le CFBR au Palais des Congrès d'Aix-les-Bains.
+                            Remise des prix : Elle se tiendra les 18 ou 19 novembre 2026 lors du Colloque Prospective Eau organisé par le CFBR au Palais des Congrès d'Aix-les-Bains.
 
                             <strong>Article 5 - Conditions de Participation</strong>
-                            Le concours est gratuit et ouvert à toute personne physique majeure ainsi qu'à tout
-                            organisme (entreprise, institution, association).
-                            Participants individuels : Peuvent soumettre jusqu'à cinq (5) photographies au total
-                            (réparties ou non dans les deux catégories).
-                            Organismes : Doivent soumettre un portfolio complet de cinq (5) photographies pour concourir
-                            au Prix Spécial Organisme.
+                            Le concours est gratuit et ouvert à toute personne physique majeure ainsi qu'à tout organisme (entreprise, institution, association).
+                            Participants individuels : Peuvent soumettre jusqu'à cinq (5) photographies au total (réparties ou non dans les deux catégories).
+                            Organismes : Doivent soumettre un portfolio complet de cinq (5) photographies pour concourir au Prix Spécial Organisme.
 
                             <strong>Article 6 - Caractéristiques Techniques et Éthique</strong>
-                            Format : Fichiers JPEG haute qualité ou TIFF. Résolution de 300 dpi minimum (3 000 pixels
-                            minimum sur le plus grand côté).
+                            Format : Fichiers JPEG haute qualité ou TIFF. Résolution de 300 dpi minimum (3 000 pixels minimum sur le plus grand côté).
                             Taille : Entre 3 Mo et 25 Mo par fichier.
-                            Nommage : Nom_Prenom_Categorie_Numero.jpg (ou NomOrganisme_Portfolio_Numero.jpg).
-                            Authenticité : Les retouches légères sont autorisées. Les photomontages complexes et l'usage
-                            d'intelligences artificielles génératives sont strictement interdits.
+                            Authenticité : Sont tolérés les recadrages, les corrections de base (luminosité, contraste, saturation, balance des blancs). Sont formellement interdits l'ajout, la suppression ou le déplacement d'éléments matériels dans l'image. L'usage d'intelligences artificielles génératives est strictement interdit.
 
                             <strong>Article 7 - Modalités de Soumission et Promotion Instagram</strong>
                             Les candidatures s'effectuent via le formulaire dédié sur le site cfbr.eu.
-                            Clause Instagram : En participant, le candidat ou la candidate autorise le CFBR à publier
-                            ses clichés sur le
-                            compte Instagram officiel de l'association pour promouvoir le concours et le centenaire. Le
-                            CFBR s'engage à citer systématiquement le nom du photographe ou de la photographe (crédit
-                            photo) sur chaque
-                            publication.
+                            Clause Instagram : En participant, le candidat ou la candidate autorise le CFBR à publier ses clichés sur le compte Instagram officiel de l'association pour promouvoir le concours et le centenaire. Le CFBR s'engage à citer systématiquement le nom du photographe ou de la photographe (crédit photo) sur chaque publication.
 
                             <strong>Article 8 - Jury et Critères de Sélection</strong>
-                            Le jury est composé d'experts du CFBR et de professionnels et professionnelles de l'image.
-                            Les critères sont :
+                            Le jury est composé d'experts du CFBR et de professionnels et professionnelles de l'image. Les critères sont :
                             Pertinence vis-à-vis du thème et de la catégorie.
                             Qualité esthétique, composition et maîtrise de la lumière.
                             Originalité de l'angle de vue.
                             Pour les organismes : cohérence narrative et visuelle du portfolio de 5 photos.
 
                             <strong>Article 9 - Prix et Récompenses</strong>
-                            Pour les 1ers Prix de chaque catégorie (Individuels et Organismes) :
-                            Le Trophée du Centenaire : Une œuvre unique réalisée par un maître ébéniste.
-                            L'Expérience "Immersion" : Une visite privée d'un aménagement hydroélectrique français
-                            remarquable, avec accès à des zones d'intérêt et autorisation exceptionnelle de prises de
-                            vues. Note : Ce prix comprend exclusivement l'accès au site ; les frais de transport,
-                            d'hébergement et de restauration sont à la charge exclusive du lauréat ou de la lauréate.
-                            Impression de Prestige : Une impression sur support métallique (Alu-Dibond) du cliché
-                            lauréat.
-                            Pour les 2èmes et 3èmes Prix :
-                            Tirages d'art haute qualité.
-                            Invitation au Colloque Prospective Eau : Accès complet au colloque (délivrance du badge) les
-                            18 et 19 novembre 2026 au Palais des Congrès d'Aix-les-Bains. Note : Cette invitation ne
-                            couvre pas les frais de transport, d'hôtellerie, ni les autres frais afférents qui incombent
-                            au participant ou à la participante.
+                            Les 3 premiers lauréats de chaque catégorie (Prix Individuels) recevront :
+                            - Une invitation officielle avec pass d'accès au Colloque Prospective Eau (18-19 Nov) à Aix-les-Bains.
+                            - Une impression de prestige de leur photographie sur support métallique (Alu-Dibond).
+                            Le premier lauréat de chaque catégorie recevra en plus :
+                            - L'Expérience "Immersion" (visite VIP d'un barrage remarquable en France). Note : Ce prix comprend exclusivement l'accès au site ; les frais de transport, d'hébergement et de restauration sont à la charge exclusive des lauréats.
+                            
+                            L'organisme lauréat (Prix Spécial Organisme) recevra :
+                            - Le Trophée unique du Centenaire en ébénisterie d'art réalisé par un maître artisan.
+                            - Une impression de prestige sur support métallique de son portfolio gagnant.
 
                             <strong>Article 10 - Droits de Propriété et Droit à l'Image</strong>
-                            L'auteur ou l'autrice garantit l'exclusivité de ses droits et l'obtention des autorisations
-                            de droit à
-                            l'image des personnes identifiables (Annexe B). Le participant ou la participante cède au
-                            CFBR une licence non
-                            exclusive, gratuite, pour la reproduction et la diffusion des œuvres à des fins de promotion
-                            des activités du CFBR et du patrimoine hydraulique, sur tous supports, pour la durée légale
-                            des droits d'auteur.
+                            L'auteur ou l'autrice garantit l'exclusivité de ses droits et l'obtention des autorisations de droit à l'image des personnes identifiables (Annexe B). Le participant garantit le CFBR contre tout recours, réclamation ou action de la part de tiers (personnes photographiées, propriétaires de biens) qui estimeraient que la diffusion de la photographie porte atteinte à leurs droits. Le CFBR ne saurait en aucun cas être tenu responsable en cas de litige. Le participant ou la participante cède au CFBR une licence non exclusive, gratuite, pour la reproduction et la diffusion des œuvres à des fins de promotion des activités du CFBR et du patrimoine hydraulique, sur les supports imprimés, réseaux sociaux, site internet du CFBR et expositions physiques lors du colloque, pour la durée légale des droits d'auteur. L'adaptation est strictement limitée aux recadrages et ajustements techniques nécessaires au formatage pour nos différents supports de diffusion.
 
                             <strong>Article 11 - Données Personnelles</strong>
-                            Conformément au RGPD, les données collectées sont uniquement destinées à la gestion du
-                            concours. Chaque participant ou participante dispose d'un droit d'accès, de rectification et
-                            de suppression
-                            via : dpo@barrages-cfbr.eu.
+                            Conformément au RGPD, les données collectées sont uniquement destinées à la gestion du concours. Les données personnelles seront conservées pour une durée maximale de 6 mois après la remise des prix. Chaque participant ou participante dispose d'un droit d'accès, de rectification et de suppression via : dpo@barrages-cfbr.eu.
 
                             <strong>Article 12 - Acceptation</strong>
                             La participation implique l'acceptation sans réserve du présent règlement.
@@ -428,17 +396,28 @@
 
         // 1. Handle file selection via button
         fileInput.addEventListener('change', function () {
+            let filesAdded = false;
+            let limitReached = false;
             for (let i = 0; i < this.files.length; i++) {
                 if (this.files[i].size > 25 * 1024 * 1024) {
                     showCustomAlert("Fichier trop lourd", "Le fichier " + this.files[i].name + " dépasse la limite de 25 Mo.");
                     continue;
                 }
-                if (dt.items.length < 5) dt.items.add(this.files[i]);
+                if (dt.items.length < 5) {
+                    dt.items.add(this.files[i]);
+                    filesAdded = true;
+                } else {
+                    limitReached = true;
+                }
             }
-            // Do NOT update fileInput.files here immediately if you want to keep adding.
-            // But standard behavior is fileInput replace. 
-            // We use dt to aggregate.
-            renderPhotos();
+            if (limitReached) {
+                showCustomAlert("Limite de photos atteinte", "Vous ne pouvez pas ajouter plus de 5 photos au total. Les fichiers excédentaires ont été ignorés.");
+            }
+            if (filesAdded) {
+                renderPhotos();
+            }
+            // Clear input value so selecting the same file again triggers change event
+            fileInput.value = '';
         });
 
         // 2. Handle Drag & Drop
@@ -447,14 +426,26 @@
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('bg-blue-100');
+            let filesAdded = false;
+            let limitReached = false;
             for (let i = 0; i < e.dataTransfer.files.length; i++) {
                 if (e.dataTransfer.files[i].size > 25 * 1024 * 1024) {
                     showCustomAlert("Fichier trop lourd", "Le fichier " + e.dataTransfer.files[i].name + " dépasse la limite de 25 Mo.");
                     continue;
                 }
-                if (dt.items.length < 5) dt.items.add(e.dataTransfer.files[i]);
+                if (dt.items.length < 5) {
+                    dt.items.add(e.dataTransfer.files[i]);
+                    filesAdded = true;
+                } else {
+                    limitReached = true;
+                }
             }
-            renderPhotos();
+            if (limitReached) {
+                showCustomAlert("Limite de photos atteinte", "Vous ne pouvez pas ajouter plus de 5 photos au total. Les fichiers excédentaires ont été ignorés.");
+            }
+            if (filesAdded) {
+                renderPhotos();
+            }
         });
 
         // 3. Sync files before submit
@@ -474,8 +465,6 @@
 
             for (let i = 0; i < files.length; i++) {
                 const li = document.createElement('li');
-                // Use custom title if available, otherwise filename? 
-                // Using filename is safer as titles are inputs.
                 li.textContent = `Photo ${i + 1}: ${files[i].name}`;
                 list.appendChild(li);
             }
@@ -488,6 +477,20 @@
 
         // 4. Render Photos Function
         function renderPhotos() {
+            // First, collect current values from inputs to avoid losing them
+            const savedValues = {};
+            photosContainer.querySelectorAll('[data-filename]').forEach(item => {
+                const filename = item.getAttribute('data-filename');
+                const titleInput = item.querySelector('input[name="titles[]"]');
+                const locationInput = item.querySelector('input[name="locations[]"]');
+                const descInput = item.querySelector('textarea[name="descriptions[]"]');
+                savedValues[filename] = {
+                    title: titleInput ? titleInput.value : '',
+                    location: locationInput ? locationInput.value : '',
+                    desc: descInput ? descInput.value : ''
+                };
+            });
+
             photosContainer.innerHTML = '';
             const files = dt.files;
 
@@ -496,8 +499,10 @@
             } else {
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
+                    const saved = savedValues[file.name] || { title: '', location: '', desc: '' };
                     const div = document.createElement('div');
                     div.className = "bg-white p-4 rounded shadow border border-gray-200 animate-fade-in-down";
+                    div.setAttribute('data-filename', file.name);
 
                     div.innerHTML = `
                         <div class="flex flex-col md:flex-row md:items-start gap-4">
@@ -514,18 +519,18 @@
                             <div class="flex-grow space-y-3 w-full">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Titre de l'œuvre <span class="text-red-500">*</span></label>
-                                    <input type="text" name="titles[]" required placeholder="Ex: Barrage au crépuscule" 
+                                    <input type="text" name="titles[]" required placeholder="Ex: Barrage au crépuscule" value="${saved.title.replace(/"/g, '&quot;')}" 
                                         class="w-full border-b-2 border-gray-200 focus:border-[#0A2240] outline-none py-1 transition bg-transparent text-[#0A2240] font-semibold">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Lieu de prise de vue <span class="text-red-500">*</span></label>
-                                    <input type="text" name="locations[]" required placeholder="Ex: Barrage de Roselend (73)" 
+                                    <input type="text" name="locations[]" required placeholder="Ex: Barrage de Roselend (73)" value="${saved.location.replace(/"/g, '&quot;')}" 
                                         class="w-full border-b-2 border-gray-200 focus:border-[#0A2240] outline-none py-1 transition bg-transparent text-[#0A2240]">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Note d'intention (Facultatif)</label>
                                     <textarea name="descriptions[]" rows="2" placeholder="Quelques mots sur votre démarche, le lieu, l'instant..."
-                                        class="w-full border border-gray-200 rounded p-2 text-sm focus:ring-1 focus:ring-[#0A2240]"></textarea>
+                                        class="w-full border border-gray-200 rounded p-2 text-sm focus:ring-1 focus:ring-[#0A2240]">${saved.desc}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -669,16 +674,86 @@
         function toggleCompanyField() {
             // Check radio value
             const candidacyType = document.querySelector('input[name="candidacy_type"]:checked').value;
-            const companyContainer = document.getElementById('companyFieldContainer');
+            
+            const categorySelect = document.getElementById('category');
+            const categoryFieldContainer = document.getElementById('categoryFieldContainer');
+            const categoryCorporateContainer = document.getElementById('categoryCorporateContainer');
+            
+            const individualNameFields = document.getElementById('individualNameFields');
+            const corporateNameFields = document.getElementById('corporateNameFields');
+            
+            const firstnameInput = document.getElementById('firstnameInput');
+            const lastnameInput = document.getElementById('lastnameInput');
             const companyInput = document.getElementById('companyInput');
+            const lastnameCorpInput = document.getElementById('lastnameCorpInput');
 
             if (candidacyType === 'corporate') {
-                companyContainer.classList.remove('hidden');
+                // Show corporate read-only label and select corporate value
+                categoryFieldContainer.classList.add('hidden');
+                categoryCorporateContainer.classList.remove('hidden');
+                
+                // Add the corporate option if it doesn't exist
+                let corpOption = categorySelect.querySelector('option[value="corporate"]');
+                if (!corpOption) {
+                    corpOption = document.createElement('option');
+                    corpOption.value = 'corporate';
+                    corpOption.text = 'Prix Spécial Organisme';
+                    categorySelect.appendChild(corpOption);
+                }
+                categorySelect.value = 'corporate';
+                
+                // Toggle Name Fields
+                individualNameFields.classList.add('hidden');
+                corporateNameFields.classList.remove('hidden');
+                
+                // Configure attributes
+                firstnameInput.required = false;
+                firstnameInput.name = '';
+                firstnameInput.value = 'Corporate'; // Fill default value to avoid any backend issues
+                
+                lastnameInput.required = false;
+                lastnameInput.name = '';
+                
                 companyInput.required = true;
+                companyInput.name = 'company';
+                
+                lastnameCorpInput.required = true;
+                lastnameCorpInput.name = 'lastname';
             } else {
-                companyContainer.classList.add('hidden');
+                // Show normal category select
+                categoryFieldContainer.classList.remove('hidden');
+                categoryCorporateContainer.classList.add('hidden');
+                
+                // Reset select value if it was corporate
+                if (categorySelect.value === 'corporate') {
+                    categorySelect.value = '';
+                }
+                
+                // Remove corporate option if it exists
+                const corpOption = categorySelect.querySelector('option[value="corporate"]');
+                if (corpOption) {
+                    corpOption.remove();
+                }
+                
+                // Toggle Name Fields
+                individualNameFields.classList.remove('hidden');
+                corporateNameFields.classList.add('hidden');
+                
+                // Configure attributes
+                firstnameInput.required = true;
+                firstnameInput.name = 'firstname';
+                firstnameInput.value = '';
+                
+                lastnameInput.required = true;
+                lastnameInput.name = 'lastname';
+                
                 companyInput.required = false;
-                companyInput.value = ''; // Clear value
+                companyInput.name = '';
+                companyInput.value = '';
+                
+                lastnameCorpInput.required = false;
+                lastnameCorpInput.name = '';
+                lastnameCorpInput.value = '';
             }
         }
 

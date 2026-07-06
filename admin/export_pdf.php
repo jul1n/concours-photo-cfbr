@@ -5,8 +5,14 @@ require_once __DIR__ . '/../core/db.php';
 require_once __DIR__ . '/../fpdf/fpdf.php';
 
 // Security Check
-if (!isset($_SESSION['admin_unlocked']) || $_SESSION['admin_unlocked'] !== true) {
+$isUnlocked = (isset($_SESSION['admin_unlocked']) && $_SESSION['admin_unlocked'] === true) || (isset($_SESSION['maintenance_authed']) && $_SESSION['maintenance_authed'] === true);
+if (!$isUnlocked) {
     die("Accès refusé. Veuillez déverrouiller depuis la page de résultats.");
+}
+
+// UTF-8 to ISO-8859-1 conversion helper for FPDF (replaces deprecated utf8_decode)
+function toIso($str) {
+    return mb_convert_encoding($str ?? '', 'ISO-8859-1', 'UTF-8');
 }
 
 // Custom PDF Class
@@ -15,7 +21,7 @@ class PDF extends FPDF
     function Header()
     {
         $this->SetFont('Arial', 'B', 15);
-        $this->Cell(0, 10, utf8_decode('Rapport du Jury - Concours Photo CFBR'), 0, 1, 'C');
+        $this->Cell(0, 10, toIso('Rapport du Jury - Concours Photo CFBR'), 0, 1, 'C');
         $this->SetFont('Arial', 'I', 10);
         $this->Cell(0, 10, 'Généré le ' . date('d/m/Y H:i'), 0, 1, 'C');
         $this->Ln(10);
@@ -43,7 +49,6 @@ try {
     $rankings = $pdo->query($sqlRanking)->fetchAll(PDO::FETCH_ASSOC);
 
     // 2. Detailed Votes Tour 1 (Aesthetics/Theme)
-    // We want all votes per photo
     $sqlTour1 = "SELECT * FROM jury_votes_analytics ORDER BY photo_id";
     $votesTour1 = $pdo->query($sqlTour1)->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC); // Group by photo_id
 
@@ -62,7 +67,7 @@ $pdf->SetFont('Arial', '', 12);
 
 // SECTION 1: CLASSEMENT GÉNÉRAL
 $pdf->SetFont('Arial', 'B', 14);
-$pdf->Cell(0, 10, utf8_decode('1. Classement Final'), 0, 1);
+$pdf->Cell(0, 10, toIso('1. Classement Final'), 0, 1);
 $pdf->SetFont('Arial', '', 10);
 
 $pdf->SetFillColor(240, 240, 240);
@@ -73,12 +78,11 @@ $pdf->Cell(20, 7, 'Points', 1, 1, 'C', true);
 
 foreach ($rankings as $idx => $row) {
     $pdf->Cell(15, 7, '#' . ($idx + 1), 1, 0, 'C');
-    $pdf->Cell(80, 7, utf8_decode($row['firstname'] . ' ' . $row['lastname']), 1, 0);
+    $pdf->Cell(80, 7, toIso($row['firstname'] . ' ' . $row['lastname']), 1, 0);
     $title = $row['title'] ?: 'Sans Titre';
-    // Truncate title
     if (strlen($title) > 35)
         $title = substr($title, 0, 32) . '...';
-    $pdf->Cell(70, 7, utf8_decode($title), 1, 0);
+    $pdf->Cell(70, 7, toIso($title), 1, 0);
     $pdf->Cell(20, 7, $row['total_points'], 1, 1, 'C');
 }
 
@@ -86,7 +90,7 @@ $pdf->AddPage();
 
 // SECTION 2: DÉTAIL PAR PHOTO
 $pdf->SetFont('Arial', 'B', 14);
-$pdf->Cell(0, 10, utf8_decode('2. Audit Détaillé des Votes'), 0, 1);
+$pdf->Cell(0, 10, toIso('2. Audit Détaillé des Votes'), 0, 1);
 $pdf->Ln(5);
 
 foreach ($rankings as $idx => $row) {
@@ -95,37 +99,37 @@ foreach ($rankings as $idx => $row) {
     // Header Photo
     $pdf->SetFont('Arial', 'B', 12);
     $pdf->SetFillColor(230, 230, 250);
-    $pdf->Cell(0, 10, utf8_decode('#' . ($idx + 1) . ' - ' . ($row['title'] ?: 'Sans Titre') . ' (ID: ' . $pid . ')'), 1, 1, 'L', true);
+    $pdf->Cell(0, 10, toIso('#' . ($idx + 1) . ' - ' . ($row['title'] ?: 'Sans Titre') . ' (ID: ' . $pid . ')'), 1, 1, 'L', true);
 
     // Info Candidat
     $pdf->SetFont('Arial', 'I', 10);
-    $pdf->Cell(0, 6, utf8_decode('Candidat: ' . $row['firstname'] . ' ' . $row['lastname']), 'LR', 1);
+    $pdf->Cell(0, 6, toIso('Candidat: ' . $row['firstname'] . ' ' . $row['lastname']), 'LR', 1);
 
     // Votes Tour 1 (Si existent)
     if (isset($votesTour1[$pid])) {
         $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 6, utf8_decode('  > Tour 1 (Notation) :'), 'LR', 1);
+        $pdf->Cell(0, 6, toIso('  > Tour 1 (Notation) :'), 'LR', 1);
         $pdf->SetFont('Arial', '', 9);
         foreach ($votesTour1[$pid] as $v) {
-            $jury = $v['jury_identifier']; // IP or Email
+            $jury = $v['jury_identifier'];
             $aes = $v['score_aesthetic'];
             $theme = $v['score_theme'];
-            $pdf->Cell(0, 5, utf8_decode("    - Jury [$jury] : Esth. $aes | Thème $theme"), 'LR', 1);
+            $pdf->Cell(0, 5, toIso("    - Jury [$jury] : Esth. $aes | Thème $theme"), 'LR', 1);
         }
     } else {
-        $pdf->Cell(0, 6, utf8_decode('  > Pas de notes Tour 1'), 'LR', 1);
+        $pdf->Cell(0, 6, toIso('  > Pas de notes Tour 1'), 'LR', 1);
     }
 
     // Votes Tour 2 (Si existent)
     if (isset($votesTour2[$pid])) {
         $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 6, utf8_decode('  > Tour 2 (Classement) :'), 'LR', 1);
+        $pdf->Cell(0, 6, toIso('  > Tour 2 (Classement) :'), 'LR', 1);
         $pdf->SetFont('Arial', '', 9);
         foreach ($votesTour2[$pid] as $v) {
             $jury = $v['jury_ip'];
             $points = $v['points'];
             $rank = $v['rank'];
-            $pdf->Cell(0, 5, utf8_decode("    - Jury [$jury] : Classé #$rank ($points pts)"), 'LR', 1);
+            $pdf->Cell(0, 5, toIso("    - Jury [$jury] : Classé #$rank ($points pts)"), 'LR', 1);
         }
     }
 

@@ -164,9 +164,7 @@ if (is_dir($slideDir)) {
                     <h2 class="text-3xl lg:text-4xl font-bold text-[#0A2240] mb-4">Catégories & Prix</h2>
                     <p class="text-xl text-gray-600 max-w-3xl mx-auto">Deux grandes catégories pour célébrer le
                         patrimoine hydraulique sous toutes ses formes.</p>
-                </div>
-
-                <div class="grid lg:grid-cols-2 gap-12">
+                         <div class="grid lg:grid-cols-2 gap-12 mb-12">
 
                     <!-- Catégorie A -->
                     <div
@@ -200,18 +198,6 @@ if (is_dir($slideDir)) {
                                             class="fas fa-camera text-[#FF9900] mr-2"></i>Récompense la plus belle
                                         <strong>photo unique</strong> (esthétisme et intégration de l'ouvrage dans son
                                         environnement).
-                                    </p>
-                                </div>
-
-                                <!-- Prix Organisme -->
-                                <div class="bg-white p-4 rounded-lg shadow-sm">
-                                    <span class="text-xs font-bold text-[#0A2240] uppercase tracking-wide">Prix "Spécial
-                                        Organisme"</span>
-                                    <h4 class="text-lg font-bold text-[#0A2240] mt-1">Le Trophée du Patrimoine</h4>
-                                    <p class="text-gray-700 text-sm mt-2"><i
-                                            class="fas fa-images text-[#0A2240] mr-2"></i>Récompense la meilleure
-                                        <strong>série de 5 photos</strong> montrant la diversité des
-                                        ouvrages mis en valeur par un même organisme.
                                     </p>
                                 </div>
                             </div>
@@ -253,24 +239,23 @@ if (is_dir($slideDir)) {
                                         savoir-faire).
                                     </p>
                                 </div>
-
-                                <!-- Prix Organisme -->
-                                <div class="bg-white p-4 rounded-lg shadow-sm">
-                                    <span class="text-xs font-bold text-[#0A2240] uppercase tracking-wide">Prix "Spécial
-                                        Organisme"</span>
-                                    <h4 class="text-lg font-bold text-[#0A2240] mt-1">Le Trophée du Savoir-Faire</h4>
-                                    <p class="text-gray-700 text-sm mt-2"><i
-                                            class="fas fa-images text-[#0A2240] mr-2"></i>Récompense le meilleur
-                                        <strong>portfolio (5 photos)</strong> illustrant la richesse des métiers au sein
-                                        d'une organisation.
-                                    </p>
-                                </div>
                             </div>
                         </div>
                     </div>
 
                 </div>
 
+                <!-- Prix Spécial Organisme Unique -->
+                <div class="max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-orange-50 p-8 rounded-2xl shadow-lg border border-[#0A2240]/10">
+                    <div class="text-center">
+                        <span class="text-xs font-bold text-[#FF9900] uppercase tracking-wide px-3 py-1 bg-white rounded-full shadow-sm">Prix Spécial Organisme</span>
+                        <h4 class="text-2xl font-bold text-[#0A2240] mt-3">Le Trophée des Organismes</h4>
+                        <p class="text-gray-600 max-w-2xl mx-auto mt-2 italic">Mélange de savoir-faire et d'intégration environnementale</p>
+                        <p class="text-gray-700 text-sm md:text-base mt-4 max-w-3xl mx-auto">
+                            <i class="fas fa-images text-[#0A2240] mr-2"></i>Récompense le meilleur <strong>portfolio de 5 photos</strong> soumis par un organisme (entreprise, association, institution). Ce prix unique récompense la capacité d'une structure à illustrer la richesse de ses métiers et de son savoir-faire, tout en mettant en valeur l'intégration harmonieuse des ouvrages dans l'environnement.
+                        </p>
+                    </div>
+                </div>
 
             </div>
         </section>
@@ -460,7 +445,7 @@ if (is_dir($slideDir)) {
                             <div
                                 class="w-full md:w-5/12 order-2 md:order-1 md:text-right bg-blue-50 p-6 rounded-lg shadow-md border-l-4 border-[#0A2240] md:border-l-0 md:border-r-4">
                                 <h3 class="font-bold text-[#0A2240] text-xl">Lancement</h3>
-                                <div class="text-[#FF9900] font-bold mb-2">1er Mars 2026</div>
+                                <div class="text-[#FF9900] font-bold mb-2">1er Juillet 2026</div>
                                 <p class="text-gray-600 text-sm">Ouverture officielle du concours au Grand Public.
                                     Préparez vos objectifs !</p>
                             </div>
@@ -575,40 +560,58 @@ if (is_dir($slideDir)) {
                 <p class="mb-12 text-gray-600">Des récompenses exceptionnelles pour célébrer le centenaire.</p>
 
                 <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <!-- Top 3 -->
+                    <!-- Lauréats Individuels -->
                     <div
-                        class="bg-white border border-gray-100 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-shadow">
-                        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-ticket-alt text-3xl text-[#0A2240]"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Les 3 Premiers<br><span
-                                class="text-lg font-normal text-gray-500">de chaque catégorie</span></h3>
-                        <div class="w-12 h-1 bg-[#FF9900] mx-auto mb-4"></div>
-                        <p class="text-gray-600 mb-4">Recevront une <strong>invitation officielle avec pass</strong>
-                            pour assister au prestigieux :</p>
-                        <div class="bg-[#0A2240] text-white py-2 px-4 rounded-lg font-bold">
-                            Colloque Prospective Eau (18-19 Nov) à Aix-les-Bains
-                        </div>
-                    </div>
-
-                    <!-- 1er Prix -->
-                    <div
-                        class="bg-white border-2 border-[#FF9900] rounded-2xl p-8 shadow-2xl transform hover:-translate-y-2 transition-transform relative">
-                        <div
-                            class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF9900] text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
-                            BONUS 1er PRIX
+                        class="bg-white border-2 border-[#FF9900] rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF9900] text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider">
+                            PRIX INDIVIDUELS
                         </div>
                         <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
                             <i class="fas fa-crown text-3xl text-[#FF9900]"></i>
                         </div>
-                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Le Grand Gagnant<br><span
+                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Les 3 Lauréats<br><span
                                 class="text-lg font-normal text-gray-500">de chaque catégorie</span></h3>
                         <div class="w-12 h-1 bg-[#FF9900] mx-auto mb-4"></div>
-                        <p class="text-gray-600 mb-4">En plus du pass, vivez une expérience inoubliable :</p>
-                        <div
-                            class="bg-gradient-to-r from-[#FF9900] to-[#FFCC00] text-[#0A2240] py-3 px-4 rounded-lg font-bold shadow-md">
-                            <i class="fas fa-hard-hat mr-2"></i> Visite VIP d'un barrage remarquable en France
+                        <p class="text-gray-600 mb-6 text-sm">Les récompenses pour les catégories individuelles sont attribuées ainsi :</p>
+                        <ul class="text-left text-gray-700 text-sm space-y-3 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-ticket-alt text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
+                                <span><strong>Les 3 premiers lauréats</strong> reçoivent une invitation officielle avec pass pour le <em>Colloque Prospective Eau</em> (18-19 Nov) à Aix-les-Bains.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-print text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
+                                <span><strong>Les 3 premiers lauréats</strong> reçoivent une impression de prestige de leur photo sur support métallique.</span>
+                            </li>
+                            <li class="flex items-start text-[#0A2240] font-semibold border-t border-gray-100 pt-2">
+                                <i class="fas fa-hard-hat text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
+                                <span><strong>Uniquement le 1er lauréat</strong> de chaque catégorie remporte également l'Expérience "Immersion" (visite VIP d'un barrage).</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Lauréat Organisme -->
+                    <div
+                        class="bg-white border border-gray-200 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0A2240] text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider">
+                            PRIX ORGANISME
                         </div>
+                        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-trophy text-3xl text-[#0A2240]"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Le Trophée unique<br><span
+                                class="text-lg font-normal text-gray-500">des Organismes</span></h3>
+                        <div class="w-12 h-1 bg-[#0A2240] mx-auto mb-4"></div>
+                        <p class="text-gray-600 mb-6 text-sm">L'organisme lauréat recevra :</p>
+                        <ul class="text-left text-gray-700 text-sm space-y-3 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-award text-[#0A2240] mt-1 mr-3 flex-shrink-0"></i>
+                                <span><strong>Trophée d'ébénisterie</strong> : une œuvre d'art unique réalisée par un maître artisan.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-images text-[#0A2240] mt-1 mr-3 flex-shrink-0"></i>
+                                <span><strong>Impression de prestige</strong> sur support métallique de leur portfolio gagnant.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

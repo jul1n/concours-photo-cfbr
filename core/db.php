@@ -1,5 +1,6 @@
 <?php
 // db_connect.php
+date_default_timezone_set('Europe/Paris');
 $dbPath = __DIR__ . '/../data/concours.db';
 
 try {

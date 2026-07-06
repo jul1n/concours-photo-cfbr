@@ -81,6 +81,8 @@ Voici l'arborescence clé et les permissions nécessaires :
 
 ---
 
+## 3. Administration, Jury & Maintenance
+
 ### 🛠️ Maintenance & Diagnostic
 Le Hub de Maintenance centralise tous les outils techniques.
 - Accès : `/maintenance/index.php?token=cfbr_repair_2026`

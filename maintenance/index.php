@@ -1529,8 +1529,16 @@ if ($pdo) {
                     $content = preg_replace('/`(.*?)`/', '<code class="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-700 font-mono text-[11px] border border-slate-200">$1</code>', $content);
                     $content = preg_replace('/^- (.*)$/m', '<li class="ml-6 list-none relative before:content-[\'→\'] before:absolute before:-left-5 before:text-blue-400 text-slate-600 my-2">$1</li>', $content);
 
+                    $content = nl2br($content);
+                    // Clean up extra line breaks next to block tags
+                    $content = preg_replace('/<(h1|h2|h3|li|ul|ol)[^>]*>\s*<br\s*\/?>/i', '<$1>', $content);
+                    $content = preg_replace('/<br\s*\/?>\s*<\/(h1|h2|h3|li|ul|ol)>/i', '</$1>', $content);
+                    $content = preg_replace('/<\/(h1|h2|h3|li|ul|ol)>\s*<br\s*\/?>/i', '</$1>', $content);
+                    // Collapsing consecutive breaks
+                    $content = preg_replace('/(<br\s*\/?>\s*){2,}/i', '<br />', $content);
+
                     echo '<div class="font-sans text-[13px] bg-white p-12 rounded-2xl border border-slate-100 shadow-inner max-h-[75vh] overflow-y-auto leading-relaxed text-slate-700">';
-                    echo nl2br($content);
+                    echo $content;
                     echo '</div>';
                 } else {
                     echo '<p class="text-red-500 italic flex items-center gap-2"><i class="fas fa-exclamation-circle"></i> README.md non trouvé.</p>';

@@ -1,6 +1,8 @@
 <?php
 // jury_tour1.php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
     header("Location: login.php");
     exit;
@@ -109,6 +111,9 @@ try {
     // Enrich candidates with their photos
     foreach ($candidates as &$c) {
         $c['fullname'] = trim($c['firstname'] . ' ' . $c['lastname']);
+        if (stripos($c['lastname'], $c['firstname']) === 0) {
+            $c['fullname'] = $c['lastname'];
+        }
         if (empty($c['fullname']))
             $c['fullname'] = $c['name'] ?? 'Inconnu'; // Fallback
 
@@ -151,11 +156,44 @@ try {
         $juryId = 1;
 
         if ($action === 'approve') {
-            $stmt = $pdo->prepare("UPDATE participants SET validation_status = 'approved', jury_vote_1_by = ? WHERE id = ?");
-            $stmt->execute([$juryId, $candidateId]);
+            // Get valid photos checklist
+            $photoValids = isset($_POST['photo_valid']) ? $_POST['photo_valid'] : [];
+            
+            // Fetch all photos for this candidate to process each one
+            $stmtP = $pdo->prepare("SELECT id FROM photos WHERE participant_id = ?");
+            $stmtP->execute([$candidateId]);
+            $candidatePhotos = $stmtP->fetchAll(PDO::FETCH_ASSOC);
+            
+            $hasRejectedPhoto = false;
+            foreach ($candidatePhotos as $cp) {
+                $pId = $cp['id'];
+                if (isset($photoValids[$pId]) && $photoValids[$pId] == '1') {
+                    $upP = $pdo->prepare("UPDATE photos SET status = 'approved' WHERE id = ?");
+                    $upP->execute([$pId]);
+                } else {
+                    $upP = $pdo->prepare("UPDATE photos SET status = 'rejected' WHERE id = ?");
+                    $upP->execute([$pId]);
+                    $hasRejectedPhoto = true;
+                }
+            }
+            
+            if ($hasRejectedPhoto) {
+                // At least one photo was not validated -> Move to pre_rejected (archive review)
+                $stmt = $pdo->prepare("UPDATE participants SET validation_status = 'pre_rejected', jury_vote_1_by = ? WHERE id = ?");
+                $stmt->execute([$juryId, $candidateId]);
+            } else {
+                // All photos validated -> approve candidate
+                $stmt = $pdo->prepare("UPDATE participants SET validation_status = 'approved', jury_vote_1_by = ? WHERE id = ?");
+                $stmt->execute([$juryId, $candidateId]);
+            }
         } elseif ($action === 'reject') {
+            // Reject whole candidate
             $stmt = $pdo->prepare("UPDATE participants SET validation_status = 'pre_rejected', jury_vote_1_by = ? WHERE id = ?");
             $stmt->execute([$juryId, $candidateId]);
+            
+            // Mark all their photos as rejected too
+            $upAll = $pdo->prepare("UPDATE photos SET status = 'rejected' WHERE participant_id = ?");
+            $upAll->execute([$candidateId]);
         }
         header("Location: qualif.php");
         exit;
@@ -180,38 +218,44 @@ try {
 
 <body class="bg-gray-100 font-sans">
     <!-- Header -->
-    <header class="bg-[#0A2240] text-white p-4 shadow-md mb-8 sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold font-title">Espace Jury - Qualification</h1>
-                <div class="space-x-4 text-xs mt-1">
-                    <span class="text-[#FF9900] font-bold">1. Qualification</span>
-                    <a href="home.php" class="text-gray-400 hover:text-white transition">2. Notation</a>
-                    <a href="ranking.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
-                    <a href="sort.php" class="text-gray-400 hover:text-white transition">4. Synthèse</a>
-                </div>
-            </div>
-            <div class="text-right text-xs">
-                <div class="font-bold">Jury:
-                    <?= htmlspecialchars($_SESSION['jury_email'] ?? $_SESSION['jury_name'] ?? $_SERVER['REMOTE_ADDR']) ?>
-                </div>
-            </div>
-        </div>
-    </header>
+    <?php
+    $activeTab = 'qualif';
+    $headerTitle = "Espace Jury - Qualification";
+    include __DIR__ . '/header.php';
+    ?>
 
     <div class="container mx-auto px-4 py-8">
 
         <?php if (empty($candidates)): ?>
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md text-center max-w-2xl mx-auto"
-                role="alert">
-                <i class="fas fa-check-circle text-4xl mb-4 text-green-600"></i>
-                <h2 class="text-xl font-bold mb-2">Terminé !</h2>
-                <p class="mb-6">Aucun dossier en attente de validation.</p>
-                <div>
-                    <a href="confirm_rejection.php"
-                        class="bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition shadow-lg font-bold">
-                        <i class="fas fa-exclamation-circle mr-2"></i>Voir les dossiers en attente de rejet (2ème avis)
-                    </a>
+            <div class="max-w-xl mx-auto mt-12 bg-white rounded-2xl shadow-xl border border-emerald-100 overflow-hidden transform hover:scale-[1.01] transition-all duration-300">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-8 text-center text-white relative">
+                    <div class="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/20 backdrop-blur-md mb-4 shadow-inner">
+                            <i class="fas fa-check-circle text-4xl text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-extrabold font-title tracking-tight mb-1">Étape Terminée !</h2>
+                        <p class="text-emerald-100 text-sm font-medium">Tout a été traité avec succès</p>
+                    </div>
+                </div>
+                
+                <div class="p-8 text-center bg-gray-50/50">
+                    <p class="text-gray-600 text-base mb-8">Aucun dossier ou candidat n'est actuellement en attente de qualification.</p>
+                    
+                    <div class="flex flex-col gap-4 items-center">
+                        <a href="confirm_rejection.php"
+                            class="inline-flex items-center justify-center bg-rose-600 hover:bg-rose-700 text-white font-bold px-8 py-3.5 rounded-xl transition duration-300 shadow-md hover:shadow-lg w-full max-w-md gap-2.5">
+                            <i class="fas fa-exclamation-circle text-lg"></i>
+                            <span>Dossiers en attente de rejet (2e avis)</span>
+                        </a>
+                        
+                        <a href="home.php"
+                            class="inline-flex items-center justify-center bg-[#0A2240] hover:bg-[#15345c] text-white font-semibold px-8 py-3 rounded-xl transition duration-300 shadow-sm w-full max-w-md gap-2">
+                            <i class="fas fa-arrow-right"></i>
+                            <span>Passer à l'étape 2. Notation</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         <?php else: ?>
@@ -228,8 +272,9 @@ try {
                     $isDuplicateEmail = ($emailCounts[$email] > 1);
                     $isDuplicateName = ($nameCounts[$lastname] > 1);
                     ?>
-                    <div
+                    <form method="POST"
                         class="bg-white rounded-lg shadow-xl overflow-hidden transform hover:scale-[1.01] transition duration-300 border border-gray-100 flex flex-col">
+                        <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
                         <!-- Header Dossier -->
                         <div class="bg-[#0A2240] text-white p-4 flex justify-between items-center relative">
                             <div>
@@ -340,6 +385,14 @@ try {
                                                             class="fas fa-map-marker-alt mr-1"></i>
                                                         <?= htmlspecialchars($p['location']) ?></div>
                                                 <?php endif; ?>
+                                                <!-- Photo Validation Toggle -->
+                                                <div class="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
+                                                    <label class="inline-flex items-center space-x-2 cursor-pointer bg-slate-50 hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-gray-200 hover:border-emerald-300 transition select-none">
+                                                        <input type="checkbox" name="photo_valid[<?= $p['id'] ?>]" value="1" checked
+                                                            class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                                        <span class="text-xs font-bold text-slate-700 hover:text-emerald-800">Conserver cette photo</span>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -380,27 +433,19 @@ try {
                         </div>
 
                         <!-- Actions -->
-                        <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-between space-x-3">
-                            <form method="POST" class="w-1/2">
-                                <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
-                                <input type="hidden" name="action" value="reject">
-                                <button type="submit"
-                                    onclick="return confirm('Attention : Ce dossier sera envoyé en ré-examen pour rejet. Confirmer ?')"
-                                    class="w-full bg-white border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-4 py-2 rounded shadow-sm font-semibold transition text-sm">
-                                    <i class="fas fa-times mr-1"></i> Rejeter
-                                </button>
-                            </form>
+                        <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-between space-x-3 w-full">
+                            <button type="submit" name="action" value="reject"
+                                onclick="return confirm('Attention : Ce dossier sera envoyé en ré-examen pour rejet. Confirmer ?')"
+                                class="w-1/2 bg-white border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-4 py-2 rounded shadow-sm font-semibold transition text-sm">
+                                <i class="fas fa-times mr-1"></i> Rejeter le dossier
+                            </button>
 
-                            <form method="POST" class="w-1/2">
-                                <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
-                                <input type="hidden" name="action" value="approve">
-                                <button type="submit"
-                                    class="w-full bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded shadow-md font-bold transition text-sm">
-                                    <i class="fas fa-check mr-1"></i> Valider
-                                </button>
-                            </form>
+                            <button type="submit" name="action" value="approve"
+                                class="w-1/2 bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded shadow-md font-bold transition text-sm">
+                                <i class="fas fa-check mr-1"></i> Valider la sélection
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 <?php endforeach; ?>
             </div>
 

@@ -28,6 +28,24 @@ $photos = $stmtPhotos->fetchAll(PDO::FETCH_ASSOC);
 // PDF Path (updated to match validate_email.php storage location)
 $pdfPath = "uploads/pdfs/agreement_" . $pid . ".pdf";
 $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
+
+// Deduplicate candidate name
+$displayName = $p['firstname'] . ' ' . $p['lastname'];
+$avatarInitials = strtoupper(substr($p['firstname'], 0, 1) . substr($p['lastname'], 0, 1));
+if ($p['candidacy_type'] === 'corporate' || !empty($p['company'])) {
+    if ($p['firstname'] === 'Corporate') {
+        $displayName = $p['lastname'];
+        $avatarInitials = strtoupper(substr($p['lastname'], 0, 2));
+    } elseif (stripos($p['lastname'], $p['firstname']) === 0) {
+        $displayName = $p['lastname'];
+        $avatarInitials = strtoupper(substr($p['lastname'], 0, 2));
+    }
+} else {
+    if (stripos($p['lastname'], $p['firstname']) === 0) {
+        $displayName = $p['lastname'];
+        $avatarInitials = strtoupper(substr($p['lastname'], 0, 2));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -36,7 +54,7 @@ $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Dossier -
-        <?= htmlspecialchars($p['firstname'] . ' ' . $p['lastname']) ?>
+        <?= htmlspecialchars($displayName) ?>
     </title>
     <?php include __DIR__ . '/includes/pwa_loader.php'; ?>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -89,12 +107,8 @@ $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
             <div class="lg:col-span-1 space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="bg-gradient-to-r from-[#0A2240] to-blue-900 p-6 text-white text-center">
-                        <div
-                            class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
-                            <?= strtoupper(substr($p['firstname'], 0, 1) . substr($p['lastname'], 0, 1)) ?>
-                        </div>
                         <h2 class="font-bold text-xl">
-                            <?= htmlspecialchars($p['firstname'] . ' ' . $p['lastname']) ?>
+                            <?= htmlspecialchars($displayName) ?>
                         </h2>
                         <p class="text-xs text-white/60">
                             <?= htmlspecialchars($p['email']) ?>
@@ -103,8 +117,8 @@ $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
                     <div class="p-6 space-y-4">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">Catégorie</span>
-                            <span class="font-bold text-[#0A2240] capitalize">
-                                <?= htmlspecialchars($p['candidacy_type']) ?>
+                            <span class="font-bold text-[#0A2240]">
+                                <?= ($p['candidacy_type'] === 'corporate') ? "Entreprise / Association" : (($p['candidacy_type'] === 'individual') ? "Individuelle" : htmlspecialchars($p['candidacy_type'])) ?>
                             </span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
@@ -119,11 +133,89 @@ $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
                                 <?= count($photos) ?> / 5
                             </span>
                         </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-500">Statut</span>
-                            <span
-                                class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase"><i
-                                    class="fas fa-check-circle"></i> Validé</span>
+                        
+                        <?php
+                        // Determine current step index and status label
+                        $currentStep = 1; // 1: Soumis, 2: Règlement Signé, 3: Validé par le Jury, 4: Notation en cours
+                        $statusLabel = "Dossier Soumis";
+                        $statusClass = "bg-blue-100 text-blue-800";
+                        
+                        if ($p['is_verified']) {
+                            $currentStep = 2;
+                            $statusLabel = "Règlement Signé";
+                            $statusClass = "bg-amber-100 text-amber-800";
+                            
+                            if ($p['validation_status'] === 'approved') {
+                                $currentStep = 3;
+                                $statusLabel = "Validé par le Jury";
+                                $statusClass = "bg-green-100 text-green-800";
+                            } elseif ($p['validation_status'] === 'pre_rejected' || $p['validation_status'] === 'rejected') {
+                                $currentStep = 2; // Keep at signed but flag error
+                                $statusLabel = "Non retenu";
+                                $statusClass = "bg-red-100 text-red-800";
+                            }
+                        }
+                        ?>
+                        
+                        <div class="flex items-center justify-between text-sm pb-2 border-b border-gray-100">
+                            <span class="text-gray-500">Statut actuel</span>
+                            <span class="px-2.5 py-0.5 rounded-full <?= $statusClass ?> text-[10px] font-bold uppercase">
+                                <?= $statusLabel ?>
+                            </span>
+                        </div>
+
+                        <!-- Stepper / Timeline -->
+                        <div class="pt-2">
+                            <span class="text-xs text-gray-400 uppercase tracking-wider font-bold block mb-3">Suivi de la candidature</span>
+                            
+                            <!-- Timeline Steps -->
+                            <div class="space-y-4 text-xs">
+                                <!-- Step 1: Soumission -->
+                                <div class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 <?= ($currentStep >= 1) ? 'bg-[#0A2240] text-white' : 'bg-gray-200 text-gray-500' ?>">
+                                        <i class="fas <?= ($currentStep > 1) ? 'fa-check text-[9px]' : 'fa-upload text-[7px]' ?>"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="font-bold text-[#0A2240]">Dossier Soumis</p>
+                                        <p class="text-[10px] text-gray-400">Photos téléchargées avec succès.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Signature -->
+                                <div class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 <?= ($currentStep >= 2) ? 'bg-[#0A2240] text-white' : 'bg-gray-200 text-gray-500' ?>">
+                                        <i class="fas <?= ($currentStep > 2) ? 'fa-check text-[9px]' : 'fa-signature text-[7px]' ?>"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="font-bold <?= ($currentStep >= 2) ? 'text-[#0A2240]' : 'text-gray-400' ?>">Règlement Signé</p>
+                                        <p class="text-[10px] text-gray-400">Signature électronique validée.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: Modération / Validation -->
+                                <div class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 <?= ($currentStep >= 3) ? 'bg-[#0A2240] text-white' : (($p['validation_status'] === 'rejected' || $p['validation_status'] === 'pre_rejected') ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500') ?>">
+                                        <i class="fas <?= ($currentStep >= 3) ? 'fa-check text-[9px]' : (($p['validation_status'] === 'rejected' || $p['validation_status'] === 'pre_rejected') ? 'fa-times text-[9px]' : 'fa-shield-alt text-[7px]') ?>"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="font-bold <?= ($currentStep >= 3) ? 'text-[#0A2240]' : (($p['validation_status'] === 'rejected' || $p['validation_status'] === 'pre_rejected') ? 'text-red-600' : 'text-gray-400') ?>">
+                                            <?= ($p['validation_status'] === 'rejected' || $p['validation_status'] === 'pre_rejected') ? 'Candidature Non Retenue' : 'Validé par le Jury' ?>
+                                        </p>
+                                        <p class="text-[10px] text-gray-400">Vérification de conformité technique.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 4: Évaluation / Notation -->
+                                <div class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 <?= ($currentStep >= 3 && $p['validation_status'] === 'approved') ? 'bg-emerald-500 text-white animate-pulse' : 'bg-gray-200 text-gray-500' ?>">
+                                        <i class="fas fa-star text-[7px]"></i>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="font-bold <?= ($currentStep >= 3 && $p['validation_status'] === 'approved') ? 'text-emerald-600' : 'text-gray-400' ?>">Notation en cours</p>
+                                        <p class="text-[10px] text-gray-400">Les jurés évaluent vos clichés.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,7 +225,7 @@ $pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
                     <i class="fas fa-file-pdf text-4xl text-[#FF9900] mb-3"></i>
                     <h3 class="font-bold text-slate-800 mb-4">Votre récépissé officiel</h3>
                     <?php if ($pdfExists): ?>
-                        <a href="<?= $pdfPath ?>" target="_blank"
+                        <a href="download_pdf.php?token=<?= urlencode($token) ?>"
                             class="block w-full bg-[#0A2240] text-white py-3 rounded-xl font-bold hover:shadow-lg transition-shadow flex items-center justify-center gap-2">
                             <i class="fas fa-download"></i> Télécharger le PDF
                         </a>

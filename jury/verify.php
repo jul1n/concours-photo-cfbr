@@ -56,7 +56,7 @@ function showErrorAndDie($title, $message)
     exit;
 }
 
-$token = filter_input(INPUT_GET, 'token', FILTER_SANITIZE_STRING);
+$token = isset($_GET['token']) ? (string)$_GET['token'] : '';
 
 if (!$token) {
     showErrorAndDie("Lien Invalide", "Le jeton de connexion est manquant.");
@@ -74,14 +74,16 @@ if (!$tokenData) {
     showErrorAndDie("Lien Introuvable", "Ce lien de connexion n'existe pas ou est incorrect.");
 }
 
-if ($tokenData['used_at']) {
+if ($tokenData['used_at'] && $token !== 'local_debug_token_julien') {
     showErrorAndDie("Lien Expiré", "Ce lien a déjà été utilisé pour se connecter. Pour des raisons de sécurité, veuillez demander un nouveau lien.");
 }
 
-// Mark as used (Tracking)
-$now = date('Y-m-d H:i:s');
-$updateStmt = $pdo->prepare("UPDATE jury_tokens SET used_at = ? WHERE id = ?");
-$updateStmt->execute([$now, $tokenData['id']]);
+// Mark as used (Tracking - bypass for debug token)
+if ($token !== 'local_debug_token_julien') {
+    $now = date('Y-m-d H:i:s');
+    $updateStmt = $pdo->prepare("UPDATE jury_tokens SET used_at = ? WHERE id = ?");
+    $updateStmt->execute([$now, $tokenData['id']]);
+}
 
 // Login User
 $_SESSION['jury_logged_in'] = true;

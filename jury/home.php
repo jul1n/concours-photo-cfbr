@@ -1,7 +1,9 @@
 <?php
 // jury_tour1.php
 require_once __DIR__ . '/../includes/analytics.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
     header("Location: login.php");
     exit;
@@ -23,7 +25,7 @@ try {
                    part.firstname, part.lastname, part.company, part.email, part.instagram, part.linkedin
             FROM photos p
             JOIN participants part ON p.participant_id = part.id
-            WHERE part.validation_status = 'approved'
+            WHERE part.validation_status = 'approved' AND p.status = 'approved'
             ORDER BY part.id ASC";
     $stmt = $pdo->query($sql);
     $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -100,26 +102,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
 <body class="bg-gray-50 font-sans pb-20">
 
     <!-- Header -->
-    <header class="bg-[#0A2240] text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold font-title">Espace Jury - Notation (Tour 1)</h1>
-                <div class="space-x-4 text-xs mt-1">
-                    <a href="qualif.php" class="text-gray-400 hover:text-white transition">1.
-                        Qualification</a>
-                    <span class="text-[#FF9900] font-bold">2. Notation</span>
-                    <a href="ranking.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
-                    <a href="sort.php" class="text-gray-400 hover:text-white transition">4. Synthèse</a>
-                </div>
-            </div>
-            <div class="text-right text-xs">
-                <div class="font-bold">Jury:
-                    <?= htmlspecialchars($_SESSION['jury_email'] ?? $_SESSION['jury_name'] ?? $juryId) ?>
-                </div>
-                <div id="saveStatus" class="opacity-0 transition-opacity text-green-400">Enregistré</div>
-            </div>
-        </div>
-    </header>
+    <?php
+    $activeTab = 'home';
+    $headerTitle = "Espace Jury - Notation (Tour 1)";
+    include __DIR__ . '/header.php';
+    ?>
 
     <div class="container mx-auto px-4 py-8">
 
@@ -145,6 +132,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                 <?php foreach ($photos as $p):
                     $pid = $p['id'];
                     $vote = $votesMap[$pid] ?? ['score_aesthetic' => '', 'score_theme' => ''];
+                    $aesVal = $vote['score_aesthetic'];
+                    $themeVal = $vote['score_theme'];
+                    $aesClass = ($aesVal === '' || $aesVal === null) ? 'bg-amber-50 border-amber-300 placeholder-amber-400 focus:ring-[#FF9900]' : 'bg-emerald-50/30 border-emerald-500/30 text-emerald-900 focus:ring-emerald-500';
+                    $themeClass = ($themeVal === '' || $themeVal === null) ? 'bg-amber-50 border-amber-300 placeholder-amber-400 focus:ring-[#FF9900]' : 'bg-emerald-50/30 border-emerald-500/30 text-emerald-900 focus:ring-emerald-500';
+                    $isComplete = ($aesVal !== '' && $aesVal !== null && $themeVal !== '' && $themeVal !== null);
+                    $btnClass = $isComplete ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-[#0A2240] hover:bg-[#1E3A5F]';
+                    $btnText = $isComplete ? 'Vote validé' : 'Note incomplète';
+                    $btnIcon = $isComplete ? 'fas fa-check-circle' : 'far fa-circle';
                     $thumbSrc = '../photos/thumbs/' . $p['filename_thumb'];
                     $largeSrc = !empty($p['filename_4k']) ? '../photos/display_4k/' . $p['filename_4k'] : '../photos/originals/' . $p['filename_original'];
                     ?>
@@ -152,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
 
                         <!-- Image Area -->
                         <div class="relative group cursor-pointer h-64 bg-gray-200"
-                            onclick="openModal('<?= $largeSrc ?>', '<?= htmlspecialchars($p['title']) ?>')">
+                             onclick="openModal('<?= $largeSrc ?>', '<?= htmlspecialchars($p['title']) ?>')">
                             <img src="<?= $thumbSrc ?>" class="w-full h-full object-cover">
                             <div
                                 class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition flex items-center justify-center">
@@ -174,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Esthétisme /10</label>
                                     <div class="relative">
                                         <input type="number" step="0.1" min="1" max="10"
-                                            class="w-full border border-gray-300 rounded p-2 text-center font-bold text-[#0A2240] focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] outline-none transition"
+                                            class="w-full border rounded p-2 text-center font-bold outline-none transition <?= $aesClass ?>"
                                             placeholder="-" value="<?= $vote['score_aesthetic'] ?>" id="input_a_<?= $pid ?>"
                                             onchange="saveVote(<?= $pid ?>)">
                                         <i
@@ -187,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Thème /10</label>
                                     <div class="relative">
                                         <input type="number" step="0.1" min="1" max="10"
-                                            class="w-full border border-gray-300 rounded p-2 text-center font-bold text-[#0A2240] focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] outline-none transition"
+                                            class="w-full border rounded p-2 text-center font-bold outline-none transition <?= $themeClass ?>"
                                             placeholder="-" value="<?= $vote['score_theme'] ?>" id="input_t_<?= $pid ?>"
                                             onchange="saveVote(<?= $pid ?>)">
                                         <i
@@ -196,29 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                                 </div>
                             </div>
 
-                            <!-- Total Preview (JS calculated) -->
-                            <div class="mt-3 text-center flex items-center justify-between">
-                                <span class="text-xs text-gray-400 font-semibold italic">
-                                    <?php if (!empty($p['instagram']) || !empty($p['linkedin'])): ?>
-                                        Social:
-                                        <?php if (!empty($p['linkedin'])): ?>
-                                            <i class="fab fa-linkedin text-blue-600 ml-1"
-                                                title="<?= htmlspecialchars($p['linkedin']) ?>"></i>
-                                        <?php endif; ?>
-                                        <?php if (!empty($p['instagram'])): ?>
-                                            <i class="fab fa-instagram text-pink-500 ml-1"
-                                                title="<?= htmlspecialchars($p['instagram']) ?>"></i>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                </span>
-                                <span class="text-xs text-gray-400 font-semibold">Total :
-                                    <span id="total_<?= $pid ?>" class="text-[#0A2240]">
-                                        <?= ($vote['score_aesthetic'] && $vote['score_theme']) ? ($vote['score_aesthetic'] + $vote['score_theme']) : '-' ?>
-                                    </span> / 20
-                                </span>
-                            </div>
-
-                            <!-- Promo Actions -->
+                            <!-- Actions Row -->
                             <div class="mt-4 flex gap-2">
                                 <?php
                                 $jsArgs = [
@@ -230,30 +203,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                                 ];
                                 $jsCall = "generatePromoText(" . implode(', ', array_map('json_encode', $jsArgs)) . ")";
                                 ?>
-                                <button onclick="<?= htmlspecialchars($jsCall) ?>"
-                                    class="flex-grow bg-slate-100 hover:bg-[#FF9900]/10 text-slate-600 hover:text-[#FF9900] text-[10px] font-bold py-2 rounded-lg transition-all border border-slate-200 hover:border-[#FF9900]/30 flex items-center justify-center gap-2">
-                                    <i class="fas fa-bullhorn"></i> Texto
+                                <!-- Validate Note & Show Total -->
+                                <button id="btn_status_<?= $pid ?>" onclick="saveVote(<?= $pid ?>)" 
+                                        class="flex-grow text-white font-bold py-2 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-sm <?= $btnClass ?>">
+                                    <i id="icon_status_<?= $pid ?>" class="<?= $btnIcon ?>"></i> <span id="text_status_<?= $pid ?>"><?= $btnText ?></span> (<span id="total_<?= $pid ?>"><?= ($vote['score_aesthetic'] && $vote['score_theme']) ? ($vote['score_aesthetic'] + $vote['score_theme']) : '-' ?></span>/20)
                                 </button>
 
-                                <?php
-                                // On récupère l'ID de la photo (ici il y a une seule photo par bloc Jury dans cette vue simplifiée)
-                                // Note: La structure actuelle semble boucler sur les PARTICIPANTS et non les PHOTOS. 
-                                // Je vais chercher l'ID de la première photo du participant.
-                                $photoId = null;
-                                try {
-                                    $stmtPh = $pdo->prepare("SELECT id, is_promo FROM photos WHERE participant_id = ? LIMIT 1");
-                                    $stmtPh->execute([$pid]);
-                                    $phInfo = $stmtPh->fetch(PDO::FETCH_ASSOC);
-                                    $photoId = $phInfo['id'];
-                                    $isPromo = $phInfo['is_promo'];
-                                } catch (Exception $e) {
-                                }
-                                ?>
-
-                                <button id="promo_btn_<?= $photoId ?>" onclick="togglePromo(<?= $photoId ?>)"
-                                    class="px-3 rounded-lg border transition-all flex items-center justify-center <?= $isPromo ? 'bg-amber-100 border-amber-300 text-amber-600' : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-amber-500' ?>"
-                                    title="Marquer pour l'export Social Media">
-                                    <i class="<?= $isPromo ? 'fas' : 'far' ?> fa-star"></i>
+                                <!-- Share Social -->
+                                <button onclick="<?= htmlspecialchars($jsCall) ?>"
+                                    class="bg-slate-100 hover:bg-[#FF9900]/10 text-slate-600 hover:text-[#FF9900] px-3 py-2 rounded-lg transition-all border border-slate-200 hover:border-[#FF9900]/30 flex items-center justify-center gap-2"
+                                    title="Générer le texte de partage LinkedIn & Réseaux Sociaux">
+                                    <i class="fab fa-linkedin text-sky-700 text-sm"></i>
+                                    <i class="fas fa-share-alt text-slate-500 text-sm"></i>
                                 </button>
                             </div>
                         </div>
@@ -299,13 +260,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
             const aesInput = document.getElementById('input_a_' + photoId);
             const themeInput = document.getElementById('input_t_' + photoId);
             const totalSpan = document.getElementById('total_' + photoId);
+            const btn = document.getElementById('btn_status_' + photoId);
+            const icon = document.getElementById('icon_status_' + photoId);
+            const text = document.getElementById('text_status_' + photoId);
 
             let aes = parseFloat(aesInput.value);
             let theme = parseFloat(themeInput.value);
 
-            // Validation simple UI
-            if (isNaN(aes) || aes < 1 || aes > 10) aesInput.classList.add('bg-red-50'); else aesInput.classList.remove('bg-red-50');
-            if (isNaN(theme) || theme < 1 || theme > 10) themeInput.classList.add('bg-red-50'); else themeInput.classList.remove('bg-red-50');
+            // Cap inputs to valid range [1, 10]
+            if (!isNaN(aes)) {
+                if (aes > 10) { aes = 10; aesInput.value = 10; }
+                if (aes < 1) { aes = 1; aesInput.value = 1; }
+            }
+            if (!isNaN(theme)) {
+                if (theme > 10) { theme = 10; themeInput.value = 10; }
+                if (theme < 1) { theme = 1; themeInput.value = 1; }
+            }
+
+            // Validation simple UI & dynamic colors for inputs
+            if (isNaN(aes) || aes < 1 || aes > 10) {
+                aesInput.classList.remove('bg-emerald-50/30', 'border-emerald-500/30', 'text-emerald-900');
+                aesInput.classList.add('bg-amber-50', 'border-amber-300');
+            } else {
+                aesInput.classList.remove('bg-amber-50', 'border-amber-300');
+                aesInput.classList.add('bg-emerald-50/30', 'border-emerald-500/30', 'text-emerald-900');
+            }
+
+            if (isNaN(theme) || theme < 1 || theme > 10) {
+                themeInput.classList.remove('bg-emerald-50/30', 'border-emerald-500/30', 'text-emerald-900');
+                themeInput.classList.add('bg-amber-50', 'border-amber-300');
+            } else {
+                themeInput.classList.remove('bg-amber-50', 'border-amber-300');
+                themeInput.classList.add('bg-emerald-50/30', 'border-emerald-500/30', 'text-emerald-900');
+            }
 
             if (!isNaN(aes) && !isNaN(theme)) {
                 totalSpan.textContent = (aes + theme).toFixed(1); // update UI
@@ -314,6 +301,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
             }
 
             if (!isNaN(aes) && !isNaN(theme) && aes >= 1 && aes <= 10 && theme >= 1 && theme <= 10) {
+                // Vote completed & valid -> Green indicator
+                btn.classList.remove('bg-[#0A2240]', 'hover:bg-[#1E3A5F]');
+                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                icon.className = 'fas fa-check-circle';
+                text.textContent = 'Vote validé';
+
                 // Submit AJAX
                 const formData = new FormData();
                 formData.append('ajax_vote', '1');
@@ -334,6 +327,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                         }
                     })
                     .catch(err => console.error('Fetch error:', err));
+            } else {
+                // Incomplete or invalid -> Dark blue indicator
+                btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                btn.classList.add('bg-[#0A2240]', 'hover:bg-[#1E3A5F]');
+                icon.className = 'far fa-circle';
+                text.textContent = 'Note incomplète';
             }
         }
 

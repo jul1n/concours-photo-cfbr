@@ -1,6 +1,8 @@
 <?php
 // jury_classement.php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
     header("Location: login.php");
     exit;
@@ -53,27 +55,11 @@ try {
 
 <body class="bg-gray-100 font-sans pb-20">
 
-    <header class="bg-[#0A2240] text-white p-4 sticky top-0 z-50 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold font-title">Synthèse des Votes</h1>
-                <div class="space-x-4 text-xs mt-1">
-                    <a href="qualif.php" class="text-gray-400 hover:text-white transition">1.
-                        Qualification</a>
-                    <a href="home.php" class="text-gray-400 hover:text-white transition">2. Notation</a>
-                    <a href="ranking.php" class="text-gray-400 hover:text-white transition">3. Classement</a>
-                    <span class="text-[#FF9900] font-bold">4. Synthèse</span>
-                </div>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="text-right text-xs">
-                    <div class="font-bold">Jury:
-                        <?= htmlspecialchars($_SESSION['jury_email'] ?? $_SESSION['jury_name'] ?? ($_SESSION['jury_email'] ?? $_SERVER['REMOTE_ADDR'])) ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <?php
+    $activeTab = 'sort';
+    $headerTitle = "Synthèse des Votes";
+    include __DIR__ . '/header.php';
+    ?>
 
     <div class="container mx-auto p-4 max-w-5xl">
 
@@ -85,7 +71,7 @@ try {
             </div>
             <div class="flex flex-wrap gap-2">
                 <?php foreach ([3, 10, 25, 50, 100] as $lim): ?>
-                    <a href="admin_export_zip.php?limit=<?= $lim ?>" target="_blank"
+                    <a href="../admin/export_zip.php?limit=<?= $lim ?>" target="_blank"
                         class="bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1 rounded text-sm font-bold hover:bg-blue-100 transition">
                         Top <?= $lim ?>
                     </a>
@@ -95,12 +81,14 @@ try {
             <div class="w-px h-8 bg-gray-300 mx-2 hidden md:block"></div>
 
             <div class="flex items-center gap-2">
-                <a href="admin_export_pdf.php" target="_blank"
+                <a href="../admin/export_pdf.php" target="_blank"
                     class="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700 shadow flex items-center">
                     <i class="fas fa-file-pdf mr-2"></i> Rapport Complet (PDF)
                 </a>
             </div>
         </div>
+
+        <h2 class="text-2xl font-bold text-[#0A2240] text-center mb-6"><i class="fas fa-chart-bar mr-2 text-slate-500"></i>Synthèse du Tour 1 (Moyenne des Notes)</h2>
 
         <!-- Podium -->
         <?php if (count($rankings) > 0): ?>
