@@ -246,7 +246,7 @@ if (is_dir($slideDir)) {
                 </div>
 
                 <!-- Prix Spécial Organisme Unique -->
-                <div class="max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-orange-50 p-8 rounded-2xl shadow-lg border border-[#0A2240]/10">
+                <div class="max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-orange-50 p-8 rounded-2xl shadow-lg border border-[#0A2240]/10 transform transition md:hover:scale-105 duration-300">
                     <div class="text-center">
                         <span class="text-xs font-bold text-[#FF9900] uppercase tracking-wide px-3 py-1 bg-white rounded-full shadow-sm">Prix Spécial Organisme</span>
                         <h4 class="text-2xl font-bold text-[#0A2240] mt-3">Le Trophée des Organismes</h4>
