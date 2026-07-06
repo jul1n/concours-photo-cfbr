@@ -9,6 +9,45 @@ if (!$isUnlocked) {
     die("Accès refusé. Veuillez déverrouiller depuis la page de résultats.");
 }
 
+// Check if ZipArchive extension is loaded
+if (!class_exists('ZipArchive')) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Extension ZIP manquante</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <?php include __DIR__ . '/../includes/pwa_loader.php'; ?>
+    </head>
+    <body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-xl w-full bg-white rounded-2xl shadow-xl border border-amber-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-8 text-center text-white">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-md mb-4">
+                    <i class="fas fa-file-archive text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Extension ZIP non activée</h2>
+                <p class="text-amber-100 text-sm mt-1">L'extension PHP "zip" est requise pour générer l'archive des photos.</p>
+            </div>
+            
+            <div class="p-8">
+                <h3 class="font-bold text-[#0A2240] mb-3 text-lg"><i class="fas fa-tools mr-2 text-amber-500"></i>Comment l'activer dans Laragon :</h3>
+                <ol class="list-decimal list-inside space-y-2.5 text-gray-600 text-sm mb-8 border-b pb-6">
+                    <li>Faites un <strong>clic droit</strong> sur l'icône de Laragon (dans la barre des tâches Windows).</li>
+                    <li>Naviguez dans le menu : <strong>PHP</strong> &rarr; <strong>Extensions</strong>.</li>
+                    <li>Cliquez sur <strong>zip</strong> dans la liste pour l'activer (une coche doit apparaître).</li>
+                    <li>Cliquez sur <strong>"Reload"</strong> ou redémarrez les services de Laragon.</li>
+                    <li>Actualisez cette page pour lancer le téléchargement.</li>
+                </ol>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;
 if ($limit <= 0)
     $limit = 10;
