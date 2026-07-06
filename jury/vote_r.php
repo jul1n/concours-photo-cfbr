@@ -17,8 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Erreur de données reçues.";
     } else {
         try {
-            // Barème points
-            $pointsMap = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+            // Barème points : 100 pour le 1er, 99 pour le 2e... 1 pour le 100e, 0 au-delà
+            $pointsMap = [];
+            for ($i = 0; $i < 100; $i++) {
+                $pointsMap[] = 100 - $i;
+            }
 
             $pdo->beginTransaction();
 

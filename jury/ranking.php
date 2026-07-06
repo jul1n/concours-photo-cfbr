@@ -30,7 +30,7 @@ try {
         GROUP BY p.id 
         HAVING total_score > 0
         ORDER BY CASE WHEN v2.rank IS NOT NULL THEN 0 ELSE 1 END ASC, v2.rank ASC, total_score DESC 
-        LIMIT 10
+        LIMIT 100
     ";
     $stm = $pdo->prepare($sql);
     $stm->execute([$juryId]);
@@ -76,7 +76,7 @@ try {
     <main class="container mx-auto p-4 max-w-4xl">
         <div class="bg-blue-50 border-l-4 border-[#0A2240] p-4 mb-6 shadow-sm">
             <p class="text-sm text-[#0A2240] font-bold"><i class="fas fa-info-circle mr-1"></i> Instructions :</p>
-            <p class="text-sm">Voici les 10 photos les mieux notées. Classez-les par ordre de préférence (de haut en
+            <p class="text-sm">Voici les 100 photos les mieux notées. Classez-les par ordre de préférence (de haut en
                 bas) pour l'attribution finale des prix.</p>
         </div>
 
@@ -90,7 +90,7 @@ try {
                         data-id="<?= $photo['id'] ?>">
                         <div class="flex flex-col items-center">
                             <span class="text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">Rang</span>
-                            <input type="number" min="1" max="10" value="<?= $index + 1 ?>" 
+                            <input type="number" min="1" max="100" value="<?= $index + 1 ?>" 
                                 class="w-14 text-center border border-gray-300 rounded font-bold py-1.5 text-base rank-input focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] outline-none" 
                                 onchange="moveRowByInput(this)">
                         </div>
