@@ -106,33 +106,34 @@ try {
 
             <!-- Export Toolbar -->
             <div class="mb-8 flex flex-wrap gap-4 items-center justify-between bg-white p-4 rounded shadow">
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-file-archive text-[#0A2240] text-xl"></i>
-                    <span class="font-bold text-[#0A2240]">Exports ZIP :</span>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <?php foreach ([3, 10, 25, 50, 100] as $lim): ?>
-                        <a href="export_zip.php?limit=<?= $lim ?>" target="_blank"
-                            class="bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1 rounded text-sm font-bold hover:bg-blue-100 transition">
-                            Top <?= $lim ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-
-                <div class="w-px h-8 bg-gray-300 mx-2 hidden md:block"></div>
-
                 <div class="flex items-center gap-4 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-file-archive text-[#0A2240] text-xl"></i>
+                        <span class="font-bold text-[#0A2240]">Exports ZIP :</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <?php foreach ([3, 10, 25, 50, 100] as $lim): ?>
+                            <a href="export_zip.php?limit=<?= $lim ?>" target="_blank"
+                                class="bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1 rounded text-sm font-bold hover:bg-blue-100 transition">
+                                Top <?= $lim ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="w-px h-8 bg-gray-300 mx-2 hidden lg:block"></div>
+                </div>
+
+                <div class="flex items-center gap-3 flex-wrap">
                     <a href="export_pdf.php" target="_blank"
-                        class="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700 shadow flex items-center text-sm">
-                        <i class="fas fa-file-pdf mr-2"></i> Rapport Complet (PDF)
+                        class="bg-red-600 text-white px-3 py-1.5 rounded font-bold hover:bg-red-700 shadow flex items-center text-sm">
+                        <i class="fas fa-file-pdf mr-1.5"></i> Rapport PDF
                     </a>
                     <a href="backup_all.php" target="_blank"
-                        class="bg-emerald-600 text-white px-4 py-2 rounded font-bold hover:bg-emerald-700 shadow flex items-center text-sm">
-                        <i class="fas fa-download mr-2"></i> Sauvegarde Globale (ZIP)
+                        class="bg-emerald-600 text-white px-3 py-1.5 rounded font-bold hover:bg-emerald-700 shadow flex items-center text-sm">
+                        <i class="fas fa-download mr-1.5"></i> Sauvegarde (ZIP)
                     </a>
                     <a href="rejected.php"
-                        class="bg-rose-700 text-white px-4 py-2 rounded font-bold hover:bg-rose-800 shadow flex items-center text-sm">
-                        <i class="fas fa-trash-alt mr-2"></i> Dossiers Exclus
+                        class="bg-[#8E1B3E] text-white px-3 py-1.5 rounded font-bold hover:bg-rose-900 shadow flex items-center text-sm">
+                        <i class="fas fa-trash-alt mr-1.5"></i> Exclus
                     </a>
                 </div>
             </div>
