@@ -203,7 +203,7 @@ try {
                                 <th class="p-4">Candidat</th>
                                 <th class="p-4">Entreprise</th>
                                 <th class="p-4">Points</th>
-                                <th class="p-4">Original</th>
+                                <th class="p-4">Télécharger</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y">
@@ -225,10 +225,25 @@ try {
                                     <td class="p-4 text-sm"><?= htmlspecialchars($row['company']) ?></td>
                                     <td class="p-4 font-bold text-[#0A2240]"><?= $row['total_points'] ?></td>
                                     <td class="p-4">
-                                        <a href="../photos/originals/<?= $row['filename_original'] ?>" download
-                                            class="text-green-600 hover:text-green-800">
-                                            <i class="fas fa-download"></i>
-                                        </a>
+                                        <div class="flex flex-col gap-1.5 max-w-[120px]">
+                                            <?php
+                                            // Construct nominative filename
+                                            $rank = str_pad($i + 1, 3, '0', STR_PAD_LEFT);
+                                            $firstnameClean = preg_replace('/[^a-zA-Z0-9]/', '', $row['firstname']);
+                                            $lastnameClean = preg_replace('/[^a-zA-Z0-9]/', '', strtoupper($row['lastname']));
+                                            $titleClean = preg_replace('/[^a-zA-Z0-9_-]/', '_', $row['title'] ?: 'SansTitre');
+                                            $ext = pathinfo($row['filename_original'], PATHINFO_EXTENSION);
+                                            $nominativeName = "{$rank}_{$firstnameClean}_{$lastnameClean}_{$titleClean}.{$ext}";
+                                            ?>
+                                            <a href="../photos/originals/<?= $row['filename_original'] ?>" download="<?= $row['filename_original'] ?>"
+                                               class="inline-flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] px-2.5 py-1.5 rounded font-semibold transition justify-center">
+                                                <i class="fas fa-user-secret text-gray-500"></i> Anonyme
+                                            </a>
+                                            <a href="../photos/originals/<?= $row['filename_original'] ?>" download="<?= $nominativeName ?>"
+                                               class="inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1.5 rounded font-semibold transition justify-center">
+                                                <i class="fas fa-user text-blue-600"></i> Nom Prénom
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
