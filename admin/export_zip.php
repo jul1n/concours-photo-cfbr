@@ -4,7 +4,8 @@ session_start();
 require_once __DIR__ . '/../core/db.php';
 
 // Security Check
-if (!isset($_SESSION['admin_unlocked']) || $_SESSION['admin_unlocked'] !== true) {
+$isUnlocked = (isset($_SESSION['admin_unlocked']) && $_SESSION['admin_unlocked'] === true) || (isset($_SESSION['maintenance_authed']) && $_SESSION['maintenance_authed'] === true);
+if (!$isUnlocked) {
     die("Accès refusé. Veuillez déverrouiller depuis la page de résultats.");
 }
 
@@ -51,7 +52,7 @@ foreach ($results as $index => $row) {
     $cleanTitle = preg_replace('/[^a-zA-Z0-9_-]/', '_', $row['title'] ?: 'SansTitre');
     $cleanTitle = substr($cleanTitle, 0, 30);
 
-    $originalPath = __DIR__ . '/photos/originals/' . $row['filename_original'];
+    $originalPath = __DIR__ . '/../photos/originals/' . $row['filename_original'];
     $ext = pathinfo($originalPath, PATHINFO_EXTENSION);
 
     // New Name: 001_Marie_CURIE_Titre.jpg
