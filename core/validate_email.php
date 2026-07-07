@@ -3,6 +3,7 @@
 // Increase memory limit for PDF generation and email sending
 ini_set('memory_limit', '512M');
 
+require_once __DIR__ . '/auth.php'; // app_config()
 require_once __DIR__ . '/db.php';
 
 if (isset($_GET['token'])) {
@@ -32,7 +33,7 @@ if (isset($_GET['token'])) {
             mkdir($pdfDir, 0755, true);
         }
 
-        $pdfPath = $pdfDir . 'agreement_' . $participant['id'] . '.pdf';
+        $pdfPath = get_participant_pdf_path($participant);
 
         // 1. Generate for persistent storage AND get output
         $pdfOutput = PDFGenerator::generateForParticipant($participant, $photos, 'S');
@@ -55,7 +56,7 @@ if (isset($_GET['token'])) {
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
 
-        $dossierLink = "http://" . $_SERVER['HTTP_HOST'] . str_replace('/core', '', dirname($_SERVER['PHP_SELF'])) . "/dossier.php?token=" . $participant['validation_token'];
+        $dossierLink = rtrim(app_config()['base_url'], '/') . "/dossier.php?token=" . urlencode($participant['validation_token']);
         $message = "--$boundary\r\n";
         $message .= "Content-Type: text/plain; charset=\"utf-8\"\r\n";
         $message .= "Content-Transfer-Encoding: 7bit\r\n\r\n";

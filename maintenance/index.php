@@ -4,32 +4,48 @@
  * Centralizes DB Init, Jury Management, and System Diagnostics.
  */
 
-// 1. Security check
-session_start();
-$requiredToken = "cfbr_repair_2026";
+// 1. Security check — authentification par mot de passe hashé (core/config.php)
+require_once __DIR__ . '/../core/auth.php';
 
-// Handle login via GET once, then use session
-if (isset($_GET['token']) && $_GET['token'] === $requiredToken) {
-    $_SESSION['maintenance_authed'] = true;
+$maintHash = app_config()['maintenance_password_hash'] ?? '';
+$loginError = '';
+
+// Traitement du formulaire de connexion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['maintenance_password'])) {
+    if ($maintHash !== '' && password_verify($_POST['maintenance_password'], $maintHash)) {
+        session_regenerate_id(true); // anti fixation de session
+        $_SESSION['maintenance_authed'] = true;
+    } else {
+        $loginError = "Mot de passe incorrect.";
+    }
 }
 
-$isAuthorized = isset($_SESSION['maintenance_authed']) && $_SESSION['maintenance_authed'] === true;
-
-if (!$isAuthorized) {
-    header('HTTP/1.1 403 Forbidden');
-    die("<h1>Accès refusé</h1><p>Veuillez utiliser le lien de maintenance officiel ou contacter l'administrateur.</p>");
+if (!is_maintenance()) {
+    http_response_code(403);
+    // Affiche un formulaire de connexion minimal.
+    $err = $loginError ? '<p style="color:#c00">' . htmlspecialchars($loginError) . '</p>' : '';
+    $noHash = ($maintHash === '')
+        ? '<p style="color:#c00">Aucun mot de passe configuré. Renseignez "maintenance_password_hash" dans core/config.php.</p>'
+        : '';
+    echo '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+        . '<title>Maintenance — Connexion</title></head>'
+        . '<body style="font-family:sans-serif;max-width:360px;margin:80px auto;text-align:center">'
+        . '<h1>Espace Maintenance</h1>' . $err . $noHash
+        . '<form method="POST">'
+        . '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(csrf_token(), ENT_QUOTES) . '">'
+        . '<input type="password" name="maintenance_password" placeholder="Mot de passe" '
+        . 'style="width:100%;padding:10px;margin:10px 0;box-sizing:border-box" autofocus>'
+        . '<button type="submit" style="width:100%;padding:10px">Se connecter</button>'
+        . '</form></body></html>';
+    exit;
 }
 
-// 2. CSRF Protection
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
+// 2. CSRF Protection (compatibilité avec l'existant : checkCSRF())
+csrf_token(); // garantit que $_SESSION['csrf_token'] existe pour les formulaires
 function checkCSRF()
 {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die("Erreur de sécurité : Jeton CSRF invalide.");
-    }
+    csrf_check();
 }
 
 // 2. Load DB Connection (Robust way for maintenance)
@@ -44,6 +60,191 @@ try {
     $dbStatus = "Connecté";
 } catch (Exception $e) {
     $dbStatus = "Erreur (Normal si base non initialisée) : " . $e->getMessage();
+}
+
+// --- Outils de partitionnement et renommage des photos pour sauvegarde ---
+function get_non_anonymous_filename(array $photo): string
+{
+    $cleanFirstname = str_replace([' ', "'", '"', '’'], '_', mb_strtolower(trim($photo['firstname'] ?? ''), 'UTF-8'));
+    $cleanLastname = str_replace([' ', "'", '"', '’'], '_', mb_strtolower(trim($photo['lastname'] ?? ''), 'UTF-8'));
+    $cleanTitle = str_replace([' ', "'", '"', '’'], '_', mb_strtolower(trim($photo['title'] ?? ''), 'UTF-8'));
+    
+    $unwanted_array = [
+        'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+        'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+        'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+        'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+        'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y'
+    ];
+    $cleanFirstname = strtr($cleanFirstname, $unwanted_array);
+    $cleanLastname = strtr($cleanLastname, $unwanted_array);
+    $cleanTitle = strtr($cleanTitle, $unwanted_array);
+    
+    $cleanFirstname = preg_replace('/[^a-z0-9_-]/', '', $cleanFirstname);
+    $cleanLastname = preg_replace('/[^a-z0-9_-]/', '', $cleanLastname);
+    $cleanTitle = preg_replace('/[^a-z0-9_-]/', '', $cleanTitle);
+    
+    $ext = strtolower(pathinfo($photo['filename_original'] ?? '', PATHINFO_EXTENSION));
+    if (empty($ext)) {
+        $ext = 'jpg';
+    }
+    
+    return $photo['id'] . '_' . $cleanFirstname . '_' . $cleanLastname . '_' . $cleanTitle . '.' . $ext;
+}
+
+function get_backup_parts(PDO $pdo, string $dir_type, int $max_size_bytes = 700 * 1024 * 1024): array
+{
+    $stmt = $pdo->query("
+        SELECT p.*, part.firstname, part.lastname 
+        FROM photos p
+        JOIN participants part ON p.participant_id = part.id
+        ORDER BY p.id ASC
+    ");
+    $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $parts = [];
+    $current_part_files = [];
+    $current_part_size = 0;
+    $part_num = 1;
+
+    foreach ($photos as $photo) {
+        $filename = ($dir_type === 'originals') ? $photo['filename_original'] : $photo['filename_4k'];
+        $folder = ($dir_type === 'originals') ? '../photos/originals/' : '../photos/display_4k/';
+        $filePath = __DIR__ . '/' . $folder . $filename;
+
+        if (file_exists($filePath)) {
+            $size = filesize($filePath);
+            if ($current_part_size + $size > $max_size_bytes && !empty($current_part_files)) {
+                $parts[$part_num] = [
+                    'size' => $current_part_size,
+                    'files' => $current_part_files
+                ];
+                $part_num++;
+                $current_part_files = [];
+                $current_part_size = 0;
+            }
+            $current_part_files[] = [
+                'id' => $photo['id'],
+                'src_path' => $filePath,
+                'photo' => $photo
+            ];
+            $current_part_size += $size;
+        }
+    }
+
+    if (!empty($current_part_files)) {
+        $parts[$part_num] = [
+            'size' => $current_part_size,
+            'files' => $current_part_files
+        ];
+    }
+
+    return $parts;
+}
+
+// --- Gestion des téléchargements de sauvegardes ---
+if (isset($_GET['download_backup'])) {
+    session_write_close();
+    $type = $_GET['download_backup'];
+
+    if (!class_exists('ZipArchive')) {
+        die("Erreur : L'extension ZipArchive de PHP n'est pas activée sur ce serveur.");
+    }
+
+    if ($type === 'pdfs') {
+        $dir = __DIR__ . '/../uploads/pdfs/';
+        $zipName = "Sauvegarde_PDFs_CFBR_" . date('Y-m-d_Hi') . ".zip";
+        
+        $zip = new ZipArchive();
+        $tempZipPath = sys_get_temp_dir() . '/' . $zipName;
+
+        if ($zip->open($tempZipPath, ZipArchive::CREATE) !== TRUE) {
+            die("Impossible de créer l'archive ZIP.");
+        }
+
+        $files = scandir($dir);
+        $addedCount = 0;
+        foreach ($files as $file) {
+            if ($file !== '.' && $file !== '..' && $file !== '.htaccess' && substr($file, 0, 1) !== '.') {
+                if (strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'pdf') {
+                    $zip->addFile($dir . $file, $file);
+                    $addedCount++;
+                }
+            }
+        }
+        $zip->close();
+
+        if ($addedCount === 0) {
+            if (file_exists($tempZipPath)) {
+                unlink($tempZipPath);
+            }
+            die("Aucun fichier trouvé pour la sauvegarde.");
+        }
+
+        if (file_exists($tempZipPath)) {
+            header('Content-Type: application/zip');
+            header('Content-Disposition: attachment; filename="' . $zipName . '"');
+            header('Content-Length: ' . filesize($tempZipPath));
+            readfile($tempZipPath);
+            unlink($tempZipPath);
+            exit;
+        } else {
+            die("Erreur de génération de la sauvegarde.");
+        }
+
+    } elseif ($type === 'photos_originals' || $type === 'photos_display') {
+        if (!$pdo) {
+            die("Erreur : Connexion à la base de données requise pour cette sauvegarde.");
+        }
+        $dir_type = ($type === 'photos_originals') ? 'originals' : 'display';
+        $parts = get_backup_parts($pdo, $dir_type);
+        $part = isset($_GET['part']) ? intval($_GET['part']) : 1;
+
+        if (!isset($parts[$part])) {
+            die("Partie de sauvegarde inexistante.");
+        }
+
+        $zipName = ($type === 'photos_originals') 
+            ? "Sauvegarde_Photos_Originales_CFBR_Partie" . $part . "_" . date('Y-m-d_Hi') . ".zip"
+            : "Sauvegarde_Photos_4K_CFBR_Partie" . $part . "_" . date('Y-m-d_Hi') . ".zip";
+
+        $zip = new ZipArchive();
+        $tempZipPath = sys_get_temp_dir() . '/' . $zipName;
+
+        if ($zip->open($tempZipPath, ZipArchive::CREATE) !== TRUE) {
+            die("Impossible de créer l'archive ZIP.");
+        }
+
+        $addedCount = 0;
+        foreach ($parts[$part]['files'] as $fileData) {
+            $srcPath = $fileData['src_path'];
+            $localName = get_non_anonymous_filename($fileData['photo']);
+            $zip->addFile($srcPath, $localName);
+            $addedCount++;
+        }
+
+        $zip->close();
+
+        if ($addedCount === 0) {
+            if (file_exists($tempZipPath)) {
+                unlink($tempZipPath);
+            }
+            die("Aucun fichier trouvé pour cette partie.");
+        }
+
+        if (file_exists($tempZipPath)) {
+            header('Content-Type: application/zip');
+            header('Content-Disposition: attachment; filename="' . $zipName . '"');
+            header('Content-Length: ' . filesize($tempZipPath));
+            readfile($tempZipPath);
+            unlink($tempZipPath);
+            exit;
+        } else {
+            die("Erreur de génération de la sauvegarde.");
+        }
+    } else {
+        die("Type de sauvegarde inconnu.");
+    }
 }
 
 // 3. Define Jury Members (Static data for injection)
@@ -666,12 +867,16 @@ if (isset($_POST['action'])) {
 
         // Save SMTP Settings
         if ($action === 'save_smtp') {
+            checkCSRF();
             $smtp_data = [
                 'smtp_host' => $_POST['smtp_host'] ?? '',
                 'smtp_port' => $_POST['smtp_port'] ?? '',
                 'smtp_user' => $_POST['smtp_user'] ?? '',
-                'smtp_pass' => $_POST['smtp_pass'] ?? ''
             ];
+            // Ne met à jour le mot de passe que si un nouveau est fourni.
+            if (isset($_POST['smtp_pass']) && $_POST['smtp_pass'] !== '') {
+                $smtp_data['smtp_pass'] = $_POST['smtp_pass'];
+            }
             try {
                 $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
                 foreach ($smtp_data as $key => $val) {
@@ -1226,8 +1431,9 @@ if ($pdo) {
                         <input type="text" name="smtp_user" placeholder="Utilisateur / Email"
                             value="<?= htmlspecialchars($settings['smtp_user'] ?? '') ?>"
                             class="text-xs border rounded p-2 w-full">
-                        <input type="password" name="smtp_pass" placeholder="Mot de passe"
-                            value="<?= htmlspecialchars($settings['smtp_pass'] ?? '') ?>"
+                        <input type="password" name="smtp_pass"
+                            placeholder="<?= !empty($settings['smtp_pass']) ? '•••••••• (laisser vide pour conserver)' : 'Mot de passe' ?>"
+                            autocomplete="new-password"
                             class="text-xs border rounded p-2 w-full">
                         <button type="submit"
                             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition text-xs">
@@ -1244,6 +1450,93 @@ if ($pdo) {
 
             <!-- Colonne DROITE : Installation & Setup -->
             <section class="space-y-6">
+
+                <!-- Téléchargement des Sauvegardes / Backups -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div
+                            class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 mb-1">Téléchargement des Sauvegardes</h3>
+                            <p class="text-xs text-slate-500 leading-relaxed">Générez et téléchargez des archives ZIP de vos données.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <!-- Database Backup -->
+                        <a href="../admin/backup_all.php?download_db=1" 
+                           class="flex items-center justify-between bg-slate-50 hover:bg-slate-100 border border-gray-200 text-slate-700 rounded-lg p-2.5 text-xs font-semibold transition">
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-database text-blue-500 w-4 text-center"></i>
+                                Base de données (concours.db)
+                            </span>
+                            <i class="fas fa-chevron-right text-slate-400"></i>
+                        </a>
+
+                        <!-- PDFs Backup -->
+                        <a href="?download_backup=pdfs" 
+                           class="flex items-center justify-between bg-slate-50 hover:bg-slate-100 border border-gray-200 text-slate-700 rounded-lg p-2.5 text-xs font-semibold transition">
+                            <span class="flex items-center gap-2">
+                                <i class="fas fa-file-pdf text-red-500 w-4 text-center"></i>
+                                Tous les PDFs générés (.zip)
+                            </span>
+                            <i class="fas fa-chevron-right text-slate-400"></i>
+                        </a>
+
+                        <!-- Original Photos Backup -->
+                        <?php
+                        $origParts = $pdo ? get_backup_parts($pdo, 'originals') : [];
+                        if (empty($origParts)):
+                        ?>
+                            <div class="flex items-center justify-between bg-slate-50 border border-gray-200 text-slate-400 rounded-lg p-2.5 text-xs font-semibold select-none">
+                                <span class="flex items-center gap-2">
+                                    <i class="fas fa-images text-slate-400 w-4 text-center"></i>
+                                    Photos Originales (Aucune photo)
+                                </span>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($origParts as $num => $pData): 
+                                $sizeMb = round($pData['size'] / (1024 * 1024), 1);
+                            ?>
+                                <a href="?download_backup=photos_originals&part=<?= $num ?>" 
+                                   class="flex items-center justify-between bg-slate-50 hover:bg-slate-100 border border-gray-200 text-slate-700 rounded-lg p-2.5 text-xs font-semibold transition">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fas fa-images text-emerald-500 w-4 text-center"></i>
+                                        Photos Originales - Partie <?= $num ?> (<?= $sizeMb ?> Mo)
+                                    </span>
+                                    <i class="fas fa-download text-slate-400"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+
+                        <!-- Display Photos Backup -->
+                        <?php
+                        $dispParts = $pdo ? get_backup_parts($pdo, 'display') : [];
+                        if (empty($dispParts)):
+                        ?>
+                            <div class="flex items-center justify-between bg-slate-50 border border-gray-200 text-slate-400 rounded-lg p-2.5 text-xs font-semibold select-none">
+                                <span class="flex items-center gap-2">
+                                    <i class="fas fa-image text-slate-400 w-4 text-center"></i>
+                                    Photos 4K (Aucune photo)
+                                </span>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($dispParts as $num => $pData): 
+                                $sizeMb = round($pData['size'] / (1024 * 1024), 1);
+                            ?>
+                                <a href="?download_backup=photos_display&part=<?= $num ?>" 
+                                   class="flex items-center justify-between bg-slate-50 hover:bg-slate-100 border border-gray-200 text-slate-700 rounded-lg p-2.5 text-xs font-semibold transition">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fas fa-image text-amber-500 w-4 text-center"></i>
+                                        Photos 4K / Affichage - Partie <?= $num ?> (<?= $sizeMb ?> Mo)
+                                    </span>
+                                    <i class="fas fa-download text-slate-400"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
                 <!-- Initialisation DB -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

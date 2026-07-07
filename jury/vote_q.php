@@ -1,11 +1,15 @@
 <?php
 // vote_tour1.php
+require_once __DIR__ . '/../core/auth.php';
+require_jury(true); // 403 JSON si non authentifié
 require_once __DIR__ . '/../core/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_check();
     $photoId = intval($_POST['photo_id']);
     $value = $_POST['value']; // 'oui' or 'non'
-    $ip = $_SERVER['REMOTE_ADDR'];
+    // Identifiant fiable = e-mail de session (et non l'IP, usurpable)
+    $ip = $_SESSION['jury_email'] ?? $_SERVER['REMOTE_ADDR'];
 
     try {
         // Enregistrer le vote

@@ -5,6 +5,7 @@ ini_set('upload_max_filesize', '100M');
 ini_set('post_max_size', '100M');
 ini_set('memory_limit', '512M');
 
+require_once __DIR__ . '/auth.php'; // app_config()
 require_once __DIR__ . '/db.php';
 
 // Chemins
@@ -12,7 +13,41 @@ $uploadDirOriginal = __DIR__ . '/../photos/originals/';
 $uploadDir4k = __DIR__ . '/../photos/display_4k/';
 $uploadDirThumb = __DIR__ . '/../photos/thumbs/';
 
+/**
+ * Crée un dossier s'il n'existe pas et y dépose un .htaccess de protection.
+ * $mode : 'deny' = accès direct interdit, 'nophp' = lecture ok mais pas d'exécution PHP.
+ */
+function ensureProtectedDir(string $dir, string $mode): void
+{
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+    $ht = $dir . '.htaccess';
+    if (!file_exists($ht)) {
+        if ($mode === 'deny') {
+            file_put_contents($ht, "Require all denied\n");
+        } else { // nophp
+            file_put_contents(
+                $ht,
+                "php_flag engine off\n"
+                . "RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps\n"
+                . "RemoveType .php .phtml .php3 .php4 .php5 .php7 .phps\n"
+                . "<FilesMatch \"\\.(?i:php|phtml|php3|php4|php5|php7|phps|pht)\$\">\n"
+                . "    Require all denied\n"
+                . "</FilesMatch>\n"
+            );
+        }
+    }
+}
+
+// Originaux : jamais servis directement au public → accès interdit.
+ensureProtectedDir($uploadDirOriginal, 'deny');
+// 4K et thumbs : servis publiquement mais sans exécution de script.
+ensureProtectedDir($uploadDir4k, 'nophp');
+ensureProtectedDir($uploadDirThumb, 'nophp');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_check();
     $firstname = htmlspecialchars($_POST['firstname']);
     $lastname = htmlspecialchars($_POST['lastname']);
     // Fallback if needed but we should now always have separate fields
@@ -104,10 +139,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 die("Erreur : Le fichier $originalName dépasse la limite de 25 Mo.");
             }
 
-            // Validation Image
+            // Validation Image + type réel (ne pas se fier à l'extension fournie)
             $imageInfo = getimagesize($tmpName);
             if ($imageInfo === false)
                 continue; // Pas une image
+
+            // Whitelist stricte des types d'image autorisés → extension canonique.
+            $allowedTypes = [
+                IMAGETYPE_JPEG => 'jpg',
+                IMAGETYPE_PNG  => 'png',
+                IMAGETYPE_GIF  => 'gif',
+                IMAGETYPE_WEBP => 'webp',
+            ];
+            $detectedType = $imageInfo[2] ?? null;
+            if (!isset($allowedTypes[$detectedType])) {
+                continue; // Type d'image non autorisé (ou fichier polyglotte)
+            }
+            $safeExt = $allowedTypes[$detectedType];
 
             $width = $imageInfo[0];
             $height = $imageInfo[1];
@@ -123,12 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Détection Basse Résolution (< 3000px)
             $isLowRes = ($longestSide < 3000) ? 1 : 0;
 
-            // Génération nom anonyme
-            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+            // Génération nom anonyme (extension canonique validée, jamais celle fournie)
             $randomHash = bin2hex(random_bytes(8));
             $newBaseName = "photo_" . $randomHash;
 
-            $fileOriginal = $newBaseName . "." . $ext;
+            $fileOriginal = $newBaseName . "." . $safeExt;
             $file4k = $newBaseName . "_4k.jpg";
             $fileThumb = $newBaseName . "_thumb.jpg";
 
@@ -150,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Envoi de l'email de validation
-    $link = "http://" . $_SERVER['HTTP_HOST'] . str_replace('/core', '', dirname($_SERVER['PHP_SELF'])) . "/core/validate_email.php?token=$token";
+    $link = rtrim(app_config()['base_url'], '/') . "/core/validate_email.php?token=" . urlencode($token);
 
     $subject = "Confirmez votre participation - Concours Photo CFBR";
     $message = "Bonjour $firstname $lastname,\n\n";
@@ -161,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message .= "Cordialement,\nle comité d'organisation du concours photo des 100 ans du Cfbr";
 
     // Récupération de l'expéditeur configuré (SMTP user)
-    $mailFrom = "no-reply@barrages-cfbr.eu";
+    $mailFrom = app_config()['mail_from'];
     try {
         $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'smtp_user'");
         $configuredFrom = $stmt->fetchColumn();

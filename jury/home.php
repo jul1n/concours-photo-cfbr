@@ -1,14 +1,8 @@
 <?php
 // jury_tour1.php
+require_once __DIR__ . '/../core/auth.php';
+require_jury();
 require_once __DIR__ . '/../includes/analytics.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
-    header("Location: login.php");
-    exit;
-}
-
 require_once __DIR__ . '/../core/db.php';
 
 // --- Logic ---
@@ -49,6 +43,7 @@ try {
 // Handle AJAX Vote Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
     header('Content-Type: application/json');
+    csrf_check();
     $photoId = intval($_POST['photo_id']);
     $aesthetic = floatval($_POST['aesthetic']);
     $theme = floatval($_POST['theme']);
@@ -69,7 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
         $stmt->execute([$photoId, $juryId, $aesthetic, $theme]);
         echo json_encode(['status' => 'success']);
     } catch (Exception $e) {
-        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        error_log('[vote] ' . $e->getMessage());
+        echo json_encode(['status' => 'error', 'message' => 'Enregistrement impossible']);
     }
     exit;
 }
@@ -236,6 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
     </div>
 
     <script>
+        window.CSRF_TOKEN = "<?= htmlspecialchars(csrf_token(), ENT_QUOTES) ?>";
         function openModal(src, title) {
             document.getElementById('modalImg').src = src;
             document.getElementById('modalTitle').textContent = title;
@@ -310,6 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
                 // Submit AJAX
                 const formData = new FormData();
                 formData.append('ajax_vote', '1');
+                formData.append('csrf_token', window.CSRF_TOKEN);
                 formData.append('photo_id', photoId);
                 formData.append('aesthetic', aes);
                 formData.append('theme', theme);
@@ -351,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_vote'])) {
             fetch('toggle_promo.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `photo_id=${photoId}`
+                body: `photo_id=${photoId}&csrf_token=${encodeURIComponent(window.CSRF_TOKEN)}`
             })
                 .then(response => response.json())
                 .then(data => {

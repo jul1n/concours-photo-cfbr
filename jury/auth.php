@@ -1,8 +1,7 @@
 <?php
 // jury_process_login.php
-require __DIR__ . '/../core/db.php'; // Updated to avoid re-initialization outputs
-
-session_start();
+require_once __DIR__ . '/../core/auth.php'; // fournit app_config() + démarre la session
+require __DIR__ . '/../core/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
@@ -39,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO jury_tokens (jury_id, token) VALUES (?, ?)");
         $stmt->execute([$jury['id'], $token]);
 
-        // 4. Send Email
-        $loginLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/verify.php?token=$token";
+        // 4. Send Email — lien construit depuis la config (HTTPS, host non falsifiable)
+        $loginLink = rtrim(app_config()['base_url'], '/') . "/jury/verify.php?token=" . urlencode($token);
 
         $subject = "Connexion Espace Jury - Concours Photo CFBR";
         $message = "Bonjour " . $jury['name'] . ",\n\n";
@@ -50,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message .= "Cordialement,\nLe CFBR";
 
         // Récupération de l'expéditeur configuré (SMTP user)
-        $mailFrom = "no-reply@barrages-cfbr.eu";
+        $mailFrom = app_config()['mail_from'];
         try {
             $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'smtp_user'");
             $configuredFrom = $stmt->fetchColumn();

@@ -1,14 +1,13 @@
 <?php
 // jury/toggle_promo.php
+require_once __DIR__ . '/../core/auth.php';
+require_jury(true); // 403 JSON si non authentifié
 require_once __DIR__ . '/../core/db.php';
-session_start();
 
-if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
-    exit;
-}
+header('Content-Type: application/json');
+csrf_check();
 
-$photoId = $_POST['photo_id'] ?? 0;
+$photoId = intval($_POST['photo_id'] ?? 0);
 
 if ($photoId) {
     try {
@@ -26,7 +25,8 @@ if ($photoId) {
             exit;
         }
     } catch (Exception $e) {
-        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        error_log('[toggle_promo] ' . $e->getMessage());
+        echo json_encode(['status' => 'error', 'message' => 'Erreur interne']);
         exit;
     }
 }

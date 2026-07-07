@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../core/auth.php';
+require_admin();
 // optimize_slides.php
 // Script to scan data/slide/, resize images, and save them to photos/slides_optimized/
 // Usage: Run this script once (or whenever new photos are added) via browser or CLI.

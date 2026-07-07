@@ -1,17 +1,17 @@
 <?php
 // vote_tour2.php
-session_start();
+require_once __DIR__ . '/../core/auth.php';
+require_jury(); // redirige vers login.php si non authentifié
 require_once __DIR__ . '/../core/db.php';
 
 $success = false;
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_check();
     $rankingOrder = json_decode($_POST['ranking_order'], true);
-    $ip = $_SERVER['REMOTE_ADDR'];
-    // Use session email if available for consistency with other pages
-    if (isset($_SESSION['jury_email']))
-        $ip = $_SESSION['jury_email'];
+    // Identifiant fiable = e-mail de session (et non l'IP, usurpable)
+    $ip = $_SESSION['jury_email'] ?? $_SERVER['REMOTE_ADDR'];
 
     if (!$rankingOrder) {
         $error = "Erreur de données reçues.";

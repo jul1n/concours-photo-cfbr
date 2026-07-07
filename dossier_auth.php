@@ -1,9 +1,8 @@
 <?php
 // dossier_auth.php
+require_once __DIR__ . '/core/auth.php'; // app_config() + session
 require_once __DIR__ . '/core/db.php';
 require_once __DIR__ . '/includes/analytics.php';
-
-session_start();
 
 $message_sent = false;
 $email_requested = '';
@@ -19,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($participant) {
         $token = $participant['validation_token'];
-        $dossierLink = "http://" . $_SERVER['HTTP_HOST'] . "/dossier.php?token=$token";
+        $dossierLink = rtrim(app_config()['base_url'], '/') . "/dossier.php?token=" . urlencode($token);
 
         $subject = "Accès à votre dossier - Concours Photo CFBR";
         $message = "Bonjour " . $participant['firstname'] . ",\n\n";

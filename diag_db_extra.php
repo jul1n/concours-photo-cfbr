@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/core/auth.php';
+require_maintenance();
 require_once __DIR__ . '/core/db.php';
 try {
     $q = $pdo->query("SELECT sql FROM sqlite_master WHERE type IN ('view', 'trigger')");

@@ -36,13 +36,13 @@ $hasVotedTour2 = ($stmtT2->fetchColumn() > 0);
 
 // Check if shortlist is not empty to know if Tour 2 is active
 $stmtS = $pdo->query("
-    SELECT COUNT(DISTINCT p.id) 
-    FROM photos p 
-    LEFT JOIN jury_votes_analytics v ON p.id = v.photo_id 
-    GROUP BY p.id 
-    HAVING (COALESCE(SUM(v.score_aesthetic), 0) + COALESCE(SUM(v.score_theme), 0)) > 0
+    SELECT EXISTS(
+        SELECT 1 FROM jury_votes_analytics
+        WHERE COALESCE(score_aesthetic, 0) + COALESCE(score_theme, 0) > 0
+        LIMIT 1
+    )
 ");
-$hasShortlist = (count($stmtS->fetchAll()) > 0);
+$hasShortlist = (bool) $stmtS->fetchColumn();
 
 $pendingClassement = ($hasShortlist && !$hasVotedTour2) ? 1 : 0;
 ?>

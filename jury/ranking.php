@@ -1,13 +1,7 @@
 <?php
 // jury_tour2.php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
-    header("Location: login.php");
-    exit;
-}
-
+require_once __DIR__ . '/../core/auth.php';
+require_jury();
 require_once __DIR__ . '/../core/db.php';
 
 // --- Logic ---
@@ -125,6 +119,7 @@ try {
             </ul>
 
             <input type="hidden" name="ranking_order" id="rankingOrder">
+            <?php csrf_field(); ?>
 
             <button type="submit"
                 class="fixed bottom-6 right-6 bg-[#FF9900] text-[#0A2240] px-8 py-4 rounded-full font-bold text-xl shadow-2xl hover:bg-[#0A2240] hover:text-white transition transform hover:scale-105 z-40 border-4 border-white">

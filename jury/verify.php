@@ -1,8 +1,7 @@
 <?php
 // jury_verify.php
+require_once __DIR__ . '/../core/auth.php'; // fournit app_config() + démarre la session
 require __DIR__ . '/../core/db.php';
-
-session_start();
 
 
 function showErrorAndDie($title, $message)
@@ -63,7 +62,7 @@ if (!$token) {
 }
 
 // Check token in DB
-$stmt = $pdo->prepare("SELECT t.id, t.jury_id, t.used_at, j.name, j.email 
+$stmt = $pdo->prepare("SELECT t.id, t.jury_id, t.used_at, t.created_at, j.name, j.email 
                        FROM jury_tokens t 
                        JOIN jury_members j ON t.jury_id = j.id 
                        WHERE t.token = ?");
@@ -74,16 +73,24 @@ if (!$tokenData) {
     showErrorAndDie("Lien Introuvable", "Ce lien de connexion n'existe pas ou est incorrect.");
 }
 
-if ($tokenData['used_at'] && $token !== 'local_debug_token_julien') {
+// Usage unique
+if ($tokenData['used_at']) {
     showErrorAndDie("Lien Expiré", "Ce lien a déjà été utilisé pour se connecter. Pour des raisons de sécurité, veuillez demander un nouveau lien.");
 }
 
-// Mark as used (Tracking - bypass for debug token)
-if ($token !== 'local_debug_token_julien') {
-    $now = date('Y-m-d H:i:s');
-    $updateStmt = $pdo->prepare("UPDATE jury_tokens SET used_at = ? WHERE id = ?");
-    $updateStmt->execute([$now, $tokenData['id']]);
+// Expiration temporelle
+$ttl = app_config()['jury_token_ttl'] ?? 3600;
+if (!empty($tokenData['created_at'])) {
+    $age = time() - strtotime($tokenData['created_at'] . ' UTC');
+    if ($age > $ttl) {
+        showErrorAndDie("Lien Expiré", "Ce lien a expiré. Veuillez demander un nouveau lien de connexion.");
+    }
 }
+
+// Marque comme utilisé
+$now = date('Y-m-d H:i:s');
+$updateStmt = $pdo->prepare("UPDATE jury_tokens SET used_at = ? WHERE id = ?");
+$updateStmt->execute([$now, $tokenData['id']]);
 
 // Login User
 $_SESSION['jury_logged_in'] = true;

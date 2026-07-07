@@ -5,6 +5,7 @@ if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true)
     die("Accès refusé");
 }
 
+require_once __DIR__ . '/../core/auth.php';
 require_once __DIR__ . '/../core/db.php';
 require __DIR__ . '/../fpdf/fpdf.php';
 
@@ -30,8 +31,7 @@ $photos = $stmtPhotos->fetchAll(PDO::FETCH_ASSOC);
 
 require_once(__DIR__ . '/../includes/PDFGenerator.php');
 
-$pdfDir = __DIR__ . '/../uploads/pdfs/';
-$pdfPath = $pdfDir . 'agreement_' . $participant['id'] . '.pdf';
+$pdfPath = get_participant_pdf_path($participant);
 
 // 1. Try to serve stored PDF
 if (file_exists($pdfPath)) {

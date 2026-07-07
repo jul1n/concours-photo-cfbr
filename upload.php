@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/includes/analytics.php'; ?>
+<?php require_once __DIR__ . '/core/auth.php'; require_once __DIR__ . '/includes/analytics.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -43,6 +43,7 @@
 
             <form action="core/process_upload.php" method="POST" enctype="multipart/form-data" id="uploadForm"
                 class="space-y-6">
+                <?php csrf_field(); ?>
 
                 <!-- Identité & Catégorie -->
                 <div class="space-y-4">

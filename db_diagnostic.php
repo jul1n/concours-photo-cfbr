@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/core/auth.php'; require_maintenance(); ?>
 <!DOCTYPE html>
 <html lang="fr">
 

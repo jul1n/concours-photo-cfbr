@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/core/auth.php';
+require_maintenance();
 require_once __DIR__ . '/core/db.php';
 $tables = ['participants', 'photos', 'jury_members', 'jury_tokens', 'jury_votes_analytics'];
 foreach ($tables as $table) {

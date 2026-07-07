@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../core/auth.php';
+require_admin();
 // admin_audit_jury.php
 require __DIR__ . '/../core/db.php';
 

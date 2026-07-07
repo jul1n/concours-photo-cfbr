@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/core/auth.php';
+require_maintenance();
 // Delete duplicate files with --- prefix
 $slideDir = __DIR__ . '/photos/slides_optimized/';
 

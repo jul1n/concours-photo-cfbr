@@ -1,16 +1,11 @@
 <?php
 // jury/api_notifications.php
 header('Content-Type: application/json');
+require_once __DIR__ . '/../core/auth.php';
+require_jury(true); // 403 JSON si non authentifié
 require_once __DIR__ . '/../core/db.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-$juryId = $_SERVER['REMOTE_ADDR'];
-if (isset($_SESSION['jury_email'])) {
-    $juryId = $_SESSION['jury_email'];
-}
+$juryId = $_SESSION['jury_email'] ?? $_SERVER['REMOTE_ADDR'];
 
 try {
     // Total approved photos

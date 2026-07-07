@@ -1,15 +1,16 @@
 <?php
 // admin_results.php
-session_start();
+require_once __DIR__ . '/../core/auth.php';
 require_once __DIR__ . '/../core/db.php';
 
 // --- Security Logic ---
-// Hash for 'concours2026' generated via password_hash
-$passwordHash = '$2y$10$pEw6VnJmR.u9Wv0fL.S8O.Tz3qRzR6I4s9VnJmR.u9Wv0fL.S8O';
-$isUnlocked = (isset($_SESSION['admin_unlocked']) && $_SESSION['admin_unlocked'] === true) || (isset($_SESSION['maintenance_authed']) && $_SESSION['maintenance_authed'] === true);
+// Le hash du mot de passe admin provient de core/config.php (hors dépôt).
+$passwordHash = app_config()['admin_password_hash'] ?? '';
+$isUnlocked = is_admin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlock_password'])) {
-    if (password_verify($_POST['unlock_password'], $passwordHash) || $_POST['unlock_password'] === 'concours2026') {
+    csrf_check();
+    if ($passwordHash !== '' && password_verify($_POST['unlock_password'], $passwordHash)) {
         $_SESSION['admin_unlocked'] = true;
         $isUnlocked = true;
     } else {
@@ -70,6 +71,7 @@ try {
                 <?php endif; ?>
 
                 <form method="POST" class="space-y-4">
+                    <?php csrf_field(); ?>
                     <input type="password" name="unlock_password" placeholder="Mot de passe..."
                         class="w-full border border-gray-300 rounded p-3 text-center text-lg focus:ring-2 focus:ring-[#0A2240] outline-none">
                     <button type="submit"

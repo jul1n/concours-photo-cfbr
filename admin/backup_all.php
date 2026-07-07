@@ -1,22 +1,32 @@
 <?php
 // admin/backup_all.php
-session_start();
+require_once __DIR__ . '/../core/auth.php';
+require_admin();
 require_once __DIR__ . '/../core/db.php';
 
-// Security Check
-$isUnlocked = (isset($_SESSION['admin_unlocked']) && $_SESSION['admin_unlocked'] === true) || (isset($_SESSION['maintenance_authed']) && $_SESSION['maintenance_authed'] === true);
-if (!$isUnlocked) {
-    die("Accès refusé. Veuillez déverrouiller depuis la page de résultats.");
-}
 session_write_close();
 
 $dbFile = __DIR__ . '/../data/concours.db';
 $pdfDir = __DIR__ . '/../uploads/pdfs/';
 $photoDir = __DIR__ . '/../photos/originals/';
 
+/**
+ * Rapatrie les écritures du fichier -wal dans la base principale afin que la
+ * copie à chaud soit complète (indispensable depuis le passage en mode WAL).
+ */
+function checkpointWal(PDO $pdo): void
+{
+    try {
+        $pdo->exec('PRAGMA wal_checkpoint(TRUNCATE)');
+    } catch (Exception $e) {
+        error_log('[backup] checkpoint: ' . $e->getMessage());
+    }
+}
+
 // Fallback: Direct Database Download
 if (isset($_GET['download_db']) && $_GET['download_db'] === '1') {
     if (file_exists($dbFile)) {
+        checkpointWal($pdo);
         header('Content-Type: application/x-sqlite3');
         header('Content-Disposition: attachment; filename="concours_backup_' . date('Y-m-d_Hi') . '.db"');
         header('Content-Length: ' . filesize($dbFile));
@@ -86,6 +96,7 @@ if ($zip->open($tempZipPath, ZipArchive::CREATE) !== TRUE) {
 
 // 1. Add Database
 if (file_exists($dbFile)) {
+    checkpointWal($pdo);
     $zip->addFile($dbFile, 'database/concours.db');
 }
 

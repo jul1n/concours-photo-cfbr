@@ -1,0 +1,2 @@
+# Interdit tout accès direct aux fichiers originaux (Apache 2.4+)
+Require all denied
