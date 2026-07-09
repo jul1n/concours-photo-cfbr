@@ -279,7 +279,7 @@ try {
                         <div class="bg-[#0A2240] text-white p-4 flex justify-between items-center relative">
                             <div>
                                 <h3 class="font-bold text-lg leading-tight uppercase">
-                                    <?= htmlspecialchars($candidate['fullname']) ?>
+                                    Candidat n°<?= $candidate['id'] ?>
                                 </h3>
                                 <div class="text-xs text-orange-300 font-semibold mt-1">
                                     <i class="fas fa-tags mr-1"></i> <?= htmlspecialchars($candidate['category_label']) ?>

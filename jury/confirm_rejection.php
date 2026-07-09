@@ -121,7 +121,7 @@ try {
                         <div class="bg-red-50 text-red-900 p-4 flex justify-between items-center">
                             <div>
                                 <h3 class="font-bold text-base leading-tight">
-                                    <?= htmlspecialchars($candidate['name']) ?>
+                                    Candidat n°<?= $candidate['id'] ?>
                                 </h3>
                                 <div class="text-[10px] text-red-700 font-bold uppercase mt-1">
                                     <?= htmlspecialchars($candidate['candidacy_type'] === 'corporate' ? 'Entreprise / Association' : 'Individuelle') ?>

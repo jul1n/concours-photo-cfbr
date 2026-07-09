@@ -15,7 +15,7 @@ try {
     // Shows all photos with their details and scores
     $sql = "
         SELECT p.id, p.filename_original, p.filename_4k, p.filename_thumb, p.width, p.height, p.title, p.category, p.description, p.location,
-               part.firstname, part.lastname,
+               part.id as participant_id, part.firstname, part.lastname,
                v.nb_votes,
                avg_aesthetic,
                avg_theme,
@@ -104,7 +104,7 @@ try {
                                 2</div>
                         </div>
                         <div class="mt-2 font-bold">
-                            <?= htmlspecialchars($rankings[1]['firstname'] . ' ' . $rankings[1]['lastname']) ?>
+                            Candidat n°<?= $rankings[1]['participant_id'] ?>
                         </div>
                         <div class="text-sm text-gray-500"><?= number_format($rankings[1]['total_score'], 2) ?> pts</div>
                     </div>
@@ -120,7 +120,7 @@ try {
                             1</div>
                     </div>
                     <div class="mt-2 text-xl font-bold text-[#0A2240]">
-                        <?= htmlspecialchars($rankings[0]['firstname'] . ' ' . $rankings[0]['lastname']) ?>
+                        Candidat n°<?= $rankings[0]['participant_id'] ?>
                     </div>
                     <div class="text-[#FF9900] font-bold"><?= number_format($rankings[0]['total_score'], 2) ?> pts</div>
                 </div>
@@ -137,7 +137,7 @@ try {
                                     3</div>
                             </div>
                             <div class="mt-2 font-bold">
-                                <?= htmlspecialchars($rankings[2]['firstname'] . ' ' . $rankings[2]['lastname']) ?>
+                                Candidat n°<?= $rankings[2]['participant_id'] ?>
                             </div>
                             <div class="text-sm text-gray-500"><?= number_format($rankings[2]['total_score'], 2) ?> pts</div>
                         </div>
@@ -177,7 +177,7 @@ try {
                                     <?= htmlspecialchars($r['title'] ?: 'Sans Titre') ?>
                                 </div>
                                 <div class="text-xs text-gray-500">
-                                    <?= htmlspecialchars($r['firstname'] . ' ' . $r['lastname']) ?>
+                                    Candidat n°<?= $r['participant_id'] ?>
                                 </div>
                             </td>
                             <td class="px-5 py-4 text-center text-xs">
