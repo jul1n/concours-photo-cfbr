@@ -1225,11 +1225,17 @@ if ($pdo) {
                     <div class="text-red-600 font-bold text-lg mb-2">
                         <i class="fas fa-exclamation-triangle mr-1"></i> Réparation Requise
                     </div>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Des tables cruciales manquent sur ce serveur. Cliquez sur <span
-                            class="text-slate-900 font-bold">"Initialiser / Réparer"</span> ci-dessous pour reconstruire la
-                        base sans perte de données.
+                    <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                        Des tables cruciales manquent sur ce serveur. Cliquez sur le bouton ci-dessous pour reconstruire la base de données.
                     </p>
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="action" value="init_db">
+                        <button type="submit"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-lg transition text-sm shadow-md">
+                            <i class="fas fa-magic mr-2"></i> Initialiser / Réparer la base
+                        </button>
+                    </form>
                 <?php else: ?>
                     <div class="text-emerald-600 font-bold text-lg mb-2">
                         <i class="fas fa-check-circle mr-1"></i> Tout est nominal
