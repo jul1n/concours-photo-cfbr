@@ -272,7 +272,7 @@ try {
                     $isDuplicateEmail = ($emailCounts[$email] > 1);
                     $isDuplicateName = ($nameCounts[$lastname] > 1);
                     ?>
-                    <form method="POST"
+                    <form method="POST" id="candidate_<?= $candidate['id'] ?>"
                         class="bg-white rounded-lg shadow-xl overflow-hidden transform hover:scale-[1.01] transition duration-300 border border-gray-100 flex flex-col">
                         <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
                         <!-- Header Dossier -->
@@ -328,6 +328,20 @@ try {
 
                                     // Quality Check
                                     $q = analyzePhotoQuality($p);
+
+                                    // Check duplicate file hash
+                                    $dupPhoto = null;
+                                    if (!empty($p['file_hash'])) {
+                                        $stmtDup = $pdo->prepare("
+                                            SELECT p.id, part.id as participant_id 
+                                            FROM photos p
+                                            JOIN participants part ON p.participant_id = part.id
+                                            WHERE p.file_hash = ? AND p.participant_id != ? AND part.is_verified = 1
+                                            LIMIT 1
+                                        ");
+                                        $stmtDup->execute([$p['file_hash'], $candidate['id']]);
+                                        $dupPhoto = $stmtDup->fetch(PDO::FETCH_ASSOC);
+                                    }
                                     ?>
                                     <div class="bg-white p-3 rounded shadow-sm border border-gray-100">
                                         <div class="flex items-start space-x-3">
@@ -384,6 +398,13 @@ try {
                                                     <div class="text-[10px] text-gray-400 mt-1"><i
                                                             class="fas fa-map-marker-alt mr-1"></i>
                                                         <?= htmlspecialchars($p['location']) ?></div>
+                                                <?php endif; ?>
+                                                
+                                                <?php if ($dupPhoto): ?>
+                                                    <div class="mt-2 text-[10px] bg-red-50 text-red-800 p-2 rounded border border-red-200 inline-block font-semibold">
+                                                        <i class="fas fa-copy mr-1 text-red-600"></i> <strong>Fichier Doublon :</strong> 
+                                                        Déjà soumis par le <a href="#candidate_<?= $dupPhoto['participant_id'] ?>" class="underline text-red-600 font-bold hover:text-red-800">Candidat n°<?= $dupPhoto['participant_id'] ?></a>.
+                                                    </div>
                                                 <?php endif; ?>
                                                 <!-- Photo Validation Toggle -->
                                                 <div class="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">

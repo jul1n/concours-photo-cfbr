@@ -351,6 +351,7 @@ if (isset($_POST['action'])) {
                         is_low_res INTEGER DEFAULT 0,
                         is_promo INTEGER DEFAULT 0,
                         status TEXT DEFAULT 'pending',
+                        file_hash TEXT,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (participant_id) REFERENCES participants(id)
                     )",
@@ -421,7 +422,8 @@ if (isset($_POST['action'])) {
                     ["participants", "jury_vote_2_by", "ALTER TABLE participants ADD COLUMN jury_vote_2_by INTEGER"],
                     ['participants', 'linkedin', "ALTER TABLE participants ADD COLUMN linkedin TEXT"],
                     ['photos', 'is_low_res', "ALTER TABLE photos ADD COLUMN is_low_res INTEGER DEFAULT 0"],
-                    ['photos', 'is_promo', "ALTER TABLE photos ADD COLUMN is_promo INTEGER DEFAULT 0"]
+                    ['photos', 'is_promo', "ALTER TABLE photos ADD COLUMN is_promo INTEGER DEFAULT 0"],
+                    ['photos', 'file_hash', "ALTER TABLE photos ADD COLUMN file_hash TEXT"]
                 ];
 
                 foreach ($updates as $upd) {
@@ -440,6 +442,21 @@ if (isset($_POST['action'])) {
                         }
                     } catch (Exception $e) {
                     }
+                }
+
+                // Retrospective MD5 calculation for existing files
+                try {
+                    $stmtNullHashes = $pdo->query("SELECT id, filename_original FROM photos WHERE file_hash IS NULL OR file_hash = ''");
+                    $photosToHash = $stmtNullHashes->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($photosToHash as $ph) {
+                        $filePath = dirname(__DIR__) . '/photos/originals/' . $ph['filename_original'];
+                        if (file_exists($filePath)) {
+                            $hash = md5_file($filePath);
+                            $updateHash = $pdo->prepare("UPDATE photos SET file_hash = ? WHERE id = ?");
+                            $updateHash->execute([$hash, $ph['id']]);
+                        }
+                    }
+                } catch (Exception $e) {
                 }
 
                 // Directory initialization

@@ -187,9 +187,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 processImage($uploadDirOriginal . $fileOriginal, $uploadDirThumb . $fileThumb, 400, 70);
 
                 // DB Store
-                $stmt = $pdo->prepare("INSERT INTO photos (participant_id, filename_original, filename_4k, filename_thumb, width, height, title, location, description, category, is_upscale_suspect, is_low_res) 
-                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$participantId, $fileOriginal, $file4k, $fileThumb, $width, $height, $title, $location, $description, $category, $isUpscaleSuspect, $isLowRes]);
+                $fileHash = md5_file($uploadDirOriginal . $fileOriginal);
+                $stmt = $pdo->prepare("INSERT INTO photos (participant_id, filename_original, filename_4k, filename_thumb, width, height, title, location, description, category, is_upscale_suspect, is_low_res, file_hash) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$participantId, $fileOriginal, $file4k, $fileThumb, $width, $height, $title, $location, $description, $category, $isUpscaleSuspect, $isLowRes, $fileHash]);
 
                 $uploadedCount++;
             }
