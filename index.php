@@ -209,7 +209,7 @@ if (is_dir($slideDir)) {
                         class="bg-gray-50 rounded-2xl shadow-lg transform transition md:hover:scale-105 duration-300 overflow-hidden">
                         <!-- Image -->
                         <div class="relative group rounded-2xl overflow-hidden shadow-2xl h-80 lg:h-96">
-                            <img src="photos/slides_optimized/Fran%C3%A7ois%20TRONEL___Las_Bambas_03_300dpi.jpg"
+                            <img src="photos/slides_optimized/Francois%20TRONEL___Las_Bambas_03_300dpi.jpg"
                                 alt="Savoir-Faire"
                                 class="w-full h-full object-cover transition duration-500 md:group-hover:scale-110">
                             <div
