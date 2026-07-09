@@ -52,7 +52,6 @@ if (isset($_GET['token'])) {
 
         // Headers
         $headers = "From: $from\r\n";
-        $headers .= "Cc: concoursphoto2026@barrages-cfbr.eu\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
 
