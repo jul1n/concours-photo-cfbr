@@ -91,7 +91,7 @@ function get_non_anonymous_filename(array $photo): string
     
     return $photo['id'] . '_' . $cleanFirstname . '_' . $cleanLastname . '_' . $cleanTitle . '.' . $ext;
 }
-
+function get_backup_parts(PDO $pdo, string $dir_type, int $max_size_bytes = 700 * 1024 * 1024): array
 {
     try {
         $stmt = $pdo->query("
