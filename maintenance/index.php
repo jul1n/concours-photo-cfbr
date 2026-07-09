@@ -152,7 +152,9 @@ if (isset($_GET['download_backup'])) {
     }
 
     if ($type === 'pdfs') {
-        $dir = __DIR__ . '/../uploads/pdfs/';
+        if (!$pdo) {
+            die("Erreur : Connexion à la base de données requise pour cette sauvegarde.");
+        }
         $zipName = "Sauvegarde_PDFs_CFBR_" . date('Y-m-d_Hi') . ".zip";
         
         $zip = new ZipArchive();
@@ -162,23 +164,52 @@ if (isset($_GET['download_backup'])) {
             die("Impossible de créer l'archive ZIP.");
         }
 
-        $files = scandir($dir);
+        // Fetch all participants
+        $stmt = $pdo->query("SELECT id, firstname, lastname FROM participants");
+        $participants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $pdfDir = __DIR__ . '/../uploads/pdfs/';
         $addedCount = 0;
-        foreach ($files as $file) {
-            if ($file !== '.' && $file !== '..' && $file !== '.htaccess' && substr($file, 0, 1) !== '.') {
-                if (strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'pdf') {
-                    $zip->addFile($dir . $file, $file);
-                    $addedCount++;
-                }
+
+        foreach ($participants as $part) {
+            // Clean names to generate the target non-anonymous name
+            $cleanFirstname = str_replace([' ', "'", '"', '’'], '_', mb_strtolower(trim($part['firstname'] ?? ''), 'UTF-8'));
+            $cleanLastname = str_replace([' ', "'", '"', '’'], '_', mb_strtolower(trim($part['lastname'] ?? ''), 'UTF-8'));
+            
+            $unwanted_array = [
+                'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+                'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+                'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+                'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+                'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y'
+            ];
+            $cleanFirstname = strtr($cleanFirstname, $unwanted_array);
+            $cleanLastname = strtr($cleanLastname, $unwanted_array);
+            $cleanFirstname = preg_replace('/[^a-z0-9_-]/', '', $cleanFirstname);
+            $cleanLastname = preg_replace('/[^a-z0-9_-]/', '', $cleanLastname);
+
+            $targetFilename = 'agreement_' . $part['id'] . '_' . $cleanFirstname . '_' . $cleanLastname . '.pdf';
+            
+            // Check for file existence (either new name or old name)
+            $oldPath = $pdfDir . 'agreement_' . $part['id'] . '.pdf';
+            $newPath = $pdfDir . $targetFilename;
+
+            if (file_exists($newPath)) {
+                $zip->addFile($newPath, $targetFilename);
+                $addedCount++;
+            } elseif (file_exists($oldPath)) {
+                $zip->addFile($oldPath, $targetFilename);
+                $addedCount++;
             }
         }
+
         $zip->close();
 
         if ($addedCount === 0) {
             if (file_exists($tempZipPath)) {
                 unlink($tempZipPath);
             }
-            die("Aucun fichier trouvé pour la sauvegarde.");
+            die("Aucun PDF de participation trouvé.");
         }
 
         if (file_exists($tempZipPath)) {
@@ -188,10 +219,7 @@ if (isset($_GET['download_backup'])) {
             readfile($tempZipPath);
             unlink($tempZipPath);
             exit;
-        } else {
-            die("Erreur de génération de la sauvegarde.");
         }
-
     } elseif ($type === 'photos_originals' || $type === 'photos_display') {
         if (!$pdo) {
             die("Erreur : Connexion à la base de données requise pour cette sauvegarde.");
@@ -1793,10 +1821,17 @@ if ($pdo) {
                 <div class="p-3 bg-white/5 rounded-lg border border-white/10 text-center">
                     <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Sécurité</p>
                     <div class="flex flex-col items-center gap-1">
+                        <?php
+                        $isSecure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') 
+                            || ($_SERVER['HTTP_HOST'] ?? '') === 'localhost:8000' 
+                            || ($_SERVER['HTTP_HOST'] ?? '') === 'localhost' 
+                            || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' 
+                            || ($_SERVER['SERVER_ADDR'] ?? '') === '127.0.0.1';
+                        ?>
                         <i
-                            class="fas <?= (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'fa-shield-halved text-emerald-400' : 'fa-triangle-exclamation text-amber-400' ?>"></i>
+                            class="fas <?= $isSecure ? 'fa-shield-halved text-emerald-400' : 'fa-triangle-exclamation text-amber-400' ?>"></i>
                         <span
-                            class="text-[11px] font-semibold"><?= (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'HTTPS OK' : 'Non Sécurisé' ?></span>
+                            class="text-[11px] font-semibold"><?= $isSecure ? 'Sécurisé' : 'Non Sécurisé' ?></span>
                     </div>
                 </div>
             </div>
@@ -1955,7 +1990,7 @@ if ($pdo) {
                 <i class="fas fa-upload"></i> Dépôt Candidature
             </a>
         </div>
-        <div class="mt-6 text-[10px] text-slate-300 uppercase tracking-widest">
+        <div class="mt-6 text-[10px] text-slate-500 uppercase tracking-widest">
             Maintenance Hub &copy; 2026 - Concours Photo CFBR
         </div>
     </footer>
