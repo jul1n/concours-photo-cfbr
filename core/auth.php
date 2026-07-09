@@ -25,8 +25,30 @@ function app_config(): array
     if ($config === null) {
         $path = __DIR__ . '/config.php';
         $config = is_file($path) ? require $path : [];
+
+        // Detect current URL dynamically
+        $detectedProtocol = (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] === 1) || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) ? 'https' : 'http';
+        $detectedHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        
+        $subDir = '';
+        if (isset($_SERVER['SCRIPT_NAME'])) {
+            $dir = dirname($_SERVER['SCRIPT_NAME']);
+            // Clean up folders from the script path to get the web root path
+            $dir = str_replace(['/core', '/jury', '/maintenance', '/admin'], '', $dir);
+            $dir = rtrim($dir, '/\\');
+            $subDir = $dir;
+        }
+        $detectedUrl = $detectedProtocol . '://' . $detectedHost . $subDir;
+
+        // If base_url is placeholder or has local/example values, and we have a valid request host, auto-detect it
+        if (!isset($config['base_url']) 
+            || $config['base_url'] === 'https://concours.barrages-cfbr.eu' 
+            || (strpos($config['base_url'], 'localhost') !== false && strpos($detectedHost, 'localhost') === false)) {
+            $config['base_url'] = $detectedUrl;
+        }
+
         $config += [
-            'base_url'                  => 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'),
+            'base_url'                  => $detectedUrl,
             'mail_from'                 => 'no-reply@barrages-cfbr.eu',
             'admin_password_hash'       => '',
             'maintenance_password_hash' => '',
