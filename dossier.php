@@ -95,8 +95,14 @@ if ($p['candidacy_type'] === 'corporate' || !empty($p['company'])) {
                     <p class="text-[10px] text-white/50 uppercase tracking-widest mt-0.5">Espace Candidat</p>
                 </div>
             </div>
-            <a href="index.php" class="text-xs hover:text-[#FF9900] transition-colors"><i
-                    class="fas fa-sign-out-alt"></i> Quitter</a>
+            <div class="flex items-center gap-6">
+                <a href="index.php" class="text-xs hover:text-[#FF9900] transition-colors flex items-center gap-1.5 font-semibold">
+                    <i class="fas fa-home"></i> Accueil Concours
+                </a>
+                <a href="index.php" class="text-xs text-white/60 hover:text-[#FF9900] transition-colors flex items-center gap-1.5">
+                    <i class="fas fa-sign-out-alt"></i> Quitter
+                </a>
+            </div>
         </div>
     </nav>
 
