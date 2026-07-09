@@ -88,63 +88,16 @@ try {
             </div>
         </div>
 
-        <h2 class="text-2xl font-bold text-[#0A2240] text-center mb-6"><i class="fas fa-chart-bar mr-2 text-slate-500"></i>Synthèse des votes (Moyenne des Notes)</h2>
+        <h2 class="text-2xl font-bold text-[#0A2240] text-center mb-4"><i class="fas fa-chart-bar mr-2 text-slate-500"></i>Synthèse des votes (Moyenne des Notes)</h2>
 
-        <!-- Podium -->
-        <?php if (count($rankings) > 0): ?>
-            <div class="flex flex-col md:flex-row justify-center items-end gap-6 mb-12">
-                <!-- 2eme -->
-                <?php if (isset($rankings[1])): ?>
-                    <div class="text-center order-2 md:order-1">
-                        <div class="relative inline-block">
-                            <img src="../photos/thumbs/<?= $rankings[1]['filename_thumb'] ?>"
-                                class="h-32 w-auto rounded border-4 border-gray-300 shadow-md">
-                            <div
-                                class="absolute -top-3 -right-3 bg-gray-300 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow">
-                                2</div>
-                        </div>
-                        <div class="mt-2 font-bold">
-                            Candidat n°<?= $rankings[1]['participant_id'] ?>
-                        </div>
-                        <div class="text-sm text-gray-500"><?= number_format($rankings[1]['total_score'], 2) ?> pts</div>
-                    </div>
-                <?php endif; ?>
-
-                <!-- 1er -->
-                <div class="text-center order-1 md:order-2 pb-4">
-                    <div class="relative inline-block">
-                        <img src="../photos/thumbs/<?= $rankings[0]['filename_thumb'] ?>"
-                            class="h-48 w-auto rounded border-4 border-[#FF9900] shadow-xl">
-                        <div
-                            class="absolute -top-4 -right-4 bg-[#FF9900] text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl shadow">
-                            1</div>
-                    </div>
-                    <div class="mt-2 text-xl font-bold text-[#0A2240]">
-                        Candidat n°<?= $rankings[0]['participant_id'] ?>
-                    </div>
-                    <div class="text-[#FF9900] font-bold"><?= number_format($rankings[0]['total_score'], 2) ?> pts</div>
-                </div>
-
-                <!-- 3eme -->
-                <?php if (isset($rankings[2])): ?>
-                    <div class="text-center order-3 md:order-3">
-                        <div class="text-center order-3 md:order-3">
-                            <div class="relative inline-block">
-                                <img src="../photos/thumbs/<?= $rankings[2]['filename_thumb'] ?>"
-                                    class="h-32 w-auto rounded border-4 border-yellow-700 shadow-md">
-                                <div
-                                    class="absolute -top-3 -right-3 bg-yellow-700 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow">
-                                    3</div>
-                            </div>
-                            <div class="mt-2 font-bold">
-                                Candidat n°<?= $rankings[2]['participant_id'] ?>
-                            </div>
-                            <div class="text-sm text-gray-500"><?= number_format($rankings[2]['total_score'], 2) ?> pts</div>
-                        </div>
-                    </div>
-                <?php endif; ?>
+        <!-- Notice Étape Intermédiaire -->
+        <div class="max-w-4xl mx-auto mb-8 bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-r-lg shadow-sm flex items-start gap-3">
+            <i class="fas fa-info-circle text-lg mt-0.5"></i>
+            <div>
+                <p class="font-bold text-sm">Classement Intermédiaire (Tour 2)</p>
+                <p class="text-xs text-blue-700 mt-0.5">Il s'agit d'une étape intermédiaire basée sur la moyenne des notes attribuées par les jurés. Le classement final et définitif sera proclamé lors des délibérations à l'étape suivante.</p>
             </div>
-        <?php endif; ?>
+        </div>
 
         <div class="bg-white shadow rounded overflow-hidden">
             <table class="min-w-full leading-normal">
