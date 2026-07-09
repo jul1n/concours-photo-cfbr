@@ -92,15 +92,18 @@ function get_non_anonymous_filename(array $photo): string
     return $photo['id'] . '_' . $cleanFirstname . '_' . $cleanLastname . '_' . $cleanTitle . '.' . $ext;
 }
 
-function get_backup_parts(PDO $pdo, string $dir_type, int $max_size_bytes = 700 * 1024 * 1024): array
 {
-    $stmt = $pdo->query("
-        SELECT p.*, part.firstname, part.lastname 
-        FROM photos p
-        JOIN participants part ON p.participant_id = part.id
-        ORDER BY p.id ASC
-    ");
-    $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    try {
+        $stmt = $pdo->query("
+            SELECT p.*, part.firstname, part.lastname 
+            FROM photos p
+            JOIN participants part ON p.participant_id = part.id
+            ORDER BY p.id ASC
+        ");
+        $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
 
     $parts = [];
     $current_part_files = [];
