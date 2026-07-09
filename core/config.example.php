@@ -20,7 +20,7 @@ return [
 
     // Hash bcrypt/argon2 du mot de passe d'administration (résultats/exports).
     // Remplacer par le hash généré avec password_hash().
-    'admin_password_hash' => '$2y$10$REMPLACEZ_MOI_PAR_UN_VRAI_HASH_GENERE_LOCALEMENT',
+    'admin_password_hash' => '$2y$10$NWdE3Peut7Ke7IfXKArqKeHxJIv8EZB5HdSI96raB29D7qcKh7Bu2',
 
     // Hash du mot de passe de maintenance (dashboard init/DB/jury).
     'maintenance_password_hash' => '$2y$10$REMPLACEZ_MOI_PAR_UN_VRAI_HASH_GENERE_LOCALEMENT',
