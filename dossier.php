@@ -1,6 +1,7 @@
 <?php
 // dossier.php - Candidate Portal
 require_once __DIR__ . '/core/db.php';
+require_once __DIR__ . '/core/auth.php';
 require_once __DIR__ . '/includes/analytics.php';
 
 $token = $_GET['token'] ?? '';
@@ -26,8 +27,8 @@ $stmtPhotos->execute([$pid]);
 $photos = $stmtPhotos->fetchAll(PDO::FETCH_ASSOC);
 
 // PDF Path (updated to match validate_email.php storage location)
-$pdfPath = "uploads/pdfs/agreement_" . $pid . ".pdf";
-$pdfExists = file_exists(__DIR__ . '/' . $pdfPath);
+$pdfPath = get_participant_pdf_path($p);
+$pdfExists = file_exists($pdfPath);
 
 // Deduplicate candidate name
 $displayName = $p['firstname'] . ' ' . $p['lastname'];
