@@ -1,2 +1,0 @@
-# Interdit l'accès direct : les PDF sont servis via download_pdf.php (contrôle par token)
-Require all denied
