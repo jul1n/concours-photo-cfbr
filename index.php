@@ -164,7 +164,9 @@ if (is_dir($slideDir)) {
                     <h2 class="text-3xl lg:text-4xl font-bold text-[#0A2240] mb-4">Catégories & Prix</h2>
                     <p class="text-xl text-gray-600 max-w-3xl mx-auto">Deux grandes catégories pour célébrer le
                         patrimoine hydraulique sous toutes ses formes.</p>
-                         <div class="grid lg:grid-cols-2 gap-12 mb-12">
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-12 mb-12">
 
                     <!-- Catégorie A -->
                     <div
