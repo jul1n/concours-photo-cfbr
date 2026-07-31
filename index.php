@@ -590,7 +590,7 @@ if (is_dir($slideDir)) {
                     <div
                         class="bg-white border-2 border-[#FF9900] rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative flex flex-col justify-between">
                         <div>
-                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF9900]/80 text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider whitespace-nowrap">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF9900] text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider whitespace-nowrap">
                                 2e & 3e Prix Individuels
                             </div>
                             <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6 mt-2">
