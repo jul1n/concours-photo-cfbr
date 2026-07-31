@@ -417,7 +417,7 @@ if (is_dir($slideDir)) {
                 <div class="mt-12 text-center">
                     <a href="slideshow.php" target="_blank"
                         class="inline-block bg-[#FF9900] text-[#0A2240] px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:text-[#0A2240] transition-all duration-300 shadow-lg transform hover:scale-105">
-                        <i class="fas fa-images mr-2"></i> Voir l'intégralité des candidatures 2026
+                        <i class="fas fa-images mr-2"></i> Explorer le diaporama du concours interne
                     </a>
                     <p class="text-gray-400 text-sm mt-3 italic">Découvrez toute la richesse du concours interne en
                         diaporama plein écran.</p>
@@ -662,8 +662,6 @@ if (is_dir($slideDir)) {
             <p class="text-gray-400 mb-4">© 2026-2027 Comité Français des Barrages et Réservoirs</p>
 
             <div class="flex flex-wrap justify-center gap-6 text-gray-400 mb-8 text-sm md:text-base">
-                <a href="#" class="hover:text-[#FF9900] transition-colors">Règlement complet</a>
-                <span class="text-gray-700 hidden md:inline">|</span>
                 <a href="https://www.barrages-cfbr.eu/Mentions-legales.html"
                     class="hover:text-[#FF9900] transition-colors">Mentions légales</a>
                 <span class="text-gray-700 hidden md:inline">|</span>

@@ -273,6 +273,8 @@
 
                             <strong>Article 12 - Acceptation</strong>
                             La participation implique l'acceptation sans réserve du présent règlement.
+                        </div>
+                    </div>
                 <!-- Instagram Option Removed as per request -->
 
                 <!-- Annexes Obligatoires -->

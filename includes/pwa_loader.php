@@ -9,8 +9,8 @@ $isSubdir = (strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false ||
 $base = $isSubdir ? '../' : '';
 ?>
 <link rel="manifest" href="<?= $base ?>manifest.json">
-<link rel="shortcut icon" href="<?= $base ?>assets/favicon.ico" type="image/x-icon">
-<link rel="icon" href="<?= $base ?>assets/favicon.png" type="image/png">
+<link rel="shortcut icon" href="https://www.barrages-cfbr.eu/favicon.ico" type="image/x-icon">
+<link rel="icon" href="https://www.barrages-cfbr.eu/favicon.ico" type="image/x-icon">
 <script>
     // 1. Register Service Worker
     if ('serviceWorker' in navigator) {
