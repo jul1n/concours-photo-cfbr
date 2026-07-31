@@ -571,20 +571,32 @@ if (is_dir($slideDir)) {
                         </div>
                         <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Les 3 Lauréats<br><span
                                 class="text-lg font-normal text-gray-500">de chaque catégorie</span></h3>
-                        <div class="w-12 h-1 bg-[#FF9900] mx-auto mb-4"></div>
                         <p class="text-gray-600 mb-6 text-sm">Les récompenses pour les catégories individuelles sont attribuées ainsi :</p>
-                        <ul class="text-left text-gray-700 text-sm space-y-3 mb-6">
-                            <li class="flex items-start border-b border-gray-100 pb-2">
-                                <i class="fas fa-trophy text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Pour le 1er lauréat :</strong> visite privée d'un aménagement hydroélectrique français remarquable (transport pris en charge jusqu'à 200€ TTC, hors hébergement et restauration), une impression Alu-Dibond, une invitation au symposium du CFBR le 28 janvier 2027 et un exemplaire du livre « Barrage, le savoir-faire français ».</span>
+                        <ul class="text-left text-gray-700 text-sm space-y-6 mb-6">
+                            <li class="border-b border-gray-100 pb-4">
+                                <div class="flex items-center text-[#FF9900] font-bold mb-2 text-base">
+                                    <i class="fas fa-trophy mr-2 text-lg"></i> 1er Prix (Chaque catégorie)
+                                </div>
+                                <ul class="pl-6 space-y-1.5 text-gray-600 list-disc list-inside">
+                                    <li><strong>Visite privée d’exception</strong> d'un grand aménagement hydroélectrique (transport pris en charge jusqu'à 200€ TTC).</li>
+                                    <li><strong>Impression de prestige</strong> sur support métallique Alu-Dibond de l'œuvre.</li>
+                                    <li><strong>Invitation VIP</strong> au symposium du CFBR le 28 janvier 2027.</li>
+                                    <li><strong>Livre d'art</strong> offert : « Barrage, le savoir-faire français ».</li>
+                                </ul>
                             </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-award text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Pour les 2e & 3e lauréats :</strong> un tirage d'art haute qualité, une invitation au symposium le 28 janvier 2027 et un exemplaire du livre « Barrage, le savoir-faire français ».</span>
+                            <li>
+                                <div class="flex items-center text-[#FF9900] font-bold mb-2 text-base">
+                                    <i class="fas fa-award mr-2 text-lg"></i> 2e & 3e Prix (Chaque catégorie)
+                                </div>
+                                <ul class="pl-6 space-y-1.5 text-gray-600 list-disc list-inside">
+                                    <li><strong>Tirage d'art</strong> de haute qualité de la photographie lauréate.</li>
+                                    <li><strong>Invitation VIP</strong> au symposium du CFBR le 28 janvier 2027.</li>
+                                    <li><strong>Livre d'art</strong> offert : « Barrage, le savoir-faire français ».</li>
+                                </ul>
                             </li>
                         </ul>
                     </div>
-
+ 
                     <!-- Lauréat Organisme -->
                     <div
                         class="bg-white border border-gray-200 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative">
@@ -597,11 +609,16 @@ if (is_dir($slideDir)) {
                         <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Le Prix Spécial<br><span
                                 class="text-lg font-normal text-gray-500">des Organismes</span></h3>
                         <div class="w-12 h-1 bg-[#0A2240] mx-auto mb-4"></div>
-                        <p class="text-gray-600 mb-6 text-sm">Le prix pour la catégorie Organisme est attribué ainsi :</p>
-                        <ul class="text-left text-gray-700 text-sm space-y-3 mb-6">
-                            <li class="flex items-start">
-                                <i class="fas fa-images text-[#0A2240] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Prix Spécial Unique</strong> : attribué au meilleur portfolio de cinq photographies. Les modalités de remise seront communiquées directement au lauréat.</span>
+                        <p class="text-gray-600 mb-6 text-sm">Le prix pour la catégorie Organisme récompense un travail collectif :</p>
+                        <ul class="text-left text-gray-700 text-sm space-y-4 mb-6">
+                            <li>
+                                <div class="flex items-center text-[#0A2240] font-bold mb-2 text-base">
+                                    <i class="fas fa-images mr-2 text-lg"></i> Prix Spécial Unique
+                                </div>
+                                <ul class="pl-6 space-y-1.5 text-gray-600 list-disc list-inside">
+                                    <li>Récompense le <strong>meilleur portfolio cohérent</strong> de cinq photographies soumises par un organisme.</li>
+                                    <li>Les modalités de remise seront communiquées en direct au lauréat.</li>
+                                </ul>
                             </li>
                         </ul>
                     </div>
