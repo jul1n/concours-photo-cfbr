@@ -108,12 +108,12 @@ class PDFGenerator extends FPDF
         $pdf->SectionTitle("1. Déclaration d'Acceptation");
         $declaration = "Je soussigné(e) " . $signName . ", agissant en mon nom personnel ou en qualité de représentant habilité de l'organisme mentionné ci-dessus :\n\n";
         $declaration .= "1. Confirme ma participation au concours photo \"Barrages : Entre nature et architecture\".\n";
-        $declaration .= "2. Reconnais avoir pris connaissance dans son intégralité du règlement 2026 ci-après et l'accepter sans réserve.\n";
+        $declaration .= "2. Reconnais avoir pris connaissance dans son intégralité du règlement 2026-2027 ci-après et l'accepter sans réserve.\n";
         $declaration .= "3. Certifie l'exactitude des informations transmises.";
         $pdf->SectionBody($declaration);
 
         // 3. REGLEMENT COMPLET
-        $pdf->SectionTitle("2. Règlement du Concours Photo Grand Public 2026 - CFBR");
+        $pdf->SectionTitle("2. Règlement du Concours Photo ouvert au public 2026-2027 - CFBR");
         $reglementPath = __DIR__ . '/../assets/reglement_2026.txt';
         $reglementText = file_exists($reglementPath) ? file_get_contents($reglementPath) : "Erreur : Règlement introuvable.";
         $pdf->SectionBody($reglementText);
@@ -124,7 +124,7 @@ class PDFGenerator extends FPDF
 
         $annexAHeader = "Entre les soussignés :\n";
         $annexAHeader .= "1. Le Cédant : " . $displayName . " | 2. Le Cessionnaire : Le CFBR\n";
-        $annexAHeader .= "OBJET DE LA CESSION : L'Auteur cède au CFBR les droits d'exploitation (reproduction, représentation, adaptation) des photographies listées ci-dessous, pour le monde entier et la durée légale des droits d'auteur, à titre gratuit et non exclusif, à des fins de promotion des activités du CFBR, sur les supports imprimés, réseaux sociaux, site internet du CFBR et expositions physiques lors du colloque. L'adaptation est strictement limitée aux recadrages et ajustements techniques nécessaires.";
+        $annexAHeader .= "OBJET DE LA CESSION : L'Auteur autorise le CFBR à exercer les droits d'exploitation (reproduction, représentation, adaptation technique) des photographies listées ci-dessous, pour le monde entier et pour une durée de dix (10) ans à compter de sa signature, à titre gratuit et non exclusif, à des fins non commerciales de promotion des activités du CFBR, sur les supports imprimés, réseaux sociaux, site internet du CFBR et expositions physiques. L'adaptation est strictement limitée aux adaptations techniques nécessaires à la diffusion de l'œuvre.";
         $pdf->SectionBody($annexAHeader);
 
         $pdf->SetFont('Arial', 'B', 10);
@@ -134,7 +134,7 @@ class PDFGenerator extends FPDF
         // Category Mapping
         $categoryMap = [
             'cat1' => "Intégration Environnementale",
-            'cat2' => "Hommes & Femmes de l'Art",
+            'cat2' => "Femmes & Hommes de l'Art",
             'corporate' => "Entreprise / Association"
         ];
 

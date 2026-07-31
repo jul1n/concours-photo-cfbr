@@ -51,14 +51,14 @@ if (is_dir($slideDir)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concours Photo 2026 – CFBR</title>
+    <title>Concours Photo 2026-2027 – CFBR</title>
     <meta name="description"
         content="Participez au centenaire du CFBR ! Concours photo national 'Barrages : Entre nature et architecture'. Ouvert à tous, gagnez des visites VIP et des tirages d'art.">
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.barrages-cfbr.eu/concours2026/">
-    <meta property="og:title" content="Concours Photo 2026 – CFBR">
+    <meta property="og:title" content="Concours Photo 2026-2027 – CFBR">
     <meta property="og:description" content="Révélez la beauté des barrages et le savoir-faire hydraulique français.">
     <meta property="og:image"
         content="https://www.barrages-cfbr.eu/IMG/jpg/villefort-frc0480005-101_photo_edf_coubard.jpg">
@@ -133,7 +133,7 @@ if (is_dir($slideDir)) {
             <img src="assets/logo_cfbr_100_ans.png" alt="Logo CFBR"
                 class="h-24 w-auto mb-8 bg-white rounded p-2 mx-auto shadow-lg">
 
-            <h1 class="text-4xl md:text-6xl font-bold mb-4">Concours Photo 2026</h1>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">Concours Photo 2026-2027</h1>
             <h2 class="text-xl md:text-3xl font-light italic">« Barrages : Entre nature et architecture »</h2>
             <p
                 class="mt-6 text-lg md:text-xl text-[#FF9900] font-bold tracking-widest uppercase bg-[#0A2240]/50 px-4 py-2 rounded-full inline-block backdrop-blur-sm">
@@ -222,7 +222,7 @@ if (is_dir($slideDir)) {
 
                         <div class="p-8">
                             <div class="flex items-center mb-6">
-                                <h3 class="text-2xl font-bold text-[#0A2240]">Hommes & Femmes de l'Art</h3>
+                                <h3 class="text-2xl font-bold text-[#0A2240]">Femmes & Hommes de l’Art</h3>
                             </div>
                             <p class="text-gray-600 mb-6 italic">Valoriser ceux qui conçoivent, construisent,
                                 maintiennent et
@@ -251,7 +251,7 @@ if (is_dir($slideDir)) {
                 <div class="max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-orange-50 p-8 rounded-2xl shadow-lg border border-[#0A2240]/10 transform transition md:hover:scale-105 duration-300">
                     <div class="text-center">
                         <span class="text-xs font-bold text-[#FF9900] uppercase tracking-wide px-3 py-1 bg-white rounded-full shadow-sm">Prix Spécial Organisme</span>
-                        <h4 class="text-2xl font-bold text-[#0A2240] mt-3">Le Trophée des Organismes</h4>
+                        <h4 class="text-2xl font-bold text-[#0A2240] mt-3">Le Prix Spécial Organisme</h4>
                         <p class="text-gray-600 max-w-2xl mx-auto mt-2 italic">Mélange de savoir-faire et d'intégration environnementale</p>
                         <p class="text-gray-700 text-sm md:text-base mt-4 max-w-3xl mx-auto">
                             <i class="fas fa-images text-[#0A2240] mr-2"></i>Récompense le meilleur <strong>portfolio de 5 photos</strong> soumis par un organisme (entreprise, association, institution). Ce prix unique récompense la capacité d'une structure à illustrer la richesse de ses métiers et de son savoir-faire, tout en mettant en valeur l'intégration harmonieuse des ouvrages dans l'environnement.
@@ -447,7 +447,7 @@ if (is_dir($slideDir)) {
                             <div
                                 class="w-full md:w-5/12 order-2 md:order-1 md:text-right bg-blue-50 p-6 rounded-lg shadow-md border-l-4 border-[#0A2240] md:border-l-0 md:border-r-4">
                                 <h3 class="font-bold text-[#0A2240] text-xl">Lancement</h3>
-                                <div class="text-[#FF9900] font-bold mb-2">1er Juillet 2026</div>
+                                <div class="text-[#FF9900] font-bold mb-2">1er Août 2026</div>
                                 <p class="text-gray-600 text-sm">Ouverture officielle du concours au Grand Public.
                                     Préparez vos objectifs !</p>
                             </div>
@@ -466,9 +466,8 @@ if (is_dir($slideDir)) {
                             <div
                                 class="w-full md:w-5/12 order-2 md:order-3 bg-orange-50 p-6 rounded-lg shadow-md border-l-4 border-[#FF9900]">
                                 <h3 class="font-bold text-[#0A2240] text-xl">Clôture des envois</h3>
-                                <div class="text-red-500 font-bold mb-2">1er Octobre 2026</div>
-                                <p class="text-gray-600 text-sm">Date limite impérative pour soumettre vos 5 meilleures
-                                    photos.</p>
+                                <div class="text-red-500 font-bold mb-2">31 Décembre 2026 à 23h59</div>
+                                <p class="text-gray-600 text-sm">Date limite impérative pour soumettre vos photos.</p>
                             </div>
                         </div>
 
@@ -477,7 +476,7 @@ if (is_dir($slideDir)) {
                             <div
                                 class="w-full md:w-5/12 order-2 md:order-1 md:text-right bg-blue-50 p-6 rounded-lg shadow-md border-l-4 border-[#0A2240] md:border-l-0 md:border-r-4">
                                 <h3 class="font-bold text-[#0A2240] text-xl">Délibération du Jury</h3>
-                                <div class="text-[#FF9900] font-bold mb-2">Octobre 2026</div>
+                                <div class="text-[#FF9900] font-bold mb-2">Courant Janvier 2027</div>
                                 <p class="text-gray-600 text-sm">Sélection des lauréats par notre jury d'experts et de
                                     photographes.</p>
                             </div>
@@ -497,9 +496,8 @@ if (is_dir($slideDir)) {
                             <div
                                 class="w-full md:w-5/12 order-2 md:order-3 bg-[#0A2240] text-white p-6 rounded-lg shadow-xl border-l-4 border-[#FF9900]">
                                 <h3 class="font-bold text-white text-xl">Remise des Prix</h3>
-                                <div class="text-[#FF9900] font-bold mb-2">18-19 Novembre 2026</div>
-                                <p class="text-gray-300 text-sm">Annonce des résultats lors du <strong>Colloque
-                                        Prospective Eau</strong> à Aix-les-Bains.</p>
+                                <div class="text-[#FF9900] font-bold mb-2">28 Janvier 2027</div>
+                                <p class="text-gray-300 text-sm">Annonce des résultats et remise des prix lors du <strong>Symposium du CFBR</strong>.</p>
                             </div>
                         </div>
                     </div>
@@ -576,17 +574,13 @@ if (is_dir($slideDir)) {
                         <div class="w-12 h-1 bg-[#FF9900] mx-auto mb-4"></div>
                         <p class="text-gray-600 mb-6 text-sm">Les récompenses pour les catégories individuelles sont attribuées ainsi :</p>
                         <ul class="text-left text-gray-700 text-sm space-y-3 mb-6">
-                            <li class="flex items-start">
-                                <i class="fas fa-ticket-alt text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Les 3 premiers lauréats</strong> reçoivent une invitation officielle avec pass pour le <em>Colloque Prospective Eau</em> (18-19 Nov) à Aix-les-Bains.</span>
+                            <li class="flex items-start border-b border-gray-100 pb-2">
+                                <i class="fas fa-trophy text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
+                                <span><strong>Pour le 1er lauréat :</strong> visite privée d'un aménagement hydroélectrique français remarquable (transport pris en charge jusqu'à 200€ TTC, hors hébergement et restauration), une impression Alu-Dibond, une invitation au symposium du CFBR le 28 janvier 2027 et un exemplaire du livre « Barrage, le savoir-faire français ».</span>
                             </li>
                             <li class="flex items-start">
-                                <i class="fas fa-print text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Les 3 premiers lauréats</strong> reçoivent une impression de prestige de leur photo sur support métallique.</span>
-                            </li>
-                            <li class="flex items-start text-[#0A2240] font-semibold border-t border-gray-100 pt-2">
-                                <i class="fas fa-hard-hat text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Uniquement le 1er lauréat</strong> de chaque catégorie remporte également l'Expérience "Immersion" (visite VIP d'un barrage).</span>
+                                <i class="fas fa-award text-[#FF9900] mt-1 mr-3 flex-shrink-0"></i>
+                                <span><strong>Pour les 2e & 3e lauréats :</strong> un tirage d'art haute qualité, une invitation au symposium le 28 janvier 2027 et un exemplaire du livre « Barrage, le savoir-faire français ».</span>
                             </li>
                         </ul>
                     </div>
@@ -598,20 +592,16 @@ if (is_dir($slideDir)) {
                             PRIX ORGANISME
                         </div>
                         <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-trophy text-3xl text-[#0A2240]"></i>
+                            <i class="fas fa-images text-3xl text-[#0A2240]"></i>
                         </div>
-                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Le Trophée unique<br><span
+                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Le Prix Spécial<br><span
                                 class="text-lg font-normal text-gray-500">des Organismes</span></h3>
                         <div class="w-12 h-1 bg-[#0A2240] mx-auto mb-4"></div>
-                        <p class="text-gray-600 mb-6 text-sm">L'organisme lauréat recevra :</p>
+                        <p class="text-gray-600 mb-6 text-sm">Le prix pour la catégorie Organisme est attribué ainsi :</p>
                         <ul class="text-left text-gray-700 text-sm space-y-3 mb-6">
                             <li class="flex items-start">
-                                <i class="fas fa-award text-[#0A2240] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Trophée d'ébénisterie</strong> : une œuvre d'art unique réalisée par un maître artisan.</span>
-                            </li>
-                            <li class="flex items-start">
                                 <i class="fas fa-images text-[#0A2240] mt-1 mr-3 flex-shrink-0"></i>
-                                <span><strong>Impression de prestige</strong> sur support métallique de leur portfolio gagnant.</span>
+                                <span><strong>Prix Spécial Unique</strong> : attribué au meilleur portfolio de cinq photographies. Les modalités de remise seront communiquées directement au lauréat.</span>
                             </li>
                         </ul>
                     </div>
@@ -651,7 +641,7 @@ if (is_dir($slideDir)) {
                             <p class="text-xs md:text-sm uppercase tracking-widest mt-2 font-semibold">Secondes</p>
                         </div>
                     </div>
-                    <p class="mt-8 text-[#FF9900] font-bold text-lg animate-pulse">Clôture : 1er Octobre 2026 à
+                    <p class="mt-8 text-[#FF9900] font-bold text-lg animate-pulse">Clôture : 31 Décembre 2026 à
                         23h59
                     </p>
                 </div>
@@ -669,7 +659,7 @@ if (is_dir($slideDir)) {
         <div class="container mx-auto px-6 text-center">
             <img src="assets/logo_cfbr_100_ans.png" alt="Logo CFBR"
                 class="h-12 w-auto mb-6 mx-auto bg-white rounded p-1">
-            <p class="text-gray-400 mb-4">© 2026 Comité Français des Barrages et Réservoirs</p>
+            <p class="text-gray-400 mb-4">© 2026-2027 Comité Français des Barrages et Réservoirs</p>
 
             <div class="flex flex-wrap justify-center gap-6 text-gray-400 mb-8 text-sm md:text-base">
                 <a href="#" class="hover:text-[#FF9900] transition-colors">Règlement complet</a>
@@ -698,8 +688,8 @@ if (is_dir($slideDir)) {
     </footer>
 
     <script>
-        // DATE CLÔTURE : 1er Octobre 2026
-        const countdownDate = new Date("Oct 1, 2026 23:59:59").getTime();
+        // DATE CLÔTURE : 31 Décembre 2026
+        const countdownDate = new Date("Dec 31, 2026 23:59:59").getTime();
 
         function updateCountdown() {
             const now = new Date().getTime();

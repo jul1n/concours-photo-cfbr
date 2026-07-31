@@ -13,7 +13,7 @@ require_once __DIR__ . '/../core/db.php';
 // Category Mapping
 $categoryMap = [
     'cat1' => "Intégration Environnementale",
-    'cat2' => "Hommes & Femmes de l'Art"
+    'cat2' => "Femmes & Hommes de l'Art"
 ];
 
 // Helper to analyze photo quality
