@@ -556,71 +556,83 @@ if (is_dir($slideDir)) {
             <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-[#FF9900] opacity-5"></div>
 
             <div class="container mx-auto px-6 text-center relative z-10">
-                <h2 class="text-3xl lg:text-4xl font-bold text-[#0A2240] mb-6">Prix & Récompenses</h2>
-                <p class="mb-12 text-gray-600">Des récompenses exceptionnelles pour célébrer le centenaire.</p>
-
-                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <!-- Lauréats Individuels -->
-                    <div
-                        class="bg-white border-2 border-[#FF9900] rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative">
-                        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF9900] text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider">
-                            PRIX INDIVIDUELS
-                        </div>
-                        <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-crown text-3xl text-[#FF9900]"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Les 3 Lauréats<br><span
-                                class="text-lg font-normal text-gray-500">de chaque catégorie</span></h3>
-                        <p class="text-gray-600 mb-6 text-sm">Les récompenses pour les catégories individuelles sont attribuées ainsi :</p>
-                        <ul class="text-left text-gray-700 text-sm space-y-6 mb-6">
-                            <li class="border-b border-gray-100 pb-4">
-                                <div class="flex items-center text-[#FF9900] font-bold mb-2 text-base">
-                                    <i class="fas fa-trophy mr-2 text-lg"></i> 1er Prix (Chaque catégorie)
-                                </div>
-                                <ul class="pl-6 space-y-1.5 text-gray-600 list-disc list-inside">
-                                    <li><strong>Visite privée d’exception</strong> d'un grand aménagement hydroélectrique (transport pris en charge jusqu'à 200€ TTC).</li>
-                                    <li><strong>Impression de prestige</strong> sur support métallique Alu-Dibond de l'œuvre.</li>
-                                    <li><strong>Invitation VIP</strong> au symposium du CFBR le 28 janvier 2027.</li>
-                                    <li><strong>Livre d'art</strong> offert : « Barrage, le savoir-faire français ».</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <div class="flex items-center text-[#FF9900] font-bold mb-2 text-base">
-                                    <i class="fas fa-award mr-2 text-lg"></i> 2e & 3e Prix (Chaque catégorie)
-                                </div>
-                                <ul class="pl-6 space-y-1.5 text-gray-600 list-disc list-inside">
-                                    <li><strong>Tirage d'art</strong> de haute qualité de la photographie lauréate.</li>
-                                    <li><strong>Invitation VIP</strong> au symposium du CFBR le 28 janvier 2027.</li>
-                                    <li><strong>Livre d'art</strong> offert : « Barrage, le savoir-faire français ».</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
+                <h2 class="text-3xl lg:text-4xl font-bold text-[#0A2240] mb-6">Trois regards récompensés dans chaque catégorie</h2>
+                <p class="mb-12 text-gray-600">Des récompenses d'exception pour célébrer le centenaire du CFBR.</p>
  
-                    <!-- Lauréat Organisme -->
+                <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- 1er Prix -->
                     <div
-                        class="bg-white border border-gray-200 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative">
-                        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0A2240] text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider">
-                            PRIX ORGANISME
+                        class="bg-white border-2 border-[#FF9900] rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative flex flex-col justify-between">
+                        <div>
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF9900] text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider whitespace-nowrap">
+                                1er Prix Individuel
+                            </div>
+                            <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6 mt-2">
+                                <i class="fas fa-trophy text-3xl text-[#FF9900]"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-[#0A2240] mb-4">Vivez une immersion exceptionnelle</h3>
+                            <p class="text-gray-600 text-sm text-justify mb-4 leading-relaxed">
+                                Une visite photographique privée d’un aménagement hydroélectrique français remarquable, avec un accès privilégié à des zones d’intérêt et une autorisation de prises de vues.
+                            </p>
                         </div>
-                        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-images text-3xl text-[#0A2240]"></i>
+                        <div class="border-t border-gray-100 pt-4 text-left">
+                            <span class="block text-xs font-bold uppercase tracking-wider text-[#FF9900] mb-2">Également inclus :</span>
+                            <ul class="text-xs text-gray-500 space-y-1.5 list-disc list-inside">
+                                <li>Frais de transport pris en charge jusqu’à 200 € TTC.</li>
+                                <li>Impression prestige sur Alu-Dibond.</li>
+                                <li>Invitation au symposium du CFBR le 28 janvier 2027.</li>
+                                <li>Livre <em>Barrage, le savoir-faire français</em>.</li>
+                            </ul>
                         </div>
-                        <h3 class="text-2xl font-bold text-[#0A2240] mb-2">Le Prix Spécial<br><span
-                                class="text-lg font-normal text-gray-500">des Organismes</span></h3>
-                        <div class="w-12 h-1 bg-[#0A2240] mx-auto mb-4"></div>
-                        <p class="text-gray-600 mb-6 text-sm">Le prix pour la catégorie Organisme récompense un travail collectif :</p>
-                        <ul class="text-left text-gray-700 text-sm space-y-4 mb-6">
-                            <li>
-                                <div class="flex items-center text-[#0A2240] font-bold mb-2 text-base">
-                                    <i class="fas fa-images mr-2 text-lg"></i> Prix Spécial Unique
-                                </div>
-                                <ul class="pl-6 space-y-1.5 text-gray-600 list-disc list-inside">
-                                    <li>Récompense le <strong>meilleur portfolio cohérent</strong> de cinq photographies soumises par un organisme.</li>
-                                    <li>Les modalités de remise seront communiquées en direct au lauréat.</li>
-                                </ul>
-                            </li>
-                        </ul>
+                    </div>
+
+                    <!-- 2e & 3e Prix -->
+                    <div
+                        class="bg-white border-2 border-[#FF9900] rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative flex flex-col justify-between">
+                        <div>
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#FF9900]/80 text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider whitespace-nowrap">
+                                2e & 3e Prix Individuels
+                            </div>
+                            <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6 mt-2">
+                                <i class="fas fa-award text-3xl text-[#FF9900]"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-[#0A2240] mb-4">Faites entrer votre photo dans la lumière</h3>
+                            <p class="text-gray-600 text-sm text-justify mb-4 leading-relaxed">
+                                Une mise en valeur de votre travail photographique avec des tirages de qualité et une invitation prestigieuse pour célébrer les 100 ans du CFBR.
+                            </p>
+                        </div>
+                        <div class="border-t border-gray-100 pt-4 text-left">
+                            <span class="block text-xs font-bold uppercase tracking-wider text-[#FF9900] mb-2">Récompenses reçues :</span>
+                            <ul class="text-xs text-gray-500 space-y-1.5 list-disc list-inside">
+                                <li>Un tirage d’art haute qualité de votre photographie.</li>
+                                <li>Invitation au symposium du CFBR le 28 janvier 2027.</li>
+                                <li>Livre <em>Barrage, le savoir-faire français</em>.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Prix Organisme -->
+                    <div
+                        class="bg-white border border-gray-200 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative flex flex-col justify-between">
+                        <div>
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0A2240] text-white px-4 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-wider whitespace-nowrap">
+                                Prix Spécial Organisme
+                            </div>
+                            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 mt-2">
+                                <i class="fas fa-users text-3xl text-[#0A2240]"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-[#0A2240] mb-4">Valorisez votre esprit d’équipe</h3>
+                            <p class="text-gray-600 text-sm text-justify mb-4 leading-relaxed">
+                                Dédié aux structures (entreprises, institutions, associations) : soumettez un portfolio de 5 photographies cohérentes témoignant de vos savoir-faire sur les ouvrages.
+                            </p>
+                        </div>
+                        <div class="border-t border-gray-100 pt-4 text-left">
+                            <span class="block text-xs font-bold uppercase tracking-wider text-[#0A2240] mb-2">Récompense reçue :</span>
+                            <ul class="text-xs text-gray-500 space-y-1.5 list-disc list-inside">
+                                <li>Un <strong>Prix Spécial Unique</strong> attribué au meilleur portfolio.</li>
+                                <li>Modalités de remise communiquées en direct au lauréat.</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
