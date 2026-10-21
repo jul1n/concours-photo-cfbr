@@ -4,6 +4,12 @@ date_default_timezone_set('Europe/Paris');
 
 $dbPath = __DIR__ . '/../data/concours.db';
 
+// Garde-fou : la base ne doit jamais être téléchargeable. Recrée la protection si elle manque.
+$dataHtaccess = dirname($dbPath) . '/.htaccess';
+if (!is_file($dataHtaccess)) {
+    @file_put_contents($dataHtaccess, "Require all denied\n");
+}
+
 try {
     $pdo = new PDO("sqlite:$dbPath");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

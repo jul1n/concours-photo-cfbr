@@ -10,7 +10,10 @@ $isUnlocked = is_admin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlock_password'])) {
     csrf_check();
-    if ($passwordHash !== '' && password_verify($_POST['unlock_password'], $passwordHash)) {
+    require_once __DIR__ . '/../core/ratelimit.php';
+    if (rate_limit_exceeded($pdo, [['admin_pw', client_ip(), 5, 900]])) {
+        $error = "Trop de tentatives. Merci de réessayer dans 15 minutes.";
+    } elseif ($passwordHash !== '' && password_verify($_POST['unlock_password'], $passwordHash)) {
         session_regenerate_id(true); // anti fixation de session
         $_SESSION['admin_unlocked'] = true;
         $isUnlocked = true;

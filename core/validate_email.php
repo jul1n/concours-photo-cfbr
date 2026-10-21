@@ -32,6 +32,11 @@ if (isset($_GET['token'])) {
         if (!is_dir($pdfDir)) {
             mkdir($pdfDir, 0755, true);
         }
+        // PDF nominatifs (nom, adresse, e-mail) : jamais servis directement, seulement via download_pdf.php.
+        $uploadsHtaccess = dirname($pdfDir) . '/.htaccess';
+        if (!is_file($uploadsHtaccess)) {
+            file_put_contents($uploadsHtaccess, "Require all denied\n");
+        }
 
         $pdfPath = get_participant_pdf_path($participant);
 

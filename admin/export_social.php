@@ -1,13 +1,10 @@
 <?php
 // admin/export_social.php
+require_once __DIR__ . '/../core/auth.php';
 require_once __DIR__ . '/../core/db.php';
-session_start();
 
-// Basic security check (admin or maintenance hub logic usually)
-// For now, mirroring existing export security or assuming accessed via Hub
-if (!isset($_SESSION['jury_logged_in']) && !isset($_SESSION['admin'])) {
-    // Note: Assuming a simple check or admin session
-}
+// Export contenant noms et comptes sociaux des participants : admin/maintenance uniquement.
+require_admin();
 
 try {
     // 1. Fetch promo photos

@@ -12,7 +12,24 @@ $loginError = '';
 
 // Traitement du formulaire de connexion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['maintenance_password'])) {
-    if ($maintHash !== '' && password_verify($_POST['maintenance_password'], $maintHash)) {
+    // Anti force brute : 5 essais / 15 min par IP (base ouverte ici car la connexion
+    // « robuste » de la maintenance n'est établie qu'après l'authentification).
+    require_once __DIR__ . '/../core/ratelimit.php';
+    $rlDb = __DIR__ . '/../data/concours.db';
+    $limited = false;
+    if (is_file($rlDb)) {
+        try {
+            $rlPdo = new PDO("sqlite:$rlDb");
+            $rlPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $limited = rate_limit_exceeded($rlPdo, [['maint_pw', client_ip(), 5, 900]]);
+        } catch (Throwable $e) {
+            error_log('[maintenance] ' . $e->getMessage());
+        }
+        $rlPdo = null;
+    }
+    if ($limited) {
+        $loginError = "Trop de tentatives. Merci de réessayer dans 15 minutes.";
+    } elseif ($maintHash !== '' && password_verify($_POST['maintenance_password'], $maintHash)) {
         session_regenerate_id(true); // anti fixation de session
         $_SESSION['maintenance_authed'] = true;
     } else {

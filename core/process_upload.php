@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Validation Taille (Backend)
             if ($fileSize > 25 * 1024 * 1024) {
-                die("Erreur : Le fichier $originalName dépasse la limite de 25 Mo.");
+                die("Erreur : Le fichier " . htmlspecialchars($originalName) . " dépasse la limite de 25 Mo.");
             }
 
             // Validation Image + type réel (ne pas se fier à l'extension fournie)
