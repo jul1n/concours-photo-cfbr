@@ -1,0 +1,13 @@
+# Apache + mod_php : équivalent de .user.ini (ignoré ailleurs, sans erreur 500 sous FPM)
+<IfModule mod_php.c>
+    php_flag session.upload_progress.enabled off
+    php_flag expose_php off
+</IfModule>
+
+# Fichiers qui n'ont jamais à être servis
+<FilesMatch "(^\.|\.(md|db|sqlite|csv|log|bak|sql|ini|example\.php)$)">
+    Require all denied
+</FilesMatch>
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>

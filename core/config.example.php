@@ -24,7 +24,12 @@ return [
 
     // Noms d'hôte autorisés à servir le site (ex. ['houss.in', 'concours.barrages-cfbr.eu']).
     // L'en-tête Host n'est utilisé pour construire les liens d'e-mail que s'il figure ici.
-    'allowed_hosts' => [],
+    'allowed_hosts' => [
+        'concours.barrages-cfbr.eu',
+        'concours-photo.barrages-cfbr.eu',
+        'www.concours-photo.barrages-cfbr.eu',
+        // 'houss.in',  // uniquement pour une préproduction
+    ],
 
     // Hash du mot de passe de maintenance (dashboard init/DB/jury).
     'maintenance_password_hash' => '$2y$10$REMPLACEZ_MOI_PAR_UN_VRAI_HASH_GENERE_LOCALEMENT',

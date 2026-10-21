@@ -11,7 +11,7 @@ L'application est conçue pour être légère et simple à déployer (PHP "Vanil
 ### 🖥️ Serveur
 - **OS** : Linux (recommandé) ou Windows Server.
 - **Serveur Web** : Apache ou Nginx.
-- **Langage** : **PHP 7.4 ou supérieur** (testé compatible PHP 8.x).
+- **Langage** : **PHP 8.2.35+, 8.3.36+, 8.4.27+ ou 8.5.12+** (versions corrigées de php2shell, CVE-2026-109618/109619 ; PHP 7.4/8.0/8.1 ne sont plus maintenus).
 - **Base de Données** : **SQLite 3** (Fichier local, pas de serveur SQL requis).
 
 ### 📦 Extensions PHP Requises
