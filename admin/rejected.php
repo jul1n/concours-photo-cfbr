@@ -1,17 +1,17 @@
 <?php
 // admin/rejected.php
-session_start();
+require_once __DIR__ . '/../core/auth.php'; // démarre la session + csrf_*()
 require_once __DIR__ . '/../core/db.php';
 
 // Security Check
-$isUnlocked = isset($_SESSION['admin_unlocked']) && $_SESSION['admin_unlocked'] === true;
-if (!$isUnlocked) {
+if (!is_admin()) {
     header("Location: results.php");
     exit;
 }
 
 // Handle restore
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_candidate_id'])) {
+    csrf_check();
     $candidateId = intval($_POST['restore_candidate_id']);
     // Put back to pending qualification
     $stmt = $pdo->prepare("UPDATE participants SET validation_status = 'pending' WHERE id = ?");
@@ -133,6 +133,7 @@ try {
                             <!-- Actions -->
                             <div class="p-3 bg-gray-50 flex justify-end">
                                 <form method="POST" onsubmit="return confirm('Voulez-vous ré-intégrer ce candidat dans la file de qualification ?')">
+                                    <?php csrf_field(); ?>
                                     <input type="hidden" name="restore_candidate_id" value="<?= $candidate['id'] ?>">
                                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-1.5 rounded transition shadow-sm flex items-center gap-1.5">
                                         <i class="fas fa-undo"></i> Ré-intégrer

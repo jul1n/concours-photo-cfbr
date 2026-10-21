@@ -1,12 +1,7 @@
 <?php
 // jury_tour1.php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-if (!isset($_SESSION['jury_logged_in']) || $_SESSION['jury_logged_in'] !== true) {
-    header("Location: login.php");
-    exit;
-}
+require_once __DIR__ . '/../core/auth.php'; // démarre la session + csrf_*()
+require_jury();
 
 require_once __DIR__ . '/../core/db.php';
 
@@ -151,7 +146,8 @@ try {
 
     // Handle Actions (POST)
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $candidateId = $_POST['candidate_id'];
+        csrf_check();
+        $candidateId = (int) $_POST['candidate_id'];
         $action = $_POST['action'];
         $juryId = 1;
 
@@ -274,7 +270,8 @@ try {
                     ?>
                     <form method="POST" id="candidate_<?= $candidate['id'] ?>"
                         class="bg-white rounded-lg shadow-xl overflow-hidden transform hover:scale-[1.01] transition duration-300 border border-gray-100 flex flex-col">
-                        <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
+                        <?php csrf_field(); ?>
+                        <input type="hidden" name="candidate_id" value="<?= (int) $candidate['id'] ?>">
                         <!-- Header Dossier -->
                         <div class="bg-[#0A2240] text-white p-4 flex justify-between items-center relative">
                             <div>

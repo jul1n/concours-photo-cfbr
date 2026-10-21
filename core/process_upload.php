@@ -48,12 +48,15 @@ ensureProtectedDir($uploadDirThumb, 'nophp');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    $firstname = htmlspecialchars($_POST['firstname']);
-    $lastname = htmlspecialchars($_POST['lastname']);
+    $firstname = htmlspecialchars(trim($_POST['firstname'] ?? ''));
+    $lastname = htmlspecialchars(trim($_POST['lastname'] ?? ''));
     // Fallback if needed but we should now always have separate fields
     $fullname = $firstname . ' ' . $lastname;
 
-    $email = htmlspecialchars($_POST['email']);
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
+    if ($email === false) {
+        die("Erreur : adresse e-mail invalide.");
+    }
     $address = htmlspecialchars($_POST['address'] ?? ''); // Added capture
     $signature = isset($_POST['signature']) ? 1 : 0;
 
@@ -163,6 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Détection Upscale (Ratio Poids/Pixels)
             $pixelCount = $width * $height;
+            if ($pixelCount > 100000000) { // > 100 Mpx : refus (décompression bomb / DoS mémoire GD)
+                continue;
+            }
             $ratio = ($pixelCount > 0) ? $fileSize / $pixelCount : 0;
 
             // Seuil arbitraire : Si < 0.15 octet/pixel pour une image "Haute Def" (>10MP), c'est louche

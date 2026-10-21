@@ -73,7 +73,7 @@ Voici l'arborescence clé et les permissions nécessaires :
 1.  **Copiez les sources** sur le serveur (en ignorant le dossier `_LOCAL_ONLY`).
 2.  Assurez-vous que le dossier `/data/` est inscriptible.
 3.  **Utilisez le Hub de Maintenance** pour tout configurer d'un coup :
-    `https://votre-site.fr/maintenance/index.php?token=cfbr_repair_2026`
+    `https://votre-site.fr/maintenance/index.php`
     *   **Diagnostic** : Vérifiez que tous les voyants sont au vert (PHP, extensions, permissions).
     *   **Initialisation Database** : Cliquez sur "Initialiser / Réparer" pour créer les tables.
     *   **Gestion du Jury** : Cliquez sur "Injecter le Jury Officiel" pour ajouter les 12 membres.
@@ -85,7 +85,7 @@ Voici l'arborescence clé et les permissions nécessaires :
 
 ### 🛠️ Maintenance & Diagnostic
 Le Hub de Maintenance centralise tous les outils techniques.
-- Accès : `/maintenance/index.php?token=cfbr_repair_2026`
+- Accès : `/maintenance/index.php (mot de passe défini par maintenance_password_hash)`
 - Fonctions : Initialisation DB, Réparation, Seeding Jury, Test Email/PDF, Santé PWA.
 
 ### 👥 Gestion du Jury

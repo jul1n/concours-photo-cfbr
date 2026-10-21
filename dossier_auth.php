@@ -8,7 +8,7 @@ $message_sent = false;
 $email_requested = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: '';
     $email_requested = $email;
 
     // Check if participant exists
@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$email]);
     $participant = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($participant) {
+    if ($email !== '' && $participant) {
         $token = $participant['validation_token'];
         $dossierLink = rtrim(app_config()['base_url'], '/') . "/dossier.php?token=" . urlencode($token);
 
@@ -80,14 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Vérifiez vos spams si besoin</p>
         </div>
 
-        <?php if ($participant && $_SERVER['HTTP_HOST'] === 'localhost:8000'): ?>
-            <div class="mt-8 p-4 bg-amber-50 rounded-lg text-left text-[10px] border border-amber-200 break-all font-mono">
-                <strong class="text-amber-800">DEBUG (Localhost) :</strong><br>
-                <a href="<?= $dossierLink ?>" class="text-blue-600 underline">
-                    <?= $dossierLink ?>
-                </a>
-            </div>
-        <?php endif; ?>
     </div>
 </body>
 

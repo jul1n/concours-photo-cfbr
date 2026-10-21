@@ -93,6 +93,7 @@ $updateStmt = $pdo->prepare("UPDATE jury_tokens SET used_at = ? WHERE id = ?");
 $updateStmt->execute([$now, $tokenData['id']]);
 
 // Login User
+session_regenerate_id(true); // anti fixation de session
 $_SESSION['jury_logged_in'] = true;
 $_SESSION['jury_id'] = $tokenData['jury_id'];
 $_SESSION['jury_name'] = $tokenData['name'];

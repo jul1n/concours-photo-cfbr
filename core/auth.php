@@ -11,8 +11,30 @@
  *   csrf_check();             // en tête du traitement POST
  */
 
+$__https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+
 if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => $__https,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     session_start();
+}
+
+// En-têtes de sécurité (les liens contenant ?token=… ne doivent jamais fuiter via Referer
+// vers les CDN tiers : Tailwind, Google Fonts, cdnjs).
+if (!headers_sent()) {
+    header('Referrer-Policy: no-referrer');
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+    if ($__https) {
+        header('Strict-Transport-Security: max-age=31536000');
+    }
 }
 
 /**
@@ -28,7 +50,14 @@ function app_config(): array
 
         // Detect current URL dynamically
         $detectedProtocol = (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] === 1) || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) ? 'https' : 'http';
-        $detectedHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        // L'en-tête Host est contrôlé par l'attaquant : on ne l'accepte que s'il figure dans
+        // 'allowed_hosts' (config.php) ou s'il s'agit de localhost. Sinon, repli sur base_url.
+        $requestHost  = strtolower($_SERVER['HTTP_HOST'] ?? 'localhost');
+        $allowedHosts = array_map('strtolower', $config['allowed_hosts'] ?? []);
+        $hostOnly     = preg_replace('/:\d+$/', '', $requestHost);
+        $hostTrusted  = in_array($requestHost, $allowedHosts, true)
+            || in_array($hostOnly, ['localhost', '127.0.0.1'], true);
+        $detectedHost = $hostTrusted ? $requestHost : null;
         
         $subDir = '';
         if (isset($_SERVER['SCRIPT_NAME'])) {
@@ -38,20 +67,24 @@ function app_config(): array
             $dir = rtrim($dir, '/\\');
             $subDir = $dir;
         }
-        $detectedUrl = $detectedProtocol . '://' . $detectedHost . $subDir;
+        $detectedUrl = $detectedHost !== null
+            ? $detectedProtocol . '://' . $detectedHost . $subDir
+            : null;
 
-        // If base_url is placeholder or has local/example values, and we have a valid request host, auto-detect it
-        if (!isset($config['base_url']) 
-            || $config['base_url'] === 'https://concours.barrages-cfbr.eu' 
-            || (strpos($config['base_url'], 'localhost') !== false && strpos($detectedHost, 'localhost') === false)) {
+        // base_url ne provient du Host que pour un hôte de confiance (voir ci-dessus).
+        if ($detectedUrl !== null
+            && (!isset($config['base_url'])
+                || $config['base_url'] === 'https://concours.barrages-cfbr.eu'
+                || strpos($config['base_url'], 'localhost') !== false)) {
             $config['base_url'] = $detectedUrl;
         }
 
         $config += [
-            'base_url'                  => $detectedUrl,
+            'base_url'                  => $detectedUrl ?? 'https://concours.barrages-cfbr.eu',
             'mail_from'                 => 'no-reply@barrages-cfbr.eu',
             'admin_password_hash'       => '',
             'maintenance_password_hash' => '',
+            'allowed_hosts'             => [],
             'jury_token_ttl'            => 3600,
             'debug'                     => false,
         ];

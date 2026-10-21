@@ -11,6 +11,7 @@ $isUnlocked = is_admin();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlock_password'])) {
     csrf_check();
     if ($passwordHash !== '' && password_verify($_POST['unlock_password'], $passwordHash)) {
+        session_regenerate_id(true); // anti fixation de session
         $_SESSION['admin_unlocked'] = true;
         $isUnlocked = true;
     } else {

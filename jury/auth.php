@@ -4,7 +4,7 @@ require_once __DIR__ . '/../core/auth.php'; // fournit app_config() + démarre l
 require __DIR__ . '/../core/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: '';
     $ip = $_SERVER['REMOTE_ADDR'];
     $timestamp = date('Y-m-d H:i:s');
 
@@ -105,15 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             instants.</p>
         <a href="../index.php" class="text-[#FF9900] font-bold hover:underline">Retour à l'accueil</a>
 
-        <?php if ($jury && $_SERVER['HTTP_HOST'] === 'localhost:8000'): ?>
-            <!-- DEBUG ONLY: Show link locally because creating mail server is hard -->
-            <div class="mt-8 p-4 bg-yellow-100 text-left text-xs break-all">
-                <strong>DEBUG (Localhost only):</strong><br>
-                <a href="<?php echo $loginLink; ?>">
-                    <?php echo $loginLink; ?>
-                </a>
-            </div>
-        <?php endif; ?>
     </div>
 </body>
 

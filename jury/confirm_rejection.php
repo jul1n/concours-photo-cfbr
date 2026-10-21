@@ -1,8 +1,7 @@
 <?php
 // jury_confirm_rejection.php
-session_start();
-// Basic Auth Check
-// if (!isset($_SESSION['jury_logged_in'])) { header("Location: jury_login.php"); exit; }
+require_once __DIR__ . '/../core/auth.php'; // démarre la session
+require_jury();
 
 require_once __DIR__ . '/../core/db.php';
 
@@ -43,7 +42,8 @@ try {
 
     // Handle Actions (POST)
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $candidateId = $_POST['candidate_id'];
+        csrf_check();
+        $candidateId = (int) $_POST['candidate_id'];
         $action = $_POST['action'];
 
         if ($action === 'confirm_reject') {
@@ -148,6 +148,7 @@ try {
                         <!-- Actions -->
                         <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-between space-x-2">
                             <form method="POST" class="w-1/2">
+                                <?php csrf_field(); ?>
                                 <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
                                 <input type="hidden" name="action" value="confirm_reject">
                                 <button type="submit"
@@ -158,6 +159,7 @@ try {
                             </form>
 
                             <form method="POST" class="w-1/2">
+                                <?php csrf_field(); ?>
                                 <input type="hidden" name="candidate_id" value="<?= $candidate['id'] ?>">
                                 <input type="hidden" name="action" value="revoke">
                                 <button type="submit"

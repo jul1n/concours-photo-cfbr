@@ -20,7 +20,11 @@ return [
 
     // Hash bcrypt/argon2 du mot de passe d'administration (résultats/exports).
     // Remplacer par le hash généré avec password_hash().
-    'admin_password_hash' => '$2y$10$NWdE3Peut7Ke7IfXKArqKeHxJIv8EZB5HdSI96raB29D7qcKh7Bu2',
+    'admin_password_hash' => '$2y$10$REMPLACEZ_MOI_PAR_UN_VRAI_HASH_GENERE_LOCALEMENT',
+
+    // Noms d'hôte autorisés à servir le site (ex. ['houss.in', 'concours.barrages-cfbr.eu']).
+    // L'en-tête Host n'est utilisé pour construire les liens d'e-mail que s'il figure ici.
+    'allowed_hosts' => [],
 
     // Hash du mot de passe de maintenance (dashboard init/DB/jury).
     'maintenance_password_hash' => '$2y$10$REMPLACEZ_MOI_PAR_UN_VRAI_HASH_GENERE_LOCALEMENT',
