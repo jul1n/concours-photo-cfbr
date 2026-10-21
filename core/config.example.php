@@ -34,6 +34,12 @@ return [
     // Hash du mot de passe de maintenance (dashboard init/DB/jury).
     'maintenance_password_hash' => '$2y$10$REMPLACEZ_MOI_PAR_UN_VRAI_HASH_GENERE_LOCALEMENT',
 
+    // En-tête portant l'IP réelle derrière un proxy/CDN (ex. 'HTTP_X_FORWARDED_FOR', 'HTTP_CF_CONNECTING_IP').
+    // Laisser vide si le site est joignable directement : sinon l'IP vient de REMOTE_ADDR.
+    // Si tous les visiteurs apparaissent avec la même IP (proxy de l'hébergeur), renseigner cet en-tête,
+    // faute de quoi la limite par IP s'appliquerait à tout le monde à la fois.
+    'trusted_proxy_header' => '',
+
     // Durée de validité d'un lien de connexion jury (en secondes). 3600 = 1h.
     'jury_token_ttl' => 3600,
 

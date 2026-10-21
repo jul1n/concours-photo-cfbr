@@ -2,8 +2,18 @@
 // jury_process_login.php
 require_once __DIR__ . '/../core/auth.php'; // fournit app_config() + démarre la session
 require __DIR__ . '/../core/db.php';
+require_once __DIR__ . '/../core/ratelimit.php';
 
+$juryLimited = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $juryLimited = rate_limit_exceeded($pdo, [
+        ['jury_ip', client_ip(), 5, 900],
+        ['jury_mail', trim($_POST['email'] ?? '') ?: client_ip(), 3, 900],
+    ]);
+}
+
+// Quand la limite est atteinte : même page de réponse, aucun traitement (ni log, ni jeton, ni mail).
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$juryLimited) {
     $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: '';
     $ip = $_SERVER['REMOTE_ADDR'];
     $timestamp = date('Y-m-d H:i:s');

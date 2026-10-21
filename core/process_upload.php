@@ -7,6 +7,7 @@ ini_set('memory_limit', '512M');
 
 require_once __DIR__ . '/auth.php'; // app_config()
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/ratelimit.php';
 
 // Chemins
 $uploadDirOriginal = __DIR__ . '/../photos/originals/';
@@ -48,6 +49,10 @@ ensureProtectedDir($uploadDirThumb, 'nophp');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
+    // Anti-abus (saturation disque/CPU, envoi massif de mails de validation)
+    if (rate_limit_exceeded($pdo, [['upload_ip', client_ip(), 10, 3600]])) {
+        rate_limit_block('Trop de dépôts depuis cette adresse. Merci de réessayer dans une heure.', 3600);
+    }
     $firstname = htmlspecialchars(trim($_POST['firstname'] ?? ''));
     $lastname = htmlspecialchars(trim($_POST['lastname'] ?? ''));
     // Fallback if needed but we should now always have separate fields
@@ -56,6 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
     if ($email === false) {
         die("Erreur : adresse e-mail invalide.");
+    }
+    if (rate_limit_exceeded($pdo, [['upload_mail', $email, 3, 86400]])) {
+        rate_limit_block('Trop de dépôts avec cette adresse e-mail. Merci de réessayer demain.', 86400);
     }
     $address = htmlspecialchars($_POST['address'] ?? ''); // Added capture
     $signature = isset($_POST['signature']) ? 1 : 0;

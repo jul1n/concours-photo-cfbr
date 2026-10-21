@@ -2,6 +2,7 @@
 // dossier_auth.php
 require_once __DIR__ . '/core/auth.php'; // app_config() + session
 require_once __DIR__ . '/core/db.php';
+require_once __DIR__ . '/core/ratelimit.php';
 require_once __DIR__ . '/includes/analytics.php';
 
 $message_sent = false;
@@ -11,12 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: '';
     $email_requested = $email;
 
+    // Limite IP + e-mail. Quand elle est atteinte, on affiche la même page de confirmation
+    // sans rien envoyer (ni statut différent) : pas de saturation de boîtes, pas d'énumération.
+    $limited = rate_limit_exceeded($pdo, [
+        ['dossier_ip', client_ip(), 5, 900],
+        ['dossier_mail', $email !== '' ? $email : client_ip(), 3, 3600],
+    ]);
+
     // Check if participant exists
     $stmt = $pdo->prepare("SELECT firstname, validation_token FROM participants WHERE email = ? AND is_verified = 1 LIMIT 1");
     $stmt->execute([$email]);
     $participant = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($email !== '' && $participant) {
+    if (!$limited && $email !== '' && $participant) {
         $token = $participant['validation_token'];
         $dossierLink = rtrim(app_config()['base_url'], '/') . "/dossier.php?token=" . urlencode($token);
 
