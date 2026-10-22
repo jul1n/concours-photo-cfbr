@@ -49,7 +49,8 @@ function checkCSRF()
 }
 
 // 2. Load DB Connection (Robust way for maintenance)
-$dbPath = __DIR__ . '/../data/concours.db';
+require_once __DIR__ . '/../core/paths.php';
+$dbPath = db_file();
 $dbStatus = "Non connecté";
 $pdo = null;
 
@@ -629,7 +630,7 @@ if (isset($_POST['action'])) {
                 'core/process_upload.php' => $root . '/core/process_upload.php',
                 'includes/analytics.php' => $root . '/includes/analytics.php',
                 'includes/pwa_loader.php' => $root . '/includes/pwa_loader.php',
-                'data/concours.db' => $root . '/data/concours.db',
+                'data/concours.db' => db_file(),
                 'assets/logo_cfbr_100_ans.png' => $root . '/assets/logo_cfbr_100_ans.png',
                 'fpdf/fpdf.php' => $root . '/fpdf/fpdf.php'
             ];

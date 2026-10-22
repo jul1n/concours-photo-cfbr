@@ -6,7 +6,7 @@ require_once __DIR__ . '/../core/db.php';
 
 session_write_close();
 
-$dbFile = __DIR__ . '/../data/concours.db';
+$dbFile = db_file();
 $pdfDir = __DIR__ . '/../uploads/pdfs/';
 $photoDir = __DIR__ . '/../photos/originals/';
 

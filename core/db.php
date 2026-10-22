@@ -2,7 +2,16 @@
 // db.php — Connexion PDO SQLite + réglages de performance.
 date_default_timezone_set('Europe/Paris');
 
-$dbPath = __DIR__ . '/../data/concours.db';
+require_once __DIR__ . '/paths.php';
+$dbPath = db_file();
+
+// Ne jamais créer une base vide par erreur (dossier déplacé, 'data_dir' mal renseigné…) :
+// l'initialisation se fait uniquement depuis l'espace maintenance.
+if (!is_file($dbPath)) {
+    error_log('[DB] base introuvable : ' . $dbPath);
+    http_response_code(503);
+    die('Le service est momentanément indisponible. Merci de réessayer plus tard.');
+}
 
 try {
     $pdo = new PDO("sqlite:$dbPath");

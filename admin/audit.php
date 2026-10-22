@@ -7,7 +7,7 @@ require __DIR__ . '/../core/db.php';
 // ADMIN ACCESS - This page contains sensitive data (IPs, emails)
 // TODO: Add authentication layer before production deployment
 
-$logFile = __DIR__ . '/data/login_requests.csv';
+$logFile = jury_log_file();
 
 // Read CSV
 $csvData = [];

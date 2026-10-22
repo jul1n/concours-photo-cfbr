@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $timestamp = date('Y-m-d H:i:s');
 
     // 1. Log the solicitation to CSV
-    $logFile = __DIR__ . '/data/login_requests.csv';
+    $logFile = jury_log_file();
     $logEntry = [$timestamp, $ip, $email];
 
     if (!file_exists($logFile)) {
